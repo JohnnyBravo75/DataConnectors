@@ -113,7 +113,7 @@ namespace DataConnectors.Adapter.DbAdapter
                 param.DbType = this.MapToDbType(column.DataType);
                 param.ParameterName = column.ColumnName;
                 param.SourceColumn = column.ColumnName;
-                cmd.Parameters.Add(cmd.CreateParameter());
+                cmd.Parameters.Add(param);
             }
 
             var where = "";
@@ -131,7 +131,7 @@ namespace DataConnectors.Adapter.DbAdapter
                 param.DbType = this.MapToDbType(column.DataType);
                 param.ParameterName = column.ColumnName;
                 param.SourceColumn = column.ColumnName;
-                cmd.Parameters.Add(cmd.CreateParameter());
+                cmd.Parameters.Add(param);
                 i++;
             }
 
