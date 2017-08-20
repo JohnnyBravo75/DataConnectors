@@ -184,110 +184,6 @@ namespace DataConnectors.Formatters
             return table;
         }
 
-        /// <summary>
-        /// Splits a line by an given separator (recognizes quoting,...)
-        /// </summary>
-        /// <param name="line">The line.</param>
-        /// <param name="separator">The separator.</param>
-        /// <param name="enclosure">The enclosure.</param>
-        /// <returns>
-        /// the array of fields
-        /// </returns>
-        private List<string> SplitLine_Old(string line, char separator, string enclosure)
-        {
-            var fieldArray = new List<string>();
-            var field = new StringBuilder();
-            Quotestatus status = Quotestatus.None;
-            char lastChar = char.MinValue;
-            char? quoteChar = null;
-
-            if (!string.IsNullOrEmpty(enclosure))
-            {
-                quoteChar = enclosure[0];
-            }
-
-            bool hasQuoteChar = quoteChar.HasValue;
-            string charTypes = "";
-
-            int pos = 0;
-            foreach (char currentChar in line)
-            {
-                string charType = "char";
-
-                if (currentChar == separator)
-                {
-                    if (status == Quotestatus.Firstquote && hasQuoteChar)
-                    {
-                        charType = "char";
-                    }
-                    else
-                    {
-                        charType = "separator";
-                    }
-                }
-
-                if (currentChar == quoteChar && hasQuoteChar)
-                {
-                    charType = "char";
-
-                    if (status == Quotestatus.Firstquote)
-                    {
-                        charType = "quotes";
-                        status = Quotestatus.Secondquote;
-                    }
-
-                    if (lastChar == separator || lastChar == char.MinValue)
-                    {
-                        if (status == Quotestatus.None)
-                        {
-                            status = Quotestatus.Firstquote;
-                        }
-
-                        charType = "quotes";
-                    }
-                }
-
-                charTypes += (status == Quotestatus.Firstquote)
-                                            ? charType[0].ToString().ToUpper()
-                                            : charType[0].ToString();
-
-                switch (charType)
-                {
-                    case "char":
-                        field.Append(currentChar);
-                        break;
-
-                    case "separator":
-                        fieldArray.Add(field.ToString());
-                        field.Clear();
-                        break;
-
-                    case "quotes":
-                        if (status == Quotestatus.Firstquote)
-                        {
-                            field.Clear();
-                        }
-
-                        if (status == Quotestatus.Secondquote)
-                        {
-                            status = Quotestatus.None;
-                        }
-
-                        break;
-                }
-
-                lastChar = currentChar;
-                pos++;
-            }
-
-            if (field.Length != 0)
-            {
-                fieldArray.Add(field.ToString());
-            }
-
-            return fieldArray;
-        }
-
         private List<string> SplitLine(string line, char separator, string enclosure)
         {
             var fieldArray = new List<string>();
@@ -300,10 +196,8 @@ namespace DataConnectors.Formatters
                 quoteChar = enclosure[0];
             }
 
-            string charTypes = "";
             bool isQuotingActive = false;
 
-            int pos = 0;
             foreach (char currentChar in line)
             {
                 string charType = "char";
@@ -337,10 +231,6 @@ namespace DataConnectors.Formatters
                     }
                 }
 
-                charTypes += (isQuotingActive)
-                                    ? charType[0].ToString().ToUpper()
-                                    : charType[0].ToString();
-
                 switch (charType)
                 {
                     case "char":
@@ -358,7 +248,6 @@ namespace DataConnectors.Formatters
                 }
 
                 lastChar = currentChar;
-                pos++;
             }
 
             if (field.Length != 0)
@@ -367,13 +256,6 @@ namespace DataConnectors.Formatters
             }
 
             return fieldArray;
-        }
-
-        private enum Quotestatus
-        {
-            None,
-            Firstquote,
-            Secondquote
         }
 
         private void AutoDetectSettings(IEnumerable<string> lines)
