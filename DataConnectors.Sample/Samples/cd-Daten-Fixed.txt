@@ -1,0 +1,97 @@
+pk                              Genre                           Track01                         
+1818                            Data                                                            
+1823                                                                                            
+1828                            Other                                                           
+1838                            Rap                                                             
+1858                                                                                            
+1866                            CCM (Contemporary Christian Musi                                
+1884                            R&B                                                             
+2004                            Folk                                                            
+2026                            Indie                                                           
+2110                            Folk                                                            
+2139                            Folk/Rock                                                       
+2187                            Folk                                                            
+2188                                                                                            
+2252                            Russian Pop                                                     
+2317                            Folk                                                            
+2366                            Folk-Rock                                                       
+2367                            Folk-Rock                                                       
+2406                            pop                                                             
+2418                            Pop                                                             
+2427                            Pop-Folk                                                        
+2440                            Pop                                                             
+2530                            Gospel                                                          
+2571                            Latin                                                           
+2577                            Celtic                                                          
+2581                            Folk                                                            
+2619                            Folk-Rock                                                       
+2707                            Metal                                                           
+2771                            Jazz                                                            
+2781                            Latin                                                           
+2807                            Jazz                                                            
+2813                                                                                            
+2819                            Jazz                                                            
+2823                                                                                            
+2890                            jazz                                                            
+2891                                                                                            
+2950                            Ballad                                                          
+2957                            Jazz                                                            
+3086                            Other                                                           
+3096                                                                                            
+3106                            Jazz                                                            
+3123                                                                                            
+3125                                                                                            
+3134                            Heavy Metal                                                     
+3155                            Acid Jazz                                                       
+3159                            Jazz                                                            
+3185                                                                                            
+3192                            Pop                                                             
+3215                            Oldies                                                          
+3222                                                                                            
+3296                            Easy Listening                                                  
+3356                            Dance                                                           
+3383                            Canci? de autor                                                 
+3395                                                                                            
+3475                                                                                            
+3517                                                                                            
+3529                            Pop                                                             
+3539                            Other                                                           
+3670                            Grunge                                                          
+3678                            Rhythmic Soul                                                   
+3710                                                                                            
+3722                            Other                                                           
+3757                            Electronic                                                      
+3792                                                                                            
+3793                            Dance                                                           
+3851                                                                                            
+3931                                                                                            
+3976                                                                                            
+3990                            Classical                                                       
+4108                            Other                                                           
+4114                            Pop                                                             
+4124                            Pop g??al                                                       
+4140                                                                                            
+4145                            Rap                                                             
+4178                            JPop                                                            
+4179                            Pop                                                             
+4184                                                                                            
+4190                            Rock                                                            
+4266                            Rhythmic Soul                                                   
+4271                            Swing                                                           
+4282                            Pop                                                             
+4291                            Popular                                                         
+4292                            Hip-Hop                                                         
+4297                            Rock                                                            
+4306                            Rock/Pop                                                        
+4348                            Rock                                                            
+4358                            Hip-Hop                                                         
+4384                                                                                            
+4395                            Ballad                                                          
+4419                            Rock                                                            
+4441                            Grunge                                                          
+4451                                                                                            
+4481                            Other                                                           
+4490                            Jazz                                                            
+4508                            Pop                                                             
+4520                            Misc                                                            
+4563                            Electronic                                                      

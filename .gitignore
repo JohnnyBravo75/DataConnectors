@@ -1,0 +1,8 @@
+/.vs/DataConnectors/v14/*.suo
+/DataConnectors/bin/Debug
+/DataConnectors.Sample/bin/Debug
+/DataConnectors.Sample/obj/Debug
+/DataConnectors/.vs/DataConnectors/v14/*.suo
+/DataConnectors/obj/Debug
+/DataConnectors.Test/bin/Debug
+/DataConnectors.Test/obj/Debug
