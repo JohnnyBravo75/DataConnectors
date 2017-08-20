@@ -1,0 +1,80 @@
+﻿using System.Collections.Generic;
+using System.Data;
+using System.Text;
+using DataConnectors.Formatters;
+
+namespace DataConnectors.Adapter.FileAdapter
+{
+    public class CsvAdapter : DataAdapterBase
+    {
+        private readonly FlatFileAdapter fileAdapter = new FlatFileAdapter();
+
+        public CsvAdapter()
+        {
+            this.fileAdapter.ReadFormatter = new CsvToDataTableFormatter() { Separator = ";" };
+            this.fileAdapter.WriteFormatter = new DataTableToCsvFormatter() { Separator = ";" };
+        }
+
+        public Encoding Encoding
+        {
+            get
+            {
+                return this.fileAdapter.Encoding;
+            }
+
+            set
+            {
+                this.fileAdapter.Encoding = value;
+            }
+        }
+
+        public string FileName
+        {
+            get
+            {
+                return this.fileAdapter.FileName;
+            }
+
+            set
+            {
+                this.fileAdapter.FileName = value;
+            }
+        }
+
+        public string Separator
+        {
+            get
+            {
+                return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Separator;
+            }
+            set
+            {
+                (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Separator = value;
+                (this.fileAdapter.WriteFormatter as DataTableToCsvFormatter).Separator = value;
+            }
+        }
+
+        public string Enclosure
+        {
+            get
+            {
+                return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Enclosure;
+            }
+            set
+            {
+                (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Enclosure = value;
+                (this.fileAdapter.WriteFormatter as DataTableToCsvFormatter).Enclosure = value;
+            }
+        }
+
+        public override IEnumerable<DataTable> ReadData(int? blockSize = null)
+        {
+            return this.fileAdapter.ReadData(blockSize);
+        }
+
+        public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
+        {
+            return this.fileAdapter.WriteData(tables, deleteBefore);
+        }
+    }
+}

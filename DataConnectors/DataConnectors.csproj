@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C09482A5-39F3-40D7-8A6C-730D28A77F27}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DataConnectors</RootNamespace>
+    <AssemblyName>DataConnectors</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EPPlus, Version=3.0.0.2, Culture=neutral, PublicKeyToken=ea159fdaa78159a1, processorArchitecture=MSIL">
+      <HintPath>..\packages\EPPlus.3.0.0.2\lib\net20\EPPlus.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="NPOI">
+      <HintPath>Reference\Excel\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="XPathReader">
+      <HintPath>Reference\XPathReader.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Adapter\ConnectionInfoBase.cs" />
+    <Compile Include="Adapter\DbAdapter\AccessAdapter.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\Access2007ConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\AccessConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\DBaseConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\DbConnectionInfoBase.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\MySqlConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\OracleConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\PostgreSqlConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\SqLiteConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\SqlServerConnectionInfo.cs" />
+    <Compile Include="Adapter\DbAdapter\DbAdapter.cs" />
+    <Compile Include="Adapter\DbAdapter\IDbAdapter.cs" />
+    <Compile Include="Common\Extensions\ConvertExtensions.cs" />
+    <Compile Include="Common\Extensions\DataTableExtensions.cs" />
+    <Compile Include="Common\Extensions\DateTimeExtensions.cs" />
+    <Compile Include="Common\Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Common\Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Common\Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Common\Extensions\StreamExtensions.cs" />
+    <Compile Include="Common\Extensions\StringExtensions.cs" />
+    <Compile Include="Common\Extensions\XExtensions.cs" />
+    <Compile Include="Common\Extensions\XmlNodeExtensions.cs" />
+    <Compile Include="Common\Extensions\XmlReaderExtensions.cs" />
+    <Compile Include="Adapter\FileAdapter\ConnectionInfos\ExcelConnectionInfo.cs" />
+    <Compile Include="Adapter\FileAdapter\ConnectionInfos\FileConnectionInfoBase.cs" />
+    <Compile Include="Adapter\FileAdapter\ConnectionInfos\FlatFileConnectionInfo.cs" />
+    <Compile Include="Adapter\DataAdapterBase.cs" />
+    <Compile Include="Adapter\FileAdapter\FixedTextAdapter.cs" />
+    <Compile Include="Adapter\FileAdapter\CsvAdapter.cs" />
+    <Compile Include="Adapter\FileAdapter\Excel2007NativeAdapter.cs" />
+    <Compile Include="Adapter\FileAdapter\ExcelNativeAdapter.cs" />
+    <Compile Include="Adapter\FileAdapter\FlatFileAdapter.cs" />
+    <Compile Include="Adapter\FileAdapter\XmlAdapter.cs" />
+    <Compile Include="Adapter\FileAdapter\XPathAdapter.cs" />
+    <Compile Include="Formatters\CsvToDataTableFormatter.cs" />
+    <Compile Include="Formatters\DataTableToCsvFormatter.cs" />
+    <Compile Include="Formatters\DataTableToCustomPatternFormatter.cs" />
+    <Compile Include="Formatters\DataTableToFixedLengthFormatter.cs" />
+    <Compile Include="Formatters\DataTableToHtmlFormatter.cs" />
+    <Compile Include="Formatters\DataTableToJsonFormatter.cs" />
+    <Compile Include="Formatters\DataTableToSimpleXmlFormatter.cs" />
+    <Compile Include="Formatters\DataTableToTemplateFormatter.cs" />
+    <Compile Include="Formatters\DataTableToXPathFormatter.cs" />
+    <Compile Include="Formatters\DefaultFormatter.cs" />
+    <Compile Include="Formatters\EventLogToDataTableFormatter.cs" />
+    <Compile Include="Formatters\FixedLengthToDataTableFormatter.cs" />
+    <Compile Include="Formatters\FlatFileToDataTableFormatter.cs" />
+    <Compile Include="Formatters\FormatterBase.cs" />
+    <Compile Include="Formatters\JsonToDataTableFormatter.cs" />
+    <Compile Include="Formatters\Model\FormatterOption.cs" />
+    <Compile Include="Formatters\Model\FormatterOptions.cs" />
+    <Compile Include="Formatters\Model\IHasXmlNameSpaces.cs" />
+    <Compile Include="Formatters\Model\XmlNameSpace.cs" />
+    <Compile Include="Formatters\Model\XPathMapping.cs" />
+    <Compile Include="Formatters\Model\XPathMappingList.cs" />
+    <Compile Include="Formatters\RegExToDataTableFormatter.cs" />
+    <Compile Include="Formatters\XmlToDataSetFormatter.cs" />
+    <Compile Include="Formatters\XmlToDataTableFormatter.cs" />
+    <Compile Include="Formatters\XPathToDataTableFormatter.cs" />
+    <Compile Include="Formatters\XslToDataTableFormatter.cs" />
+    <Compile Include="Common\Helper\BulkObservableCollection.cs" />
+    <Compile Include="Common\Helper\CookieAwareWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Common\Helper\CryptoUtil.cs" />
+    <Compile Include="Common\Helper\DataProtectionUtil.cs" />
+    <Compile Include="Common\Helper\DataTableHelper.cs" />
+    <Compile Include="Common\Helper\DirectoryUtil.cs" />
+    <Compile Include="Common\Helper\EncodingUtil.cs" />
+    <Compile Include="Common\Helper\EncryptionHelper.cs" />
+    <Compile Include="Common\Helper\FileUtil.cs" />
+    <Compile Include="Common\Helper\GenericFactory.cs" />
+    <Compile Include="Common\Helper\ItemObservableCollection.cs" />
+    <Compile Include="Common\Helper\KnownTypesProvider.cs" />
+    <Compile Include="Common\Helper\ReflectionUtil.cs" />
+    <Compile Include="Common\Helper\StringUtil.cs" />
+    <Compile Include="Common\Helper\XMLHelper.cs" />
+    <Compile Include="Common\Helper\XmlSerializerHelper.cs" />
+    <Compile Include="Common\Helper\XPathUtil.cs" />
+    <Compile Include="Adapter\IDataAdapterBase.cs" />
+    <Compile Include="Common\Model\Field.cs" />
+    <Compile Include="Common\Model\FieldDefinition.cs" />
+    <Compile Include="Common\Model\FieldDefinitionList.cs" />
+    <Compile Include="Common\Model\Parameter.cs" />
+    <Compile Include="Common\NotifyPropertyChangedBase.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Common\TokenProcessor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="ADOX">
+      <Guid>{00000600-0000-0010-8000-00AA006D2EA4}</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>8</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

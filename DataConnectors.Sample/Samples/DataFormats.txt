@@ -1,0 +1,6 @@
+BoolColumn; NumberColumn; FloatColumn; DateColumn; DatetimeColumn; StringColumn
+ 1; 12222; 1.222; 01.07.2017; 01.07.2018 12:34:21; "Haz;o1"
+ True; 0; 1,344; 01/07/2017; 01.07.2018 12:34:21; Har"ro2
+Yes; 2323; 1.222,99; 01-07-2017; 01.07.2018 12:34:21; "Ha\"\";;tto3"
+; ; ; ; ; 
+
