@@ -53,6 +53,7 @@ namespace DataConnectors.Formatters
 
                     if (table == null)
                     {
+                        // header
                         string columnName = this.FormatterOptions.GetValue<string>("ColumnName") ?? "Data";
                         values.Add(columnName);
 
@@ -61,6 +62,7 @@ namespace DataConnectors.Formatters
                     }
                     else
                     {
+                        // data
                         values.Add(line);
                         DataTableHelper.AddTableRow(table, values);
                     }

@@ -4,7 +4,7 @@ namespace DataConnectors.Common.Model
 {
     public class Field : NotifyPropertyChangedBase
     {
-        private Type dataType = typeof(String);
+        private Type dataType = typeof(string);
         private int length = -1;
         private string name = string.Empty;
         private string formatMask = "";
