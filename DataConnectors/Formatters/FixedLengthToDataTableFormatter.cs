@@ -60,15 +60,58 @@ namespace DataConnectors.Formatters
 
                 if (table == null)
                 {
+                    // header
                     table = new DataTable();
-                    DataTableHelper.CreateTableColumns(table, values, isHeader);
+
+                    if (!this.ValidateHeader(values))
+                    {
+                        throw new Exception(string.Format("Fielddefinitions do not match. Data={0}", line));
+                    }
+                    else
+                    {
+                        if (this.FieldDefinitions.Any())
+                        {
+                            DataTableHelper.CreateTableColumns(table, this.FieldDefinitions.TableFields, isHeader);
+                        }
+                        else
+                        {
+                            DataTableHelper.CreateTableColumns(table, values, isHeader);
+                        }
+                    }
                 }
                 else
                 {
+                    // data
                     DataTableHelper.AddTableRow(table, values);
                 }
             }
             return table;
+        }
+
+        /// <summary>
+        /// Validates the header, when FieldDefinitions exist
+        /// </summary>
+        /// <param name="headers">The header fields.</param>
+        /// <returns></returns>
+        private bool ValidateHeader(List<string> headers)
+        {
+            if (this.FieldDefinitions.Any())
+            {
+                int i = 0;
+                foreach (var fieldDef in this.FieldDefinitions)
+                {
+                    if (fieldDef.DataSourceField.Name.ToUpper() != headers[i].ToUpper())
+                    {
+                        return false;
+                    }
+
+                    i++;
+                }
+
+                return true;
+            }
+
+            return true;
         }
 
         /// <summary>

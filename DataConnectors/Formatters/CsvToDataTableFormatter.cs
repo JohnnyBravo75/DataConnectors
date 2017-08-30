@@ -157,6 +157,7 @@ namespace DataConnectors.Formatters
 
                 if (table == null)
                 {
+                    // header
                     table = new DataTable();
 
                     if (!this.ValidateHeader(values))
@@ -165,11 +166,19 @@ namespace DataConnectors.Formatters
                     }
                     else
                     {
-                        DataTableHelper.CreateTableColumns(table, values, isHeader);
+                        if (this.FieldDefinitions.Any())
+                        {
+                            DataTableHelper.CreateTableColumns(table, this.FieldDefinitions.TableFields, isHeader);
+                        }
+                        else
+                        {
+                            DataTableHelper.CreateTableColumns(table, values, isHeader);
+                        }
                     }
                 }
                 else
                 {
+                    // data
                     if (this.IsValidationActive && !this.ValidateData(values, table.Columns))
                     {
                         this.ErrorData.Add(line);

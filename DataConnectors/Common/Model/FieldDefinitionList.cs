@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
@@ -160,6 +161,16 @@ namespace DataConnectors.Common.Model
         public string GetSourceField(string tableField)
         {
             return this.First(x => x.TableField.Name == tableField).DataSourceField.Name;
+        }
+
+        public IList<Field> SourceFields
+        {
+            get { return this.Items.Select(fieldDef => fieldDef.DataSourceField).ToList(); }
+        }
+
+        public IList<Field> TableFields
+        {
+            get { return this.Items.Select(fieldDef => fieldDef.TableField).ToList(); }
         }
     }
 }
