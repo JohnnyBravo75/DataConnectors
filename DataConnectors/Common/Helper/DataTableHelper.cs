@@ -3,33 +3,41 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using DataConnectors.Common.Extensions;
+using DataConnectors.Common.Model;
 
 namespace DataConnectors.Common.Helper
 {
     public static class DataTableHelper
     {
-        public static void CreateTableColumns(DataTable table, IList<string> values, bool isHeader)
+        public static void CreateTableColumns(DataTable table, IList<Field> fields, bool isHeader)
         {
-            for (int i = 0; i < values.Count; i++)
+            for (int i = 0; i < fields.Count; i++)
             {
                 // default column name, when file has no header line
                 string columnName = string.Format("Column{0}", (i + 1));
 
-                if (isHeader && !string.IsNullOrEmpty(values[i]))
+                if (isHeader && !string.IsNullOrEmpty(fields[i].Name))
                 {
-                    columnName = values[i].Truncate(254);
+                    columnName = fields[i].Name.Truncate(254);
                 }
 
                 // add column, when not exists
                 if (!string.IsNullOrEmpty(columnName) && !table.Columns.Contains(columnName))
                 {
-                    table.Columns.Add(new DataColumn(columnName, typeof(string)));
+                    table.Columns.Add(new DataColumn(columnName, fields[i].Datatype));
                 }
             }
+        }
+
+        public static void CreateTableColumns(DataTable table, IList<string> columnNames, bool isHeader)
+        {
+            var fields = columnNames.Select(columnName => new Field(columnName)).ToList();
+            CreateTableColumns(table, fields, isHeader);
         }
 
         public static void AddTableRow(DataTable table, IList<string> values)
@@ -117,7 +125,7 @@ namespace DataConnectors.Common.Helper
             return ConvertToList<T>(rows);
         }
 
-        public static T CreateObject<T>(DataRow row)
+        public static T CreateObject<T>(DataRow row, CultureInfo culture = null)
         {
             T obj = default(T);
             if (row != null)
@@ -172,30 +180,7 @@ namespace DataConnectors.Common.Helper
                             }
                             else
                             {
-                                object tgtValue = null;
-
-                                if ((property.PropertyType == typeof(bool) || property.PropertyType == typeof(bool?)) && value is string)
-                                {
-                                    // Special handling for Boolean
-                                    string strValue = (value as string).Trim().ToLower();
-                                    if (strValue == "1" || strValue == "true" || strValue == "yes" || strValue == "y")
-                                    {
-                                        tgtValue = true;
-                                    }
-                                    else
-                                    {
-                                        tgtValue = false;
-                                    }
-                                }
-                                else if (property.PropertyType != typeof(string) && string.IsNullOrWhiteSpace(value.ToStringOrEmpty()))
-                                {
-                                    // special handling for whitespace strings, for non string types
-                                    tgtValue = default(T);
-                                }
-                                else
-                                {
-                                    tgtValue = ConvertExtensions.ChangeType(value, property.PropertyType);
-                                }
+                                object tgtValue = ConvertExtensions.ChangeTypeExtended(value, property.PropertyType, culture);
 
                                 property.SetValue(obj, tgtValue, null);
                             }
