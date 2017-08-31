@@ -112,12 +112,11 @@ namespace DataConnectors.Test
 
                     watch.Stop();
                     Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
-                    Console.ReadLine();
 
                     // check
-                    var targetlineCount = File.ReadLines(this.resultPath + @"DataFormatTest-Fixed.txt").Count();
+                    var targetlineCount = File.ReadLines(this.resultPath + @"DataFormats-Fixed.txt").Count();
 
-                    Assert.AreEqual(4, targetlineCount);
+                    Assert.AreEqual(6, targetlineCount);
                 }
             }
         }

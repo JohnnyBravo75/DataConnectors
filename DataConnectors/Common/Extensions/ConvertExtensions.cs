@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace DataConnectors.Common.Extensions
 {
@@ -24,8 +25,11 @@ namespace DataConnectors.Common.Extensions
         /// <typeparam name="T">the target type to convert</typeparam>
         /// <param name="value">The value.</param>
         /// <param name="throwExceptionOnError">if set to <c>true</c> [throw exception on error].</param>
-        /// <returns>the converted value</returns>
-        public static T ConvertTo<T>(this object value, bool throwExceptionOnError = false)
+        /// <param name="culture">The culture information.</param>
+        /// <returns>
+        /// the converted value
+        /// </returns>
+        public static T ConvertTo<T>(this object value, CultureInfo culture = null, bool throwExceptionOnError = false)
         {
             try
             {
@@ -41,7 +45,7 @@ namespace DataConnectors.Common.Extensions
                     type = Nullable.GetUnderlyingType(type);
                 }
 
-                return (T)Convert.ChangeType(value, type, null);
+                return (T)Convert.ChangeType(value, type, culture);
             }
             catch
             {
@@ -62,14 +66,15 @@ namespace DataConnectors.Common.Extensions
         /// <typeparam name="T">the target type to convert</typeparam>
         /// <param name="value">The value.</param>
         /// <param name="defaultValue">The default value, when NULL</param>
+        /// <param name="culture">The culture information.</param>
         /// <returns>
         /// the converted value
         /// </returns>
-        public static T ConvertToOrDefault<T>(this object value, T defaultValue)
+        public static T ConvertToOrDefault<T>(this object value, T defaultValue, CultureInfo culture = null)
         {
             try
             {
-                T convertedValue = ConvertTo<T>(value);
+                T convertedValue = ConvertTo<T>(value, culture);
 
                 if (convertedValue != null)
                 {
@@ -87,12 +92,57 @@ namespace DataConnectors.Common.Extensions
         }
 
         /// <summary>
+        /// Changes the type (with extended handling for booleans and empty strings).
+        /// </summary>
+        /// <param name="value">The value.</param>
+        /// <param name="tgtType">Type of the TGT.</param>
+        /// <param name="culture">The culture.</param>
+        /// <returns></returns>
+        public static object ChangeTypeExtended(object value, Type tgtType, CultureInfo culture = null)
+        {
+            if (tgtType == null)
+            {
+                return value;
+            }
+
+            object tgtValue = null;
+
+            if ((tgtType == typeof(bool) || tgtType == typeof(bool?)) && value is string)
+            {
+                // Special handling for Boolean
+                string strValue = (value as string).Trim().ToLower();
+                if (strValue == "1" || strValue == "true" || strValue == "yes" || strValue == "y")
+                {
+                    tgtValue = true;
+                }
+                else
+                {
+                    tgtValue = false;
+                }
+            }
+            else if (tgtType != typeof(string) && string.IsNullOrWhiteSpace(value.ToStringOrEmpty()))
+            {
+                // special handling for whitespace strings, for non string types
+                tgtValue = Activator.CreateInstance(tgtType);
+            }
+            else
+            {
+                tgtValue = ConvertExtensions.ChangeType(value, tgtType, culture);
+            }
+
+            return tgtValue;
+        }
+
+        /// <summary>
         /// Changes the type to the given target type.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <param name="type">The target type.</param>
-        /// <returns>the converted value</returns>
-        public static object ChangeType(object value, Type type)
+        /// <param name="culture">The culture information.</param>
+        /// <returns>
+        /// the converted value
+        /// </returns>
+        public static object ChangeType(object value, Type type, CultureInfo culture = null)
         {
             if (type == null)
             {
@@ -134,7 +184,7 @@ namespace DataConnectors.Common.Extensions
             if (!type.IsInterface && type.IsGenericType)
             {
                 Type innerType = type.GetGenericArguments()[0];
-                object innerValue = ChangeType(value, innerType);
+                object innerValue = ChangeType(value, innerType, culture);
                 return Activator.CreateInstance(type, new object[] { innerValue });
             }
 
@@ -153,7 +203,7 @@ namespace DataConnectors.Common.Extensions
                 return value;
             }
 
-            return Convert.ChangeType(value, type, null);
+            return Convert.ChangeType(value, type, culture);
         }
     }
 }
