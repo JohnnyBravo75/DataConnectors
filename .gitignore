@@ -7,3 +7,9 @@
 /DataConnectors.Test/bin/Debug
 /DataConnectors.Test/obj/Debug
 /DataConnectors.v12.suo
+/DataConnectors.Nuget/bin/Debug
+/DataConnectors.Nuget/obj/Debug
+/DataConnectors.Nuget
+/packages
+/DataConnectors.Sample/Samples/cd-Daten.sqlite
+/DataConnectors.sln.DotSettings.user

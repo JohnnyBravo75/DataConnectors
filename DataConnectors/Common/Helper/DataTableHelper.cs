@@ -90,7 +90,7 @@ namespace DataConnectors.Common.Helper
             return table;
         }
 
-        public static IList<T> ConvertToList<T>(IList<DataRow> rows)
+        public static IList<T> ConvertToObjects<T>(IList<DataRow> rows)
         {
             IList<T> list = null;
 
@@ -108,7 +108,7 @@ namespace DataConnectors.Common.Helper
             return list;
         }
 
-        public static IList<T> ConvertToList<T>(DataTable table)
+        public static IList<T> ConvertToObjects<T>(DataTable table)
         {
             if (table == null)
             {
@@ -122,7 +122,7 @@ namespace DataConnectors.Common.Helper
                 rows.Add(row);
             }
 
-            return ConvertToList<T>(rows);
+            return ConvertToObjects<T>(rows);
         }
 
         public static T CreateObject<T>(DataRow row, CultureInfo culture = null)
