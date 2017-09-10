@@ -241,7 +241,7 @@ namespace DataConnectors.Adapter.DbAdapter
             }
         }
 
-        public bool Connect()
+        public virtual bool Connect()
         {
             this.Disconnect();
 
@@ -273,7 +273,7 @@ namespace DataConnectors.Adapter.DbAdapter
             return this.Connection != null;
         }
 
-        public bool Disconnect()
+        public virtual bool Disconnect()
         {
             if (this.Connection != null && this.Connection.State != ConnectionState.Closed)
             {
@@ -322,7 +322,11 @@ namespace DataConnectors.Adapter.DbAdapter
         {
             if (string.IsNullOrEmpty(this.ConnectionInfo.UserName))
             {
-                this.ConnectionInfo.UserName = this.GetConnectionValue("User ID");
+                try
+                {
+                    this.ConnectionInfo.UserName = this.GetConnectionValue("User ID");
+                }
+                catch { }
             }
 
             // restrict to user
@@ -448,7 +452,7 @@ namespace DataConnectors.Adapter.DbAdapter
             }
             catch (Exception ex)
             {
-                throw new Exception(string.Format("Table '{0}' could not be created. Command='{1}'", this.QuoteIdentifier(table.TableName), commandText), ex);
+                throw new Exception(string.Format("Table '{0}' could not be created. Command='{1}'", table.TableName, commandText), ex);
             }
         }
 
@@ -500,8 +504,16 @@ namespace DataConnectors.Adapter.DbAdapter
                 // When no Datatype found, fallback to string
                 internalDataType = "System.String";
             }
+            string dbDataType = string.Empty;
 
-            var dbDataType = this.ConnectionInfo.DataTypeMappings[internalDataType];
+            if (this.ConnectionInfo.DataTypeMappings.ContainsKey(internalDataType))
+            {
+                dbDataType = this.ConnectionInfo.DataTypeMappings[internalDataType];
+            }
+            else
+            {
+                throw new KeyNotFoundException("No Datatype mapping for '" + internalDataType + "'");
+            }
             return dbDataType;
         }
 
@@ -823,6 +835,10 @@ namespace DataConnectors.Adapter.DbAdapter
                                 case "OleDbFactory":
                                 case "OdbcFactory":
                                     sqlValues += "?" + column.ColumnName;
+                                    break;
+
+                                case "SQLiteFactory":
+                                    sqlValues += "?";
                                     break;
 
                                 default:
