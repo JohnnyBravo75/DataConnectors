@@ -94,8 +94,11 @@ namespace DataConnectors.Common.Helper
         /// </exception>
         public static string CreateHash(string inputStr, HashAlgorithm hashAlgorithm, Encoding encoding)
         {
-            if (hashAlgorithm == null) throw new ArgumentNullException("hashAlgorithm");
-            if (string.IsNullOrEmpty(inputStr)) throw new ArgumentNullException("inputStr");
+            if (hashAlgorithm == null)
+                throw new ArgumentNullException("hashAlgorithm");
+
+            if (string.IsNullOrEmpty(inputStr))
+                throw new ArgumentNullException("inputStr");
 
             byte[] byteString = encoding.GetBytes(inputStr);
             byte[] byteHash = hashAlgorithm.ComputeHash(byteString);

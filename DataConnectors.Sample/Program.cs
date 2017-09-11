@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Formatters;
@@ -13,7 +14,7 @@ namespace DataConnectors.Sample
     {
         private static void Main(string[] args)
         {
-            Sample_DateFormats();
+            Sample_Csv_To_Sqlite();
         }
 
         public static void Sample_Csv_To_Fixed()
@@ -173,6 +174,86 @@ namespace DataConnectors.Sample
             public override string ToString()
             {
                 return this.ToPropertyString();
+            }
+        }
+
+        public static void Sample_Csv_To_Sqlite()
+        {
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (var reader = new CsvAdapter())
+            {
+                reader.FileName = sampleDataPath + @"cd-Daten.txt";
+                reader.Enclosure = "\"";
+                reader.Separator = ";";
+
+                using (var writer = new SqliteAdapter())
+                {
+                    writer.FileName = sampleDataPath + @"cd-Daten.sqlite";
+                    writer.CreateNewFile();
+
+                    if (!writer.Connect())
+                    {
+                        throw new Exception("No connection");
+                    }
+
+                    watch.Start();
+                    int lineCount = 0;
+
+                    reader.ReadDataAs<CdDaten>(30)
+                          .ForEach(x =>
+                          {
+                              lineCount += 1;
+                          })
+                          .Do(x => writer.WriteDataFrom<CdDaten>(x, false, 30));
+
+                    writer.Disconnect();
+
+                    watch.Stop();
+                    Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                    Console.ReadLine();
+                }
+            }
+        }
+
+        public static void Sample_ReadXml_WriteSqlite_Address()
+        {
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (var reader = new XmlAdapter())
+            {
+                reader.FileName = sampleDataPath + @"GetAddressResponse.xml";
+                reader.XPath = "/GetAddressResponse/GetAddressResult/result/address";
+
+                using (var writer = new SqliteAdapter())
+                {
+                    writer.FileName = sampleDataPath + @"flatxml.sqlite";
+                    writer.CreateNewFile();
+
+                    if (!writer.Connect())
+                    {
+                        throw new Exception("No connection");
+                    }
+
+                    watch.Start();
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                         .ForEach(x =>
+                         {
+                             Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                             lineCount += x.Rows.Count;
+                         })
+                         .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
+
+                    watch.Stop();
+                    Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                    Console.ReadLine();
+                }
             }
         }
     }

@@ -12,7 +12,7 @@ namespace DataConnectors.Adapter.DbAdapter.ConnectionInfos
         private string connectionString = "";
         private string userName = "";
         private string dbProvider = "System.Data.OleDb";
-        private DbProviderFactory dbProviderFactory;
+        protected DbProviderFactory dbProviderFactory;
 
         [XmlIgnore]
         public virtual Dictionary<string, string> DataTypeMappings
@@ -43,7 +43,7 @@ namespace DataConnectors.Adapter.DbAdapter.ConnectionInfos
         }
 
         [XmlIgnore]
-        public DbProviderFactory DbProviderFactory
+        public virtual DbProviderFactory DbProviderFactory
         {
             get
             {
