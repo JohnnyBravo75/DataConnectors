@@ -13,11 +13,8 @@ namespace DataConnectors.Adapter.DbAdapter
     public class DbAdapter : DataAdapterBase, IDbAdapter
     {
         private DbConnection connection;
-
         private string tableName = "";
-
         private DbDataAdapter sqlDataAdapter;
-
         private DbConnectionInfoBase connectionInfo;
 
         public DbConnectionInfoBase ConnectionInfo

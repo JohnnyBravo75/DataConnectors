@@ -6,6 +6,8 @@ using System.Runtime.Serialization;
 using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
+using DataConnectors.Converters;
+using DataConnectors.Converters.Model;
 using DataConnectors.Formatters;
 
 namespace DataConnectors.Sample
@@ -14,7 +16,7 @@ namespace DataConnectors.Sample
     {
         private static void Main(string[] args)
         {
-            Sample_Csv_To_Sqlite();
+            Sample_DateFormats();
         }
 
         public static void Sample_Csv_To_Fixed()
@@ -134,6 +136,7 @@ namespace DataConnectors.Sample
                 reader.FileName = sampleDataPath + @"DataFormats.txt";
                 reader.Enclosure = "\"";
                 reader.Separator = ";";
+                reader.ConverterDefinitions.Add(new ConverterDefinition("DateColumn", new DateTimeConverter(), "dd.mm.yyyy"));
 
                 using (var writer = new FixedTextAdapter())
                 {
