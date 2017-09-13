@@ -236,5 +236,26 @@ namespace DataConnectors.Common.Helper
 
             return table;
         }
+
+        /// <summary>
+        /// Cleans the name of the column.
+        /// </summary>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
+        public static string CleanColumnName(string columnName)
+        {
+            if (string.IsNullOrEmpty(columnName))
+            {
+                return columnName;
+            }
+
+            return columnName.Replace("(", @"\(")
+                             .Replace(")", @"\)")
+                             .Replace("[", @"\[")
+                             .Replace("]", @"\]")
+                             .Replace(".", @"\.")
+                             .Replace("/", @"\/")
+                             .Replace(@"\", @"\\");
+        }
     }
 }
