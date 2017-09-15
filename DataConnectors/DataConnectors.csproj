@@ -41,8 +41,13 @@
       <HintPath>..\packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="NPOI">
-      <HintPath>Reference\Excel\NPOI.dll</HintPath>
+    <Reference Include="NPOI, Version=1.2.4.0, Culture=neutral, PublicKeyToken=0df73ec7942b34e1, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Reference\Excel\NPOI.dll</HintPath>
+    </Reference>
+    <Reference Include="Oracle.DataAccess, Version=2.112.1.0, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=AMD64">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Reference\Oracle\x86\Oracle.DataAccess.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
@@ -62,12 +67,14 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="XPathReader">
-      <HintPath>Reference\XPathReader.dll</HintPath>
+    <Reference Include="XPathReader, Version=1.0.1584.27715, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Reference\XPathReader.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adapter\ConnectionInfoBase.cs" />
+    <Compile Include="Adapter\DbAdapter\ConnectionInfos\OracleNativeDbConnectionInfo.cs" />
     <Compile Include="Adapter\DbAdapter\SqliteAdapter.cs" />
     <Compile Include="Adapter\DbAdapter\AccessAdapter.cs" />
     <Compile Include="Adapter\DbAdapter\ConnectionInfos\Access2007ConnectionInfo.cs" />
@@ -103,6 +110,9 @@
     <Compile Include="Adapter\FileAdapter\FlatFileAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\XmlAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\XPathAdapter.cs" />
+    <Compile Include="Converters\ConverterBase.cs" />
+    <Compile Include="Converters\DateTimeConverter.cs" />
+    <Compile Include="Converters\Model\ConverterDefinition.cs" />
     <Compile Include="Formatters\CsvToDataTableFormatter.cs" />
     <Compile Include="Formatters\DataTableToCsvFormatter.cs" />
     <Compile Include="Formatters\DataTableToCustomPatternFormatter.cs" />
@@ -170,6 +180,24 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Reference\Oracle\x86\oci.dll">
+      <Link>oci.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Reference\Oracle\x86\orannzsbb11.dll">
+      <Link>orannzsbb11.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Reference\Oracle\x86\oraociei11.dll">
+      <Link>oraociei11.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Reference\Oracle\x86\OraOps11w.dll">
+      <Link>OraOps11w.dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Data.SQLite.Core.1.0.105.2\build\net451\System.Data.SQLite.Core.targets" Condition="Exists('..\packages\System.Data.SQLite.Core.1.0.105.2\build\net451\System.Data.SQLite.Core.targets')" />

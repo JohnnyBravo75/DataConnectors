@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using DataConnectors.Common.Extensions;
@@ -91,7 +92,18 @@ namespace DataConnectors.Formatters
                 var field = new Field(column.ColumnName, column.MaxLength, column.DataType);
                 if (field.Length <= 0)
                 {
-                    field.Length = 32;
+                    if (column.DataType == typeof(DateTime))
+                    {
+                        field.Length = 32;
+                    }
+                    if (column.DataType == typeof(decimal))
+                    {
+                        field.Length = 16;
+                    }
+                    else
+                    {
+                        field.Length = 32;
+                    }
                 }
 
                 this.FieldDefinitions.Add(new FieldDefinition(field));

@@ -4,11 +4,23 @@ using System.Linq;
 using System.Reflection;
 using DataConnectors.Common.Helper;
 using System;
+using System.Collections.ObjectModel;
+using System.Globalization;
+using DataConnectors.Converters;
+using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Adapter
 {
     public abstract class DataAdapterBase : IDataAdapterBase
     {
+        private ObservableCollection<ConverterDefinition> converterDefinitions = new ObservableCollection<ConverterDefinition>();
+
+        public ObservableCollection<ConverterDefinition> ConverterDefinitions
+        {
+            get { return this.converterDefinitions; }
+            private set { this.converterDefinitions = value; }
+        }
+
         private IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
         {
             foreach (DataTable table in tables)
@@ -24,13 +36,18 @@ namespace DataConnectors.Adapter
             }
         }
 
-        private IEnumerable<TObj> ConvertTablesToObjects<TObj>(IEnumerable<DataTable> tables)
+        private IEnumerable<TObj> ConvertTablesToObjects<TObj>(IEnumerable<DataTable> tables, CultureInfo culture = null)
         {
+            if (culture == null)
+            {
+                culture = CultureInfo.CurrentCulture;
+            }
+
             foreach (DataTable table in tables)
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    TObj obj = DataTableHelper.CreateObject<TObj>(row);
+                    TObj obj = DataTableHelper.CreateObject<TObj>(row, culture, this.ConverterDefinitions);
 
                     yield return obj;
                 }
