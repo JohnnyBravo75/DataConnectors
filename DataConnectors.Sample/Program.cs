@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using DataConnectors.Adapter.DbAdapter;
+using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Formatters;
@@ -14,7 +15,12 @@ namespace DataConnectors.Sample
     {
         private static void Main(string[] args)
         {
-            Sample_Csv_To_Sqlite();
+            //TNSNamesReader tnsNamesReader = new TNSNamesReader();
+            //string oraHome = tnsNamesReader.GetOracleHomes().FirstOrDefault();
+
+            //var fff = tnsNamesReader.LoadTNSNames(oraHome);
+
+            Sample_ReadOracle_WriteCsv();
         }
 
         public static void Sample_Csv_To_Fixed()
@@ -254,6 +260,47 @@ namespace DataConnectors.Sample
                     Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
                     Console.ReadLine();
                 }
+            }
+        }
+
+        public static void Sample_ReadOracle_WriteCsv()
+        {
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (var reader = new DbAdapter())
+            {
+                reader.ConnectionInfo = new OracleNativeDbConnectionInfo()
+                {
+                    Database = "TESTDB01",
+                    UserName = "USER01",
+                    Password = "***",
+                    Host = "COMPUTER01"
+                };
+                reader.TableName = "TB_DATA";
+                reader.Connect();
+
+                using (var writer = new CsvAdapter())
+                {
+                    writer.FileName = Path.Combine(sampleDataPath, "TB_DATA.csv");
+
+                    watch.Start();
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                          .ForEach(x =>
+                          {
+                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                              lineCount += x.Rows.Count;
+                          })
+                          .Do(x => writer.WriteData(x, false));
+
+                    watch.Stop();
+                    Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                    Console.ReadLine();
+                }
+
+                reader.Disconnect();
             }
         }
     }

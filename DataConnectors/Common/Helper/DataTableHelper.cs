@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Model;
+using DataConnectors.Converters;
+using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Common.Helper
 {
@@ -125,68 +127,92 @@ namespace DataConnectors.Common.Helper
             return ConvertToObjects<T>(rows);
         }
 
-        public static T CreateObject<T>(DataRow row, CultureInfo culture = null)
+        public static T CreateObject<T>(DataRow row, CultureInfo culture = null, IList<ConverterDefinition> converterDefinitions = null)
         {
             T obj = default(T);
             if (row != null)
             {
-                obj = Activator.CreateInstance<T>();
-
                 if (obj is ExpandoObject)
                 {
-                    var expandoDic = (IDictionary<string, object>)(obj as ExpandoObject);
-
-                    var dict = row.Table.Columns
-                                        .Cast<DataColumn>()
-                                        .ToDictionary(c => c.ColumnName, c => row[c]);
-
-                    foreach (var item in dict)
-                    {
-                        expandoDic.AddOrUpdate(item.Key, item.Value);
-                    }
+                    obj = CreateExpandoObject<T>(row, culture, converterDefinitions);
                 }
                 else
                 {
-                    var objType = obj.GetType();
-                    var dataMemberAttrs = objType.GetProperties()
-                                                 .Where(p => Attribute.IsDefined(p, typeof(DataMemberAttribute)))
-                                                 .ToList();
+                    obj = CreateTypedObject<T>(row, culture, converterDefinitions);
+                }
+            }
 
-                    foreach (DataColumn column in row.Table.Columns)
+            return obj;
+        }
+
+        private static T CreateTypedObject<T>(DataRow row, CultureInfo culture, IList<ConverterDefinition> converterDefinitions)
+        {
+            var obj = Activator.CreateInstance<T>();
+
+            var objType = obj.GetType();
+            var dataMemberAttrs = objType.GetProperties()
+                                        .Where(p => Attribute.IsDefined(p, typeof(DataMemberAttribute)))
+                                        .ToList();
+
+            foreach (DataColumn column in row.Table.Columns)
+            {
+                bool isRequired = false;
+
+                // get the property
+                var property = objType.GetProperty(column.ColumnName.Trim(), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (property == null && dataMemberAttrs.Any())
+                {
+                    // otherwise look for dataMember Attribute
+                    property = dataMemberAttrs.FirstOrDefault(p => ((DataMemberAttribute)Attribute.GetCustomAttribute(p, typeof(DataMemberAttribute))).Name == column.ColumnName);
+                    if (property != null)
                     {
-                        bool isRequired = false;
-
-                        // get the property
-                        var property = objType.GetProperty(column.ColumnName.Trim(), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-
-                        if (property == null && dataMemberAttrs.Any())
-                        {
-                            // otherwise look for dataMember Attribute
-                            property = dataMemberAttrs.FirstOrDefault(p => ((DataMemberAttribute)Attribute.GetCustomAttribute(p, typeof(DataMemberAttribute))).Name == column.ColumnName);
-                            if (property != null)
-                            {
-                                isRequired = ((DataMemberAttribute)Attribute.GetCustomAttribute(property, typeof(DataMemberAttribute))).IsRequired;
-                            }
-                        }
-
-                        if (property != null)
-                        {
-                            object value = row[column.ColumnName];
-
-                            if (value == null && isRequired)
-                            {
-                                // When required, throw
-                                throw new NoNullAllowedException(column.ColumnName);
-                            }
-                            else
-                            {
-                                object tgtValue = ConvertExtensions.ChangeTypeExtended(value, property.PropertyType, culture);
-
-                                property.SetValue(obj, tgtValue, null);
-                            }
-                        }
+                        isRequired = ((DataMemberAttribute)Attribute.GetCustomAttribute(property, typeof(DataMemberAttribute))).IsRequired;
                     }
                 }
+
+                if (property != null)
+                {
+                    object value = row[column.ColumnName];
+
+                    if (value == null && isRequired)
+                    {
+                        // When required, throw
+                        throw new NoNullAllowedException(column.ColumnName);
+                    }
+                    else
+                    {
+                        // when converters exits convert the value
+                        if (converterDefinitions != null)
+                        {
+                            foreach (var converterDef in converterDefinitions.Where(x => x.FieldName == column.ColumnName))
+                            {
+                                value = converterDef.Converter.Convert(value, property.PropertyType, converterDef.ConverterParameter, culture);
+                            }
+                        }
+
+                        object tgtValue = ConvertExtensions.ChangeTypeExtended(value, property.PropertyType, culture);
+
+                        property.SetValue(obj, tgtValue, null);
+                    }
+                }
+            }
+            return obj;
+        }
+
+        private static T CreateExpandoObject<T>(DataRow row, CultureInfo culture, IList<ConverterDefinition> converterDefinitions)
+        {
+            T obj = Activator.CreateInstance<T>();
+
+            var expandoDic = (IDictionary<string, object>)(obj as ExpandoObject);
+
+            var dict = row.Table.Columns
+                                .Cast<DataColumn>()
+                                .ToDictionary(c => c.ColumnName, c => row[c]);
+
+            foreach (var item in dict)
+            {
+                expandoDic.AddOrUpdate(item.Key, item.Value);
             }
 
             return obj;

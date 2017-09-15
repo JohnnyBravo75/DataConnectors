@@ -18,6 +18,8 @@ namespace DataConnectors.Formatters
         {
             this.FormatterOptions.Add(new FormatterOption() { Name = "Separator", Value = ";" });
             this.FormatterOptions.Add(new FormatterOption() { Name = "Enclosure", Value = "" });
+            this.FormatterOptions.Add(new FormatterOption() { Name = "TrimData", Value = true });
+            this.FormatterOptions.Add(new FormatterOption() { Name = "IsValidationActive", Value = false });
         }
 
         public FieldDefinitionList FieldDefinitions
@@ -40,7 +42,19 @@ namespace DataConnectors.Formatters
             set { this.FormatterOptions.SetOrAddValue("Enclosure", value); }
         }
 
-        public bool IsValidationActive { get; set; }
+        [XmlIgnore]
+        public bool TrimData
+        {
+            get { return this.FormatterOptions.GetValue<bool>("TrimData"); }
+            set { this.FormatterOptions.SetOrAddValue("TrimData", value); }
+        }
+
+        [XmlIgnore]
+        public bool IsValidationActive
+        {
+            get { return this.FormatterOptions.GetValue<bool>("IsValidationActive"); }
+            set { this.FormatterOptions.SetOrAddValue("IsValidationActive", value); }
+        }
 
         public override object Format(object data, object existingData = null)
         {
@@ -149,11 +163,17 @@ namespace DataConnectors.Formatters
         {
             string separator = this.FormatterOptions.GetValue<string>("Separator");
             string enclosure = this.FormatterOptions.GetValue<string>("Enclosure");
+            bool trimData = this.FormatterOptions.GetValue<bool>("TrimData");
             bool isHeader = true;
 
             foreach (var line in lines)
             {
                 List<string> values = this.SplitLine(line, separator[0], enclosure);
+
+                if (trimData)
+                {
+                    values = values.Select(s => s.Trim()).ToList();
+                }
 
                 if (table == null)
                 {
