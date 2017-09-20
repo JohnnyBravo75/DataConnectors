@@ -3,9 +3,11 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.Xml.XPath;
 using DataConnectors.Adapter.FileAdapter.ConnectionInfos;
+using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Formatters;
 using DataConnectors.Formatters.Model;
@@ -66,6 +68,79 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             get { return this.xPath; }
             set { this.xPath = value; }
+        }
+
+        public override IList<DataColumn> GetAvailableColumns()
+        {
+            return null;
+        }
+
+        public override IList<string> GetAvailableTables()
+        {
+            IList<string> userTableList = new List<string>();
+
+            if (string.IsNullOrEmpty(this.FileName))
+            {
+                return userTableList;
+            }
+
+            var xDoc = XDocument.Load(this.FileName);
+            // gets all paths, to all XElements in the xml document
+            userTableList = xDoc.Descendants()
+                                 //.Where(e => e.HasElements)
+                                 .Select(e => e.GetPath())
+                                 .Distinct()
+                                 .ToList();
+
+            //using (XmlTextReader reader = new XmlTextReader("books.xml"))
+            //{
+            //    while (reader.Read())
+            //    {
+            //        switch (reader.NodeType)
+            //        {
+            //            case XmlNodeType.Element:
+            //                Console.Write("<" + reader.Name);
+            //                Console.WriteLine(">");
+            //                break;
+
+            //            case XmlNodeType.Text:
+            //                Console.WriteLine(reader.Value);
+            //                break;
+
+            //            case XmlNodeType.EndElement:
+            //                Console.Write("</" + reader.Name);
+            //                Console.WriteLine(">");
+            //                break;
+            //        }
+            //    }
+            //}
+
+            return userTableList;
+        }
+
+        public override int GetCount()
+        {
+            int count = 0;
+
+            if (string.IsNullOrEmpty(this.FileName))
+            {
+                return count;
+            }
+
+            var xPathIterator = this.CreateXPathIterator(this.FileName, this.XPath);
+
+            // when formatter supports namespaces, and has no, add to them
+            if (this.ReadFormatter is IHasXmlNameSpaces && (this.ReadFormatter as IHasXmlNameSpaces).XmlNameSpaces.Count == 0)
+            {
+                (this.ReadFormatter as IHasXmlNameSpaces).XmlNameSpaces = this.XmlNameSpaces;
+            }
+
+            while (xPathIterator.MoveNext())
+            {
+                count++;
+            }
+
+            return count;
         }
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)

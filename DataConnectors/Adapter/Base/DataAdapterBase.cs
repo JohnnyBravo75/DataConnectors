@@ -6,7 +6,6 @@ using DataConnectors.Common.Helper;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using DataConnectors.Converters;
 using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Adapter
@@ -98,6 +97,12 @@ namespace DataConnectors.Adapter
         {
             return this.ReadData().FirstOrDefault();
         }
+
+        public abstract IList<DataColumn> GetAvailableColumns();
+
+        public abstract IList<string> GetAvailableTables();
+
+        public abstract int GetCount();
 
         public abstract IEnumerable<DataTable> ReadData(int? blockSize = null);
 

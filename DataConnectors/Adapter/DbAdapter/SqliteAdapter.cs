@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Data.SQLite;
-using System.IO;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 
 namespace DataConnectors.Adapter.DbAdapter

@@ -128,7 +128,7 @@ namespace DataConnectors.Adapter.FileAdapter
             this.Disconnect();
         }
 
-        public IList<DataColumn> GetAvailableColumns()
+        public override IList<DataColumn> GetAvailableColumns()
         {
             var tableColumnList = new List<DataColumn>();
 
@@ -168,7 +168,7 @@ namespace DataConnectors.Adapter.FileAdapter
             return tableColumnList;
         }
 
-        public IList<string> GetAvailableTables()
+        public override IList<string> GetAvailableTables()
         {
             IList<string> userTableList = new List<string>();
 
@@ -185,7 +185,7 @@ namespace DataConnectors.Adapter.FileAdapter
             return userTableList;
         }
 
-        public int GetCount()
+        public override int GetCount()
         {
             int count = 0;
             if (!this.IsConnected)

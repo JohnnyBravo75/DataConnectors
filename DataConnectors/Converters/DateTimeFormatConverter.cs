@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace DataConnectors.Converters
 {
-    public class DateTimeConverter : ConverterBase
+    public class DateTimeFormatConverter : ConverterBase
     {
         public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

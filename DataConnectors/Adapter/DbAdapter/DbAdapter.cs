@@ -315,7 +315,7 @@ namespace DataConnectors.Adapter.DbAdapter
             return value.ToStringOrEmpty();
         }
 
-        public IList<string> GetAvailableTables()
+        public override IList<string> GetAvailableTables()
         {
             if (string.IsNullOrEmpty(this.ConnectionInfo.UserName))
             {
@@ -343,7 +343,7 @@ namespace DataConnectors.Adapter.DbAdapter
             return userTableList;
         }
 
-        public IList<DataColumn> GetAvailableColumns()
+        public override IList<DataColumn> GetAvailableColumns()
         {
             // restrict to tables of the user
             var restrictions = new string[4];
@@ -894,7 +894,7 @@ namespace DataConnectors.Adapter.DbAdapter
             return true;
         }
 
-        public int GetCount()
+        public override int GetCount()
         {
             try
             {
