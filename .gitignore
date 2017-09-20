@@ -12,3 +12,7 @@
 /DataConnectors.Nuget
 /DataConnectors.Sample/Samples/cd-Daten.sqlite
 /DataConnectors.sln.DotSettings.user
+/Reference/Oracle/x86/OraOps11w.dll
+/Reference/Oracle/x86/oraociei11.dll
+/Reference/Oracle/x86/orannzsbb11.dll
+/Reference/Oracle/x86/oci.dll
