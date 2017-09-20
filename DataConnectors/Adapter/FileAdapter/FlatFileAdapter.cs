@@ -162,6 +162,61 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        public override IList<DataColumn> GetAvailableColumns()
+        {
+            IList<DataColumn> tableColumnList = new List<DataColumn>();
+
+            var header = this.ReadData(1).FirstOrDefault();
+
+            if (header != null)
+            {
+                foreach (DataColumn column in header.Columns)
+                {
+                    var field = new DataColumn(column.ColumnName);
+                    tableColumnList.Add(field);
+                }
+            }
+
+            return tableColumnList;
+        }
+
+        public override IList<string> GetAvailableTables()
+        {
+            IList<string> userTableList = new List<string>();
+
+            if (string.IsNullOrEmpty(this.FileName))
+            {
+                return userTableList;
+            }
+
+            if (File.Exists(this.FileName))
+            {
+                userTableList.Add(this.FileName);
+            }
+
+            return userTableList;
+        }
+
+        public override int GetCount()
+        {
+            int count = 0;
+
+            if (string.IsNullOrEmpty(this.FileName))
+            {
+                return count;
+            }
+
+            using (TextReader reader = new StreamReader(this.FileName))
+            {
+                while (reader.ReadLine() != null)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
         //public void WriteBinaryData(object data, bool deleteBefore = false)
         //{
         //    var fileName = this.FileName;

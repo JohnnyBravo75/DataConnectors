@@ -9,7 +9,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Model;
-using DataConnectors.Converters;
 using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Common.Helper

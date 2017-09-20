@@ -50,6 +50,21 @@ namespace DataConnectors.Adapter.FileAdapter
             get { return (this.fileAdapter.ReadFormatter as FixedLengthToDataTableFormatter).FieldDefinitions; }
         }
 
+        public override IList<DataColumn> GetAvailableColumns()
+        {
+            return this.fileAdapter.GetAvailableColumns();
+        }
+
+        public override IList<string> GetAvailableTables()
+        {
+            return this.fileAdapter.GetAvailableTables();
+        }
+
+        public override int GetCount()
+        {
+            return this.fileAdapter.GetCount();
+        }
+
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
             return this.fileAdapter.ReadData(blockSize);

@@ -67,7 +67,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Adapter\ConnectionInfoBase.cs" />
+    <Compile Include="Adapter\Base\DataAdapterFactory.cs" />
+    <Compile Include="Adapter\Base\ConnectionInfoBase.cs" />
     <Compile Include="Adapter\DbAdapter\SqliteAdapter.cs" />
     <Compile Include="Adapter\DbAdapter\AccessAdapter.cs" />
     <Compile Include="Adapter\DbAdapter\ConnectionInfos\Access2007ConnectionInfo.cs" />
@@ -95,7 +96,7 @@
     <Compile Include="Adapter\FileAdapter\ConnectionInfos\ExcelConnectionInfo.cs" />
     <Compile Include="Adapter\FileAdapter\ConnectionInfos\FileConnectionInfoBase.cs" />
     <Compile Include="Adapter\FileAdapter\ConnectionInfos\FlatFileConnectionInfo.cs" />
-    <Compile Include="Adapter\DataAdapterBase.cs" />
+    <Compile Include="Adapter\Base\DataAdapterBase.cs" />
     <Compile Include="Adapter\FileAdapter\FixedTextAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\CsvAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\Excel2007NativeAdapter.cs" />
@@ -103,8 +104,9 @@
     <Compile Include="Adapter\FileAdapter\FlatFileAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\XmlAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\XPathAdapter.cs" />
-    <Compile Include="Converters\ConverterBase.cs" />
-    <Compile Include="Converters\DateTimeConverter.cs" />
+    <Compile Include="Converters\Base\ConverterFactory.cs" />
+    <Compile Include="Converters\Base\ConverterBase.cs" />
+    <Compile Include="Converters\DateTimeFormatConverter.cs" />
     <Compile Include="Converters\Model\ConverterDefinition.cs" />
     <Compile Include="Formatters\CsvToDataTableFormatter.cs" />
     <Compile Include="Formatters\DataTableToCsvFormatter.cs" />
@@ -119,7 +121,7 @@
     <Compile Include="Formatters\EventLogToDataTableFormatter.cs" />
     <Compile Include="Formatters\FixedLengthToDataTableFormatter.cs" />
     <Compile Include="Formatters\FlatFileToDataTableFormatter.cs" />
-    <Compile Include="Formatters\FormatterBase.cs" />
+    <Compile Include="Formatters\Base\FormatterBase.cs" />
     <Compile Include="Formatters\JsonToDataTableFormatter.cs" />
     <Compile Include="Formatters\Model\FormatterOption.cs" />
     <Compile Include="Formatters\Model\FormatterOptions.cs" />
@@ -151,7 +153,7 @@
     <Compile Include="Common\Helper\XMLHelper.cs" />
     <Compile Include="Common\Helper\XmlSerializerHelper.cs" />
     <Compile Include="Common\Helper\XPathUtil.cs" />
-    <Compile Include="Adapter\IDataAdapterBase.cs" />
+    <Compile Include="Adapter\Base\IDataAdapterBase.cs" />
     <Compile Include="Common\Model\Field.cs" />
     <Compile Include="Common\Model\FieldDefinition.cs" />
     <Compile Include="Common\Model\FieldDefinitionList.cs" />

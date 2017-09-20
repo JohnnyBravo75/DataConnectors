@@ -136,7 +136,7 @@ namespace DataConnectors.Sample
                 reader.FileName = sampleDataPath + @"DataFormats.txt";
                 reader.Enclosure = "\"";
                 reader.Separator = ";";
-                reader.ConverterDefinitions.Add(new ConverterDefinition("DateColumn", new DateTimeConverter(), "dd.mm.yyyy"));
+                reader.ConverterDefinitions.Add(new ConverterDefinition("DateColumn", new DateTimeFormatConverter(), "dd.mm.yyyy"));
 
                 using (var writer = new FixedTextAdapter())
                 {
