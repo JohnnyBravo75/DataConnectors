@@ -110,6 +110,7 @@
     <Compile Include="Adapter\FileAdapter\XPathAdapter.cs" />
     <Compile Include="Converters\Base\ConverterFactory.cs" />
     <Compile Include="Converters\Base\ConverterBase.cs" />
+    <Compile Include="Converters\NumberFormatConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
     <Compile Include="Converters\Model\ConverterDefinition.cs" />
     <Compile Include="Formatters\CsvToDataTableFormatter.cs" />
