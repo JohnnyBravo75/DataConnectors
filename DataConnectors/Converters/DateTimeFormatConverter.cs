@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Threading;
 
 namespace DataConnectors.Converters
 {
@@ -9,12 +10,21 @@ namespace DataConnectors.Converters
         {
             if (value is string)
             {
+                if (culture == null)
+                {
+                    // culture = CultureInfo.InvariantCulture;
+                    culture = Thread.CurrentThread.CurrentCulture;
+                }
+
+                DateTime returnValue;
+
                 if (parameter is string && !string.IsNullOrEmpty(parameter as string))
                 {
-                    DateTime returnDate;
-                    DateTime.TryParseExact(value as string, parameter as string, culture, DateTimeStyles.None, out returnDate);
+                    DateTime.TryParseExact(value as string, parameter as string, culture, DateTimeStyles.None, out returnValue);
+                    return returnValue;
                 }
             }
+
             return value;
         }
     }
