@@ -225,10 +225,14 @@ namespace DataConnectors.Adapter.DbAdapter
             {
                 using (var connection = this.DbProviderFactory.CreateConnection())
                 {
-                    connection.ConnectionString = this.ConnectionInfo.ConnectionString;
+                    if (connection != null)
+                    {
+                        connection.ConnectionString = this.ConnectionInfo.ConnectionString;
 
-                    connection.Open();
-                    connection.Close();
+                        connection.Open();
+                        connection.Close();
+                    }
+
                     return string.Empty;
                 }
             }
@@ -255,9 +259,12 @@ namespace DataConnectors.Adapter.DbAdapter
                 }
 
                 this.Connection = this.DbProviderFactory.CreateConnection();
-                this.Connection.ConnectionString = this.ConnectionInfo.ConnectionString;
 
-                this.Connection.Open();
+                if (this.Connection != null)
+                {
+                    this.Connection.ConnectionString = this.ConnectionInfo.ConnectionString;
+                    this.Connection.Open();
+                }
             }
             catch (Exception ex)
             {
@@ -698,7 +705,7 @@ namespace DataConnectors.Adapter.DbAdapter
 
                             // create new table with the columns and destroy the old table
                             var headerTable = table.Clone();
-                            // DataTableHelper.DisposeTable(table);
+                            DataTableHelper.DisposeTable(table);
                             table = headerTable;
                         }
                     }
