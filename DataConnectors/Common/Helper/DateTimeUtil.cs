@@ -408,5 +408,35 @@ namespace DataConnectors.Common.Helper
 
             return result;
         }
+
+        public static DateTime? UtcStringToLocalDate(string utcDateString)
+        {
+            if (utcDateString == null)
+            {
+                return null;
+            }
+            return DateTimeOffset.Parse(utcDateString).UtcDateTime.ToLocalTime();
+        }
+
+        public static string LocalDateToUtcString(DateTime? date)
+        {
+            if (date == null)
+            {
+                return "";
+            }
+
+            if (!date.HasValue)
+            {
+                return "";
+            }
+
+            return LocalDateToUtcString(date.Value);
+        }
+
+        public static string LocalDateToUtcString(DateTime date)
+        {
+            var utcCreateDate = date.ToUniversalTime();
+            return utcCreateDate.ToString("s", CultureInfo.InvariantCulture);
+        }
     }
 }
