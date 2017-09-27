@@ -3,10 +3,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
+using DataConnectors.Common.Helper;
 using DataConnectors.Formatters;
 
 namespace DataConnectors.Sample
@@ -21,6 +23,11 @@ namespace DataConnectors.Sample
             //var fff = tnsNamesReader.LoadTNSNames(oraHome);
 
             Sample_ReadOracle_WriteCsv();
+        }
+
+        public static void Sample_CreateAdapterDynamic()
+        {
+            var csvAdapter = GenericFactory.GetInstance<DataAdapterBase>("CsvAdapter") as CsvAdapter;
         }
 
         public static void Sample_Csv_To_Fixed()
