@@ -144,7 +144,7 @@ namespace DataConnectors.Common.Helper
             return obj;
         }
 
-        private static T CreateTypedObject<T>(DataRow row, CultureInfo culture, IList<ConverterDefinition> converterDefinitions)
+        private static T CreateTypedObject<T>(DataRow row, CultureInfo culture, IEnumerable<ConverterDefinition> converterDefinitions)
         {
             var obj = Activator.CreateInstance<T>();
 

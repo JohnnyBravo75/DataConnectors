@@ -6,6 +6,7 @@ using DataConnectors.Common.Helper;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
+using DataConnectors.Common.Extensions;
 using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Adapter
@@ -14,10 +15,71 @@ namespace DataConnectors.Adapter
     {
         private ObservableCollection<ConverterDefinition> converterDefinitions = new ObservableCollection<ConverterDefinition>();
 
+        private CultureInfo defaultCulture = null;
+
         public ObservableCollection<ConverterDefinition> ConverterDefinitions
         {
             get { return this.converterDefinitions; }
-            private set { this.converterDefinitions = value; }
+            set { this.converterDefinitions = value; }
+        }
+
+        public string CultureColumnName { get; set; }
+
+        public CultureInfo DefaultCulture
+        {
+            get
+            {
+                if (this.defaultCulture == null)
+                {
+                    return CultureInfo.InvariantCulture;
+                }
+                return this.defaultCulture;
+            }
+            set { this.defaultCulture = value; }
+        }
+
+        public abstract IList<DataColumn> GetAvailableColumns();
+
+        public abstract IList<string> GetAvailableTables();
+
+        public abstract int GetCount();
+
+        public abstract IEnumerable<DataTable> ReadData(int? blockSize = null);
+
+        public abstract bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
+
+        protected DataRow ApplyConverters(DataRow row)
+        {
+            if (row == null)
+            {
+                return null;
+            }
+
+            if (this.converterDefinitions == null || !this.converterDefinitions.Any())
+            {
+                return row;
+            }
+
+            string cultureString = "";
+
+            if (!string.IsNullOrEmpty(this.CultureColumnName))
+            {
+                cultureString = row[this.CultureColumnName].ToStringOrEmpty();
+            }
+
+            var culture = EnvironmentUtil.GetCultureFromString(cultureString);
+            if (culture == null)
+            {
+                culture = this.DefaultCulture;
+            }
+
+            // when converters exits convert the value
+            foreach (var converterDef in this.converterDefinitions)
+            {
+                row[converterDef.FieldName] = converterDef.Converter.Convert(row[converterDef.FieldName], null, converterDef.ConverterParameter, culture);
+            }
+
+            return row;
         }
 
         private IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
@@ -53,11 +115,11 @@ namespace DataConnectors.Adapter
             }
         }
 
-        private IEnumerable<DataTable> ConvertObjectsToTables<T>(IEnumerable<T> objects, int? blockSize = null)
+        private IEnumerable<DataTable> ConvertObjectsToTables<TObj>(IEnumerable<TObj> objects, int? blockSize = null)
         {
-            var properties = typeof(T).GetProperties();
+            var properties = typeof(TObj).GetProperties();
 
-            var table = DataTableHelper.CreateTable<T>();
+            var table = DataTableHelper.CreateTable<TObj>();
 
             if (objects != null)
             {
@@ -81,7 +143,7 @@ namespace DataConnectors.Adapter
                         yield return table;
 
                         count = 0;
-                        table = DataTableHelper.CreateTable<T>();
+                        table = DataTableHelper.CreateTable<TObj>();
                     }
                 }
             }
@@ -97,16 +159,6 @@ namespace DataConnectors.Adapter
         {
             return this.ReadData().FirstOrDefault();
         }
-
-        public abstract IList<DataColumn> GetAvailableColumns();
-
-        public abstract IList<string> GetAvailableTables();
-
-        public abstract int GetCount();
-
-        public abstract IEnumerable<DataTable> ReadData(int? blockSize = null);
-
-        public abstract bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
 
         public virtual IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null) where TObj : class
         {
