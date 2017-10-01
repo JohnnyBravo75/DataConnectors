@@ -114,11 +114,6 @@ namespace DataConnectors.Adapter.FileAdapter
 
                     if (blockSize.HasValue && blockSize > 0 && readedRows >= blockSize)
                     {
-                        //if (rowIdx % Math.Min(this.StreamingBlockSize, 5000) == 0)
-                        //{
-                        //    this.LogDebug(string.Format("Read from fileName '{0}': Rows={1}", fileName, rowIdx));
-                        //}
-
                         table = this.ReadFormatter.Format(lines, table) as DataTable;
                         if (table != null)
                         {

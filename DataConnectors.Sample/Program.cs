@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -22,7 +23,7 @@ namespace DataConnectors.Sample
 
             //var fff = tnsNamesReader.LoadTNSNames(oraHome);
 
-            Sample_ReadOracle_WriteCsv();
+            // Sample_ReadOracle_WriteCsv();
         }
 
         public static void Sample_CreateAdapterDynamic()
