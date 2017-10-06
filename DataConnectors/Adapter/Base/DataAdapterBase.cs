@@ -7,35 +7,19 @@ using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using DataConnectors.Common.Extensions;
+using DataConnectors.Converters;
 using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Adapter
 {
     public abstract class DataAdapterBase : IDataAdapterBase
     {
-        private ObservableCollection<ConverterDefinition> converterDefinitions = new ObservableCollection<ConverterDefinition>();
+        private ConvertProcessor readConverter = new ConvertProcessor();
 
-        private CultureInfo defaultCulture = null;
-
-        public ObservableCollection<ConverterDefinition> ConverterDefinitions
+        public ConvertProcessor ReadConverter
         {
-            get { return this.converterDefinitions; }
-            set { this.converterDefinitions = value; }
-        }
-
-        public string CultureColumnName { get; set; }
-
-        public CultureInfo DefaultCulture
-        {
-            get
-            {
-                if (this.defaultCulture == null)
-                {
-                    return CultureInfo.InvariantCulture;
-                }
-                return this.defaultCulture;
-            }
-            set { this.defaultCulture = value; }
+            get { return this.readConverter; }
+            set { this.readConverter = value; }
         }
 
         public abstract IList<DataColumn> GetAvailableColumns();
@@ -47,40 +31,6 @@ namespace DataConnectors.Adapter
         public abstract IEnumerable<DataTable> ReadData(int? blockSize = null);
 
         public abstract bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
-
-        protected DataRow ApplyConverters(DataRow row)
-        {
-            if (row == null)
-            {
-                return null;
-            }
-
-            if (this.converterDefinitions == null || !this.converterDefinitions.Any())
-            {
-                return row;
-            }
-
-            string cultureString = "";
-
-            if (!string.IsNullOrEmpty(this.CultureColumnName))
-            {
-                cultureString = row[this.CultureColumnName].ToStringOrEmpty();
-            }
-
-            var culture = EnvironmentUtil.GetCultureFromString(cultureString);
-            if (culture == null)
-            {
-                culture = this.DefaultCulture;
-            }
-
-            // when converters exits convert the value
-            foreach (var converterDef in this.converterDefinitions)
-            {
-                row[converterDef.FieldName] = converterDef.Converter.Convert(row[converterDef.FieldName], null, converterDef.ConverterParameter, culture);
-            }
-
-            return row;
-        }
 
         private IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
         {
@@ -108,7 +58,7 @@ namespace DataConnectors.Adapter
             {
                 foreach (DataRow row in table.Rows)
                 {
-                    TObj obj = DataTableHelper.CreateObject<TObj>(row, culture, this.ConverterDefinitions);
+                    TObj obj = DataTableHelper.CreateObject<TObj>(row, culture, this.ReadConverter.ConverterDefinitions);
 
                     yield return obj;
                 }

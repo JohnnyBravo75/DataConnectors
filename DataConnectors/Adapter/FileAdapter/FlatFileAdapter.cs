@@ -117,6 +117,8 @@ namespace DataConnectors.Adapter.FileAdapter
                         table = this.ReadFormatter.Format(lines, table) as DataTable;
                         if (table != null)
                         {
+                            this.ReadConverter.ApplyConverters(table);
+
                             table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
 
                             if (headerTable == null)
@@ -143,6 +145,8 @@ namespace DataConnectors.Adapter.FileAdapter
                     table = this.ReadFormatter.Format(lines, table) as DataTable;
                     if (table != null)
                     {
+                        this.ReadConverter.ApplyConverters(table);
+
                         table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
                     }
                     else
