@@ -24,6 +24,8 @@ namespace DataConnectors.Sample
             //var fff = tnsNamesReader.LoadTNSNames(oraHome);
 
             // Sample_ReadOracle_WriteCsv();
+
+            Sample_ReadXml_Tables();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -309,6 +311,18 @@ namespace DataConnectors.Sample
                 }
 
                 reader.Disconnect();
+            }
+        }
+
+        public static void Sample_ReadXml_Tables()
+        {
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (var reader = new XmlAdapter())
+            {
+                reader.FileName = sampleDataPath + @"GetAddressResponse.xml";
+                var tables = reader.GetAvailableTables();
             }
         }
     }

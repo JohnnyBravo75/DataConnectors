@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using System.Xml.Serialization;
@@ -84,36 +86,42 @@ namespace DataConnectors.Adapter.FileAdapter
                 return userTableList;
             }
 
-            var xDoc = XDocument.Load(this.FileName);
-            // gets all paths, to all XElements in the xml document
-            userTableList = xDoc.Descendants()
-                                 //.Where(e => e.HasElements)
-                                 .Select(e => e.GetPath())
-                                 .Distinct()
-                                 .ToList();
+            var elementList = new List<string>();
+            using (var reader = new XmlTextReader(this.FileName))
+            {
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element)
+                    {
+                        // add opening element to the path list
+                        elementList.Add(reader.Name);
 
-            //using (XmlTextReader reader = new XmlTextReader("books.xml"))
-            //{
-            //    while (reader.Read())
-            //    {
-            //        switch (reader.NodeType)
-            //        {
-            //            case XmlNodeType.Element:
-            //                Console.Write("<" + reader.Name);
-            //                Console.WriteLine(">");
-            //                break;
+                        // build the current path e.g. /main/result/address/street
+                        var currentPathBuilder = new StringBuilder();
+                        foreach (var element in elementList)
+                        {
+                            currentPathBuilder.Append("/").Append(element);
+                        }
+                        var currentPath = currentPathBuilder.ToString();
 
-            //            case XmlNodeType.Text:
-            //                Console.WriteLine(reader.Value);
-            //                break;
+                        // don´t add doublets, ensure paths are distinct
+                        if (!userTableList.Contains(currentPath))
+                        {
+                            userTableList.Add(currentPath);
+                        }
+                    }
 
-            //            case XmlNodeType.EndElement:
-            //                Console.Write("</" + reader.Name);
-            //                Console.WriteLine(">");
-            //                break;
-            //        }
-            //    }
-            //}
+                    if (reader.NodeType == XmlNodeType.EndElement || reader.IsEmptyElement)
+                    {
+                        // when end element, remove from the path list
+                        var lastElement = elementList.LastOrDefault();
+                        if (lastElement == null || lastElement == reader.Name)
+                        {
+                            elementList.RemoveAt(elementList.Count - 1);
+                        }
+                    }
+                }
+            }
 
             return userTableList;
         }
@@ -129,12 +137,7 @@ namespace DataConnectors.Adapter.FileAdapter
 
             var xPathIterator = this.CreateXPathIterator(this.FileName, this.XPath);
 
-            // when formatter supports namespaces, and has no, add to them
-            if (this.ReadFormatter is IHasXmlNameSpaces && (this.ReadFormatter as IHasXmlNameSpaces).XmlNameSpaces.Count == 0)
-            {
-                (this.ReadFormatter as IHasXmlNameSpaces).XmlNameSpaces = this.XmlNameSpaces;
-            }
-
+            // loop through all paths and count them
             while (xPathIterator.MoveNext())
             {
                 count++;
@@ -191,6 +194,7 @@ namespace DataConnectors.Adapter.FileAdapter
                 object tmpResult = this.ReadFormatter.Format(xml, dataSet);
 
                 result = tmpResult as TObj;
+                this.ReadConverter.ApplyConverters(result);
 
                 readedRows++;
 

@@ -109,9 +109,10 @@
     <Compile Include="Adapter\FileAdapter\XmlAdapter.cs" />
     <Compile Include="Adapter\FileAdapter\XPathAdapter.cs" />
     <Compile Include="Common\Helper\DateTimeUtil.cs" />
-    <Compile Include="Common\Helper\EnvironmentUtil.cs" />
+    <Compile Include="Common\Helper\CultureUtil.cs" />
     <Compile Include="Converters\Base\ConverterFactory.cs" />
     <Compile Include="Converters\Base\ConverterBase.cs" />
+    <Compile Include="Converters\ConvertProcessor.cs" />
     <Compile Include="Converters\DateTimeAutoDetectConverter.cs" />
     <Compile Include="Converters\NumberFormatConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />

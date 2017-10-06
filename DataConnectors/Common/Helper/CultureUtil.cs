@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DataConnectors.Common.Helper
 {
-    public static class EnvironmentUtil
+    public static class CultureUtil
     {
         public static CultureInfo GetCultureFromString(string cultureString)
         {
@@ -20,18 +17,18 @@ namespace DataConnectors.Common.Helper
             if (cultureString.Length == 5 && cultureString.Contains("-"))
             {
                 // de-DE, en-US,...
-                culture = EnvironmentUtil.GetCultureFromFiveLetterName(cultureString);
+                culture = GetCultureFromFiveLetterName(cultureString);
             }
             else if (cultureString.Length == 3)
             {
                 // DEU, USA, ...
-                var region = EnvironmentUtil.GetRegionByThreeLetterCountryCode(cultureString);
-                culture = EnvironmentUtil.GetCulturesFromRegion(region).FirstOrDefault();
+                var region = GetRegionByThreeLetterCountryCode(cultureString);
+                culture = GetCulturesFromRegion(region).FirstOrDefault();
             }
             else if (cultureString.Length == 2)
             {
                 // DE, US, ...
-                culture = EnvironmentUtil.GetCultureFromTwoLetterCountryCode(cultureString);
+                culture = GetCultureFromTwoLetterCountryCode(cultureString);
             }
 
             return culture;
