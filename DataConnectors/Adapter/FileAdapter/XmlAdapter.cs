@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
-using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.Xml.XPath;
 using DataConnectors.Adapter.FileAdapter.ConnectionInfos;
-using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Formatters;
 using DataConnectors.Formatters.Model;
@@ -28,6 +25,18 @@ namespace DataConnectors.Adapter.FileAdapter
         public XmlAdapter()
         {
             this.ConnectionInfo = new FlatFileConnectionInfo();
+        }
+
+        public XmlAdapter(string fileName)
+        {
+            this.ConnectionInfo = new FlatFileConnectionInfo();
+            this.FileName = fileName;
+        }
+
+        public XmlAdapter(Stream dataStream)
+        {
+            this.ConnectionInfo = new FlatFileConnectionInfo();
+            this.DataStream = dataStream;
         }
 
         [XmlElement]
@@ -72,56 +81,69 @@ namespace DataConnectors.Adapter.FileAdapter
             set { this.xPath = value; }
         }
 
+        public Stream DataStream { get; set; }
+
         public override IList<DataColumn> GetAvailableColumns()
         {
-            return null;
+            return new List<DataColumn>();
         }
 
         public override IList<string> GetAvailableTables()
         {
             IList<string> userTableList = new List<string>();
 
-            if (string.IsNullOrEmpty(this.FileName))
+            XmlTextReader reader = null;
+            if (!string.IsNullOrEmpty(this.FileName))
+            {
+                reader = new XmlTextReader(this.FileName);
+            }
+            else if (this.DataStream != null)
+            {
+                reader = new XmlTextReader(this.DataStream);
+            }
+
+            if (reader == null)
             {
                 return userTableList;
             }
 
             var elementList = new List<string>();
-            using (var reader = new XmlTextReader(this.FileName))
+
+            while (reader.Read())
             {
-                while (reader.Read())
+                if (reader.NodeType == XmlNodeType.Element)
                 {
-                    if (reader.NodeType == XmlNodeType.Element)
+                    // add opening element to the path list
+                    elementList.Add(reader.Name);
+
+                    // build the current path e.g. /main/result/address/street
+                    var currentPathBuilder = new StringBuilder();
+                    foreach (var element in elementList)
                     {
-                        // add opening element to the path list
-                        elementList.Add(reader.Name);
-
-                        // build the current path e.g. /main/result/address/street
-                        var currentPathBuilder = new StringBuilder();
-                        foreach (var element in elementList)
-                        {
-                            currentPathBuilder.Append("/").Append(element);
-                        }
-                        var currentPath = currentPathBuilder.ToString();
-
-                        // don´t add doublets, ensure paths are distinct
-                        if (!userTableList.Contains(currentPath))
-                        {
-                            userTableList.Add(currentPath);
-                        }
+                        currentPathBuilder.Append("/").Append(element);
                     }
+                    var currentPath = currentPathBuilder.ToString();
 
-                    if (reader.NodeType == XmlNodeType.EndElement || reader.IsEmptyElement)
+                    // don´t add doublets, ensure paths are distinct
+                    if (!userTableList.Contains(currentPath))
                     {
-                        // when end element, remove from the path list
-                        var lastElement = elementList.LastOrDefault();
-                        if (lastElement == null || lastElement == reader.Name)
-                        {
-                            elementList.RemoveAt(elementList.Count - 1);
-                        }
+                        userTableList.Add(currentPath);
+                    }
+                }
+
+                if (reader.NodeType == XmlNodeType.EndElement || reader.IsEmptyElement)
+                {
+                    // when end element, remove from the path list
+                    var lastElement = elementList.LastOrDefault();
+                    if (lastElement == null || lastElement == reader.Name)
+                    {
+                        elementList.RemoveAt(elementList.Count - 1);
                     }
                 }
             }
+
+            reader.Close();
+            reader.Dispose();
 
             return userTableList;
         }
@@ -130,12 +152,11 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             int count = 0;
 
-            if (string.IsNullOrEmpty(this.FileName))
+            var xPathIterator = this.CreateXPathIterator();
+            if (xPathIterator == null)
             {
                 return count;
             }
-
-            var xPathIterator = this.CreateXPathIterator(this.FileName, this.XPath);
 
             // loop through all paths and count them
             while (xPathIterator.MoveNext())
@@ -174,7 +195,11 @@ namespace DataConnectors.Adapter.FileAdapter
             TObj result = default(TObj);
             int readedRows = 0;
 
-            var xPathIterator = this.CreateXPathIterator(this.FileName, this.XPath);
+            var xPathIterator = this.CreateXPathIterator();
+            if (xPathIterator == null)
+            {
+                yield return result;
+            }
 
             // when formatter supports namespaces, and has no, add to them
             if (this.ReadFormatter is IHasXmlNameSpaces && (this.ReadFormatter as IHasXmlNameSpaces).XmlNameSpaces.Count == 0)
@@ -213,32 +238,31 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
-            var fileName = this.FileName;
-
-            DirectoryUtil.CreateDirectoryIfNotExists(Path.GetDirectoryName(fileName));
-
-            if (deleteBefore)
-            {
-                FileUtil.DeleteFileIfExists(fileName);
-            }
-
             var xmlDoc = new XmlDocument();
             var namespaceMgr = new XmlNamespaceManager(xmlDoc.NameTable);
 
-            var isNewFile = this.IsNewFile(fileName);
-
-            if (isNewFile)
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                // add Declaration
-                XmlNode docNode = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
-                xmlDoc.AppendChild(docNode);
+                DirectoryUtil.CreateDirectoryIfNotExists(Path.GetDirectoryName(this.FileName));
 
-                // create base Path
-                XPathUtil.CreateXPath(xmlDoc, this.XPath);
-            }
-            else
-            {
-                xmlDoc.Load(this.FileName);
+                if (deleteBefore)
+                {
+                    FileUtil.DeleteFileIfExists(this.FileName);
+                }
+
+                if (this.IsNewFile(this.FileName))
+                {
+                    // add Declaration
+                    XmlNode docNode = xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                    xmlDoc.AppendChild(docNode);
+
+                    // create base Path
+                    XPathUtil.CreateXPath(xmlDoc, this.XPath);
+                }
+                else
+                {
+                    xmlDoc.Load(this.FileName);
+                }
             }
 
             foreach (DataTable table in tables)
@@ -270,19 +294,47 @@ namespace DataConnectors.Adapter.FileAdapter
             }
 
             var settings = new XmlWriterSettings { Indent = true };
-            using (XmlWriter writer = XmlWriter.Create(this.FileName, settings))
+            XmlWriter writer = null;
+
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                xmlDoc.Save(writer);
-                writer.Close();
+                writer = XmlWriter.Create(this.FileName, settings);
             }
+            else if (this.DataStream != null)
+            {
+                writer = XmlWriter.Create(this.DataStream, settings);
+            }
+            else
+            {
+                return false;
+            }
+
+            xmlDoc.Save(writer);
+
+            writer.Close();
+            writer.Dispose();
 
             return true;
         }
 
-        private XPathNodeIterator CreateXPathIterator(string file, string xPath)
+        private XPathNodeIterator CreateXPathIterator()
         {
-            var xPathNavigator = new XPathDocument(file).CreateNavigator();
-            var xPathExpr = xPathNavigator.Compile(xPath);
+            XPathNavigator xPathNavigator = null;
+
+            if (!string.IsNullOrEmpty(this.FileName))
+            {
+                xPathNavigator = new XPathDocument(this.FileName).CreateNavigator();
+            }
+            else if (this.DataStream != null)
+            {
+                xPathNavigator = new XPathDocument(this.DataStream).CreateNavigator();
+            }
+            else
+            {
+                return null;
+            }
+
+            var xPathExpr = xPathNavigator.Compile(this.XPath);
 
             var nsMgr = new XmlNamespaceManager(new NameTable());
             foreach (var xmlNameSpace in this.XmlNameSpaces)

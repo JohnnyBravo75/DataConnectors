@@ -66,7 +66,6 @@ namespace DataConnectors.Common.Helper
             {
                 table.Clear();
                 table.Dispose();
-                table = null;
             }
         }
 
