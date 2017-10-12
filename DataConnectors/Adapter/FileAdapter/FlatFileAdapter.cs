@@ -183,14 +183,12 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             IList<string> userTableList = new List<string>();
 
-            if (string.IsNullOrEmpty(this.FileName))
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                return userTableList;
-            }
-
-            if (File.Exists(this.FileName))
-            {
-                userTableList.Add(this.FileName);
+                if (File.Exists(this.FileName))
+                {
+                    userTableList.Add(this.FileName);
+                }
             }
 
             return userTableList;
@@ -200,18 +198,25 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             int count = 0;
 
-            if (string.IsNullOrEmpty(this.FileName))
+            TextReader reader = null;
+
+            if (!string.IsNullOrEmpty(this.FileName))
+            {
+                reader = new StreamReader(this.FileName);
+            }
+
+            if (reader == null)
             {
                 return count;
             }
 
-            using (TextReader reader = new StreamReader(this.FileName))
+            while (reader.ReadLine() != null)
             {
-                while (reader.ReadLine() != null)
-                {
-                    count++;
-                }
+                count++;
             }
+
+            reader.Close();
+            reader.Dispose();
 
             return count;
         }
