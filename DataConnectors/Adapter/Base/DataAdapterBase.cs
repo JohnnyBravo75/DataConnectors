@@ -14,12 +14,20 @@ namespace DataConnectors.Adapter
 {
     public abstract class DataAdapterBase : IDataAdapterBase
     {
-        private ConvertProcessor readConverter = new ConvertProcessor();
+        private ConvertProcessor readConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Read);
 
         public ConvertProcessor ReadConverter
         {
             get { return this.readConverter; }
             set { this.readConverter = value; }
+        }
+
+        private ConvertProcessor writeConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Write);
+
+        public ConvertProcessor WriteConverter
+        {
+            get { return this.writeConverter; }
+            set { this.writeConverter = value; }
         }
 
         public abstract IList<DataColumn> GetAvailableColumns();

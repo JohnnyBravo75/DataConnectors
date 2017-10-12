@@ -112,7 +112,7 @@
     <Compile Include="Common\Helper\CultureUtil.cs" />
     <Compile Include="Converters\Base\ConverterFactory.cs" />
     <Compile Include="Converters\Base\ConverterBase.cs" />
-    <Compile Include="Converters\ConvertProcessor.cs" />
+    <Compile Include="Converters\Base\ConvertProcessor.cs" />
     <Compile Include="Converters\DateTimeAutoDetectConverter.cs" />
     <Compile Include="Converters\NumberFormatConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />

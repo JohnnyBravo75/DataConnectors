@@ -14,6 +14,19 @@ namespace DataConnectors.Converters
 
         private CultureInfo defaultCulture = null;
 
+        private readonly ConvertDirections convertDirection;
+
+        public ConvertProcessor(ConvertDirections convertDirection)
+        {
+            this.convertDirection = convertDirection;
+        }
+
+        public enum ConvertDirections
+        {
+            Read,
+            Write
+        }
+
         public ObservableCollection<ConverterDefinition> ConverterDefinitions
         {
             get { return this.converterDefinitions; }
@@ -98,7 +111,19 @@ namespace DataConnectors.Converters
             // when converters exists convert the value
             foreach (var converterDef in this.converterDefinitions)
             {
-                row[converterDef.FieldName] = converterDef.Converter.Convert(row[converterDef.FieldName], null, converterDef.ConverterParameter, culture);
+                if (!string.IsNullOrEmpty(converterDef.FieldName))
+                {
+                    switch (this.convertDirection)
+                    {
+                        case ConvertDirections.Read:
+                            row[converterDef.FieldName] = converterDef.Converter.Convert(row[converterDef.FieldName], null, converterDef.ConverterParameter, culture);
+                            break;
+
+                        case ConvertDirections.Write:
+                            row[converterDef.FieldName] = converterDef.Converter.ConvertBack(row[converterDef.FieldName], null, converterDef.ConverterParameter, culture);
+                            break;
+                    }
+                }
             }
         }
     }
