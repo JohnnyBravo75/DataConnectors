@@ -16,13 +16,13 @@ namespace DataConnectors.Adapter
     {
         private ConvertProcessor readConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Read);
 
+        private ConvertProcessor writeConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Write);
+
         public ConvertProcessor ReadConverter
         {
             get { return this.readConverter; }
             set { this.readConverter = value; }
         }
-
-        private ConvertProcessor writeConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Write);
 
         public ConvertProcessor WriteConverter
         {

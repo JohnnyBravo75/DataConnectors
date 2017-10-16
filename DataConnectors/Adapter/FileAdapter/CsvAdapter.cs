@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using DataConnectors.Converters;
 using DataConnectors.Formatters;
 
 namespace DataConnectors.Adapter.FileAdapter
@@ -65,6 +66,18 @@ namespace DataConnectors.Adapter.FileAdapter
                 (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Enclosure = value;
                 (this.fileAdapter.WriteFormatter as DataTableToCsvFormatter).Enclosure = value;
             }
+        }
+
+        public ConvertProcessor ReadConverter
+        {
+            get { return this.fileAdapter.ReadConverter; }
+            set { this.fileAdapter.ReadConverter = value; }
+        }
+
+        public ConvertProcessor WriteConverter
+        {
+            get { return this.fileAdapter.WriteConverter; }
+            set { this.fileAdapter.WriteConverter = value; }
         }
 
         public override IList<DataColumn> GetAvailableColumns()

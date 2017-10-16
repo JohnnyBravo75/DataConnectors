@@ -1,7 +1,7 @@
-BoolColumn; NumberColumn; FloatColumn; DateColumn; DatetimeColumn; StringColumn
- 1; 12222; 1.222; 14.07.2017; 14.07.2018 12:34:21; "Haz;o1"
- True; 0; 1,344; 14/07/2017; 14.07.2018 12:34; Har"ro2
-Yes; 2323; 1.222,99; 14-07-2017; 14.07.2018 12:34:21; "Ha\"\";;tto3"
-Y; 0001222; 0.0001; 14/07/2017; 14.07.2018 12:34:21; "Ha\"\";;tto3"
+BoolColumn; NumberColumn; FloatColumn; DateColumn; DatetimeColumn; StringColumn; ReverseDate
+ 1; 12222; 1.222; 14.07.2017; 14.07.2018 12:34:21; "Haz;o1";
+ True; 0; 1,344; 14/07/2017; 14.07.2018 12:34; Har"ro2;
+Yes; 2323; 1.222,99; 14-07-2017; 14.07.2018 12:34:21; "Ha\"\";;tto3";
+Y; 0001222; 0.0001; 14/07/2017; 14.07.2018 12:34:21; "Ha\"\";;tto3";
 ; ; ; ; ; 
 
