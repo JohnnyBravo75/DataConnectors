@@ -2,6 +2,7 @@
 using System.Data;
 using System.Text;
 using DataConnectors.Common.Model;
+using DataConnectors.Converters;
 using DataConnectors.Formatters;
 
 namespace DataConnectors.Adapter.FileAdapter
@@ -48,6 +49,18 @@ namespace DataConnectors.Adapter.FileAdapter
         public FieldDefinitionList FieldDefinitions
         {
             get { return (this.fileAdapter.ReadFormatter as FixedLengthToDataTableFormatter).FieldDefinitions; }
+        }
+
+        public ConvertProcessor ReadConverter
+        {
+            get { return this.fileAdapter.ReadConverter; }
+            set { this.fileAdapter.ReadConverter = value; }
+        }
+
+        public ConvertProcessor WriteConverter
+        {
+            get { return this.fileAdapter.WriteConverter; }
+            set { this.fileAdapter.WriteConverter = value; }
         }
 
         public override IList<DataColumn> GetAvailableColumns()

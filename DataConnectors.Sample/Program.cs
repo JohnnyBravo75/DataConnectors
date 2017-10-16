@@ -10,6 +10,8 @@ using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
+using DataConnectors.Converters;
+using DataConnectors.Converters.Model;
 using DataConnectors.Formatters;
 
 namespace DataConnectors.Sample
@@ -25,7 +27,7 @@ namespace DataConnectors.Sample
 
             // Sample_ReadOracle_WriteCsv();
 
-            Sample_ReadXml_Tables();
+            Sample_DateFormats_Converted();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -323,6 +325,42 @@ namespace DataConnectors.Sample
             {
                 reader.FileName = sampleDataPath + @"GetAddressResponse.xml";
                 var tables = reader.GetAvailableTables();
+            }
+        }
+
+        public static void Sample_DateFormats_Converted()
+        {
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (var reader = new CsvAdapter())
+            {
+                reader.FileName = sampleDataPath + @"DataFormats.txt";
+                reader.Enclosure = "\"";
+                reader.Separator = ";";
+                reader.ReadConverter.ConverterDefinitions.Add(new ConverterDefinition("ReverseDate", new DateTimeFormatConverter(), "yyyyMMddHHmmss"));
+
+                using (var writer = new CsvAdapter())
+                {
+                    writer.FileName = Path.Combine(Path.GetDirectoryName(reader.FileName), "DataFormats-Converted.txt");
+                    writer.Enclosure = "\"";
+                    writer.Separator = ";";
+
+                    watch.Start();
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                          .ForEach(x =>
+                          {
+                              Console.WriteLine(x.ToString());
+                              lineCount += x.Rows.Count;
+                          })
+                          .Do(x => writer.WriteData(x, false));
+
+                    watch.Stop();
+                    Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                    Console.ReadLine();
+                }
             }
         }
     }
