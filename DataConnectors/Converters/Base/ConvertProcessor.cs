@@ -48,7 +48,7 @@ namespace DataConnectors.Converters
             set { this.defaultCulture = value; }
         }
 
-        public void ApplyConverters(DataTable table)
+        public void ExecuteConverters(DataTable table)
         {
             if (table == null)
             {
@@ -62,27 +62,27 @@ namespace DataConnectors.Converters
 
             foreach (DataRow row in table.Rows)
             {
-                this.ApplyConverters(row);
+                this.ExecuteConverters(row);
             }
         }
 
-        public void ApplyConverters(object obj)
+        public void ExecuteConverters(object obj)
         {
             if (obj is DataTable)
             {
-                this.ApplyConverters(obj as DataTable);
+                this.ExecuteConverters(obj as DataTable);
             }
             else if (obj is DataSet)
             {
                 var dataSet = obj as DataSet;
                 foreach (DataTable table in dataSet.Tables)
                 {
-                    this.ApplyConverters(table);
+                    this.ExecuteConverters(table);
                 }
             }
         }
 
-        protected void ApplyConverters(DataRow row)
+        protected void ExecuteConverters(DataRow row)
         {
             if (row == null)
             {
@@ -111,6 +111,7 @@ namespace DataConnectors.Converters
             // when converters exists convert the value
             foreach (var converterDef in this.converterDefinitions)
             {
+                // Converter for specific field
                 if (!string.IsNullOrEmpty(converterDef.FieldName))
                 {
                     switch (this.convertDirection)

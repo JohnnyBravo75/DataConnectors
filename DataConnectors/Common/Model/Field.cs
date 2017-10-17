@@ -27,18 +27,13 @@ namespace DataConnectors.Common.Model
             this.Name = name;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Field" /> class.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="length">The length.</param>
         public Field(string name, int length)
         {
             this.Name = name;
             this.Length = length;
         }
 
-        public Field(string name, int length, Type dataType)
+        public Field(string name, int length, Type dataType = null)
         {
             this.Name = name;
             this.Length = length;
