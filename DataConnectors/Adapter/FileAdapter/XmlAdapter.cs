@@ -219,7 +219,7 @@ namespace DataConnectors.Adapter.FileAdapter
                 object tmpResult = this.ReadFormatter.Format(xml, dataSet);
 
                 result = tmpResult as TObj;
-                this.ReadConverter.ApplyConverters(result);
+                this.ReadConverter.ExecuteConverters(result);
 
                 readedRows++;
 
