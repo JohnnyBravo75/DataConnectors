@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace DataConnectors.Converters
 {
-    public class NumberFormatConverter : ConverterBase
+    public class NumberFormatConverter : ValueConverterBase
     {
         public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

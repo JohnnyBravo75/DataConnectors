@@ -28,7 +28,7 @@ namespace DataConnectors.Common.Helper
             else if (cultureString.Length == 2)
             {
                 // DE, US, ...
-                culture = GetCultureFromTwoLetterCountryCode(cultureString);
+                culture = GetCultureFromTwoLetterCountryCode(cultureString.ToUpper());
             }
 
             return culture;
@@ -43,6 +43,7 @@ namespace DataConnectors.Common.Helper
 
             try
             {
+                // search with the two letter code e.g. CH. First match will be taken, when many languages in one country one of them is taken.
                 return CultureInfo.GetCultures(CultureTypes.AllCultures & ~CultureTypes.NeutralCultures)
                                   .FirstOrDefault(m => m.Name.EndsWith("-" + twoLetterISOCountryCode));
             }
@@ -101,7 +102,7 @@ namespace DataConnectors.Common.Helper
             {
                 countryCodesMapping = new Dictionary<string, RegionInfo>();
 
-                CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+                var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
 
                 foreach (var culture in cultures)
                 {

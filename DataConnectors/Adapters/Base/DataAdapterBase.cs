@@ -14,17 +14,17 @@ namespace DataConnectors.Adapter
 {
     public abstract class DataAdapterBase : IDataAdapterBase
     {
-        private ConvertProcessor readConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Read);
+        private ValueConvertProcessor readConverter = new ValueConvertProcessor(ValueConvertProcessor.ConvertDirections.Read);
 
-        private ConvertProcessor writeConverter = new ConvertProcessor(ConvertProcessor.ConvertDirections.Write);
+        private ValueConvertProcessor writeConverter = new ValueConvertProcessor(ValueConvertProcessor.ConvertDirections.Write);
 
-        public ConvertProcessor ReadConverter
+        public ValueConvertProcessor ReadConverter
         {
             get { return this.readConverter; }
             set { this.readConverter = value; }
         }
 
-        public ConvertProcessor WriteConverter
+        public ValueConvertProcessor WriteConverter
         {
             get { return this.writeConverter; }
             set { this.writeConverter = value; }

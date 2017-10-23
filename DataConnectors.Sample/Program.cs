@@ -189,6 +189,9 @@ namespace DataConnectors.Sample
 
             public string StringColumn { get; set; }
 
+            [ValueConverter(typeof(DateTimeFormatConverter), "yyyyMMddHHmmss")]
+            public DateTime? ReverseDateColumn { get; set; }
+
             public override string ToString()
             {
                 return this.ToPropertyString();
@@ -338,7 +341,10 @@ namespace DataConnectors.Sample
                 reader.FileName = sampleDataPath + @"DataFormats.txt";
                 reader.Enclosure = "\"";
                 reader.Separator = ";";
-                reader.ReadConverter.ConverterDefinitions.Add(new ConverterDefinition("ReverseDate", new DateTimeFormatConverter(), "yyyyMMddHHmmss"));
+
+                reader.ReadConverter.CultureColumnName = "CountryCode";
+                reader.ReadConverter.DefaultCulture = CultureInfo.CurrentCulture;
+                reader.ReadConverter.ConverterDefinitions.Add(new ValueConverterDefinition("ReverseDate", typeof(DateTimeFormatConverter), "yyyyMMddHHmmss"));
 
                 using (var writer = new CsvAdapter())
                 {

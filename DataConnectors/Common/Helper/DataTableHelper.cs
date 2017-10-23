@@ -125,7 +125,7 @@ namespace DataConnectors.Common.Helper
             return ConvertToObjects<T>(rows);
         }
 
-        public static T CreateObject<T>(DataRow row, CultureInfo culture = null, IList<ConverterDefinition> converterDefinitions = null)
+        public static T CreateObject<T>(DataRow row, CultureInfo culture = null, IList<ValueConverterDefinition> converterDefinitions = null)
         {
             T obj = default(T);
             if (row != null)
@@ -143,7 +143,7 @@ namespace DataConnectors.Common.Helper
             return obj;
         }
 
-        private static T CreateTypedObject<T>(DataRow row, CultureInfo culture, IEnumerable<ConverterDefinition> converterDefinitions)
+        private static T CreateTypedObject<T>(DataRow row, CultureInfo culture, IEnumerable<ValueConverterDefinition> converterDefinitions)
         {
             var obj = Activator.CreateInstance<T>();
 
@@ -161,7 +161,7 @@ namespace DataConnectors.Common.Helper
 
                 if (property == null && dataMemberAttrs.Any())
                 {
-                    // otherwise look for dataMember Attribute
+                    // otherwise look for [DataMember] attribute
                     property = dataMemberAttrs.FirstOrDefault(p => ((DataMemberAttribute)Attribute.GetCustomAttribute(p, typeof(DataMemberAttribute))).Name == column.ColumnName);
                     if (property != null)
                     {
@@ -175,7 +175,7 @@ namespace DataConnectors.Common.Helper
 
                     if (value == null && isRequired)
                     {
-                        // When required, throw
+                        // When required but null, throw
                         throw new NoNullAllowedException(column.ColumnName);
                     }
                     else
@@ -198,7 +198,7 @@ namespace DataConnectors.Common.Helper
             return obj;
         }
 
-        private static T CreateExpandoObject<T>(DataRow row, CultureInfo culture, IList<ConverterDefinition> converterDefinitions)
+        private static T CreateExpandoObject<T>(DataRow row, CultureInfo culture, IList<ValueConverterDefinition> converterDefinitions)
         {
             T obj = Activator.CreateInstance<T>();
 

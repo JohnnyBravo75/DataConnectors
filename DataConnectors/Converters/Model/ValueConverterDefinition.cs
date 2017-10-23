@@ -6,27 +6,31 @@ using DataConnectors.Common.Helper;
 namespace DataConnectors.Converters.Model
 {
     [Serializable]
-    public class ConverterDefinition : NotifyPropertyChangedBase
+    public class ValueConverterDefinition : NotifyPropertyChangedBase
     {
         private string converterName = "";
         private string fieldName = "";
-        private ConverterBase converter;
+        private ValueConverterBase converter;
 
         // ***********************Constructors***********************
 
-        public ConverterDefinition()
+        public ValueConverterDefinition()
         {
         }
 
-        public ConverterDefinition(string fieldName, string converterName, string converterParameter)
+        public ValueConverterDefinition(string fieldName, Type converterType, string converterParameter) : this(fieldName, converterType.Name, converterParameter)
+        {
+        }
+
+        public ValueConverterDefinition(string fieldName, string converterName, string converterParameter)
         {
             this.FieldName = fieldName;
             this.ConverterName = converterName;
-            this.converter = GenericFactory.GetInstance<ConverterBase>(this.ConverterName);
+            this.converter = GenericFactory.GetInstance<ValueConverterBase>(this.ConverterName);
             this.ConverterParameter = converterParameter;
         }
 
-        public ConverterDefinition(string fieldName, ConverterBase converter, string converterParameter)
+        public ValueConverterDefinition(string fieldName, ValueConverterBase converter, string converterParameter)
         {
             this.FieldName = fieldName;
             this.Converter = converter;
@@ -66,13 +70,13 @@ namespace DataConnectors.Converters.Model
         }
 
         [XmlIgnore]
-        public ConverterBase Converter
+        public ValueConverterBase Converter
         {
             get
             {
                 if (this.converter == null && !string.IsNullOrEmpty(this.ConverterName))
                 {
-                    this.converter = GenericFactory.GetInstance<ConverterBase>(this.ConverterName);
+                    this.converter = GenericFactory.GetInstance<ValueConverterBase>(this.ConverterName);
                 }
 
                 return this.converter;
