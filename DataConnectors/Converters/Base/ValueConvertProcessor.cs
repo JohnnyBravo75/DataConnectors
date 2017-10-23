@@ -8,15 +8,15 @@ using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Converters
 {
-    public class ConvertProcessor
+    public class ValueConvertProcessor
     {
-        private ObservableCollection<ConverterDefinition> converterDefinitions = new ObservableCollection<ConverterDefinition>();
+        private ObservableCollection<ValueConverterDefinition> converterDefinitions = new ObservableCollection<ValueConverterDefinition>();
 
         private CultureInfo defaultCulture = null;
 
         private readonly ConvertDirections convertDirection;
 
-        public ConvertProcessor(ConvertDirections convertDirection)
+        public ValueConvertProcessor(ConvertDirections convertDirection)
         {
             this.convertDirection = convertDirection;
         }
@@ -27,7 +27,7 @@ namespace DataConnectors.Converters
             Write
         }
 
-        public ObservableCollection<ConverterDefinition> ConverterDefinitions
+        public ObservableCollection<ValueConverterDefinition> ConverterDefinitions
         {
             get { return this.converterDefinitions; }
             set { this.converterDefinitions = value; }
@@ -108,7 +108,7 @@ namespace DataConnectors.Converters
                 culture = this.DefaultCulture;
             }
 
-            // when converters exists convert the value
+            // when converters exists, convert the value
             foreach (var converterDef in this.converterDefinitions)
             {
                 // Converter for specific field

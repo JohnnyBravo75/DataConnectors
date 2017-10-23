@@ -4,7 +4,7 @@ using DataConnectors.Common.Helper;
 
 namespace DataConnectors.Converters
 {
-    public class DateTimeAutoDetectConverter : ConverterBase
+    public class DateTimeAutoDetectConverter : ValueConverterBase
     {
         public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

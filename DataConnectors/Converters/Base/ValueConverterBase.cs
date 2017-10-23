@@ -2,7 +2,7 @@
 
 namespace DataConnectors.Converters
 {
-    public abstract class ConverterBase
+    public abstract class ValueConverterBase
     {
         public virtual object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
