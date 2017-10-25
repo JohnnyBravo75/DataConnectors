@@ -17,6 +17,8 @@ namespace DataConnectors.Adapter.DbAdapter
         private DbDataAdapter sqlDataAdapter;
         private DbConnectionInfoBase connectionInfo;
 
+        public int CommandTimeout { get; set; }
+
         public DbConnectionInfoBase ConnectionInfo
         {
             get
@@ -632,6 +634,7 @@ namespace DataConnectors.Adapter.DbAdapter
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = sql;
+                cmd.CommandTimeout = this.CommandTimeout;
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -724,6 +727,7 @@ namespace DataConnectors.Adapter.DbAdapter
             {
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = sql;
+                cmd.CommandTimeout = this.CommandTimeout;
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -780,6 +784,8 @@ namespace DataConnectors.Adapter.DbAdapter
                     var sql = string.Format("DROP TABLE {0} ", this.QuoteIdentifier(tableName));
                     cmd.CommandText = sql;
                     cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = this.CommandTimeout;
+
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -801,6 +807,8 @@ namespace DataConnectors.Adapter.DbAdapter
                     var sql = string.Format("DELETE FROM {0} ", this.QuoteIdentifier(tableName));
                     cmd.CommandText = sql;
                     cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = this.CommandTimeout;
+
                     cmd.ExecuteNonQuery();
                 }
             }
@@ -895,6 +903,7 @@ namespace DataConnectors.Adapter.DbAdapter
 
                         cmd.CommandText = sql;
                         cmd.CommandType = CommandType.Text;
+                        cmd.CommandTimeout = this.CommandTimeout;
 
                         foreach (DataRow row in table.Rows)
                         {
