@@ -342,7 +342,7 @@ namespace DataConnectors.Sample
                 reader.Enclosure = "\"";
                 reader.Separator = ";";
 
-                reader.ReadConverter.CultureColumnName = "CountryCode";
+                reader.ReadConverter.CountryColumnName = "CountryCode";
                 reader.ReadConverter.DefaultCulture = CultureInfo.CurrentCulture;
                 reader.ReadConverter.ConverterDefinitions.Add(new ValueConverterDefinition("ReverseDate", typeof(DateTimeFormatConverter), "yyyyMMddHHmmss"));
 
