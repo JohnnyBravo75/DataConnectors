@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -8,6 +9,7 @@ using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
+using DataConnectors.Common;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Converters;
@@ -27,7 +29,9 @@ namespace DataConnectors.Sample
 
             // Sample_ReadOracle_WriteCsv();
 
-            Sample_DateFormats_Converted();
+            // Sample_DateFormats_Converted();
+
+            var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
         }
 
         public static void Sample_CreateAdapterDynamic()
