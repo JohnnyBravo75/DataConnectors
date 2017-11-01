@@ -22,11 +22,6 @@ namespace DataConnectors.Sample
     {
         private static void Main(string[] args)
         {
-            //TNSNamesReader tnsNamesReader = new TNSNamesReader();
-            //string oraHome = tnsNamesReader.GetOracleHomes().FirstOrDefault();
-
-            //var fff = tnsNamesReader.LoadTNSNames(oraHome);
-
             // Sample_ReadOracle_WriteCsv();
 
             // Sample_DateFormats_Converted();
@@ -36,7 +31,7 @@ namespace DataConnectors.Sample
 
         public static void Sample_CreateAdapterDynamic()
         {
-            var csvAdapter = GenericFactory.GetInstance<DataAdapterBase>("CsvAdapter") as CsvAdapter;
+            var csvAdapter = DataAdapterFactory.GetInstance<DataAdapterBase>("CsvAdapter") as CsvAdapter;
         }
 
         public static void Sample_Csv_To_Fixed()
