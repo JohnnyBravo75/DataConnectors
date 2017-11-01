@@ -62,9 +62,20 @@ namespace DataConnectors.Common
             return ReplaceTokens(str, dict);
         }
 
-        public static IDictionary<string, string> ParseTokenValues(string str, string template)
+        /// <summary>
+        /// Parses the token values out of a string
+        /// </summary>
+        /// <param name="str">The string e.g. PREF_LongNameWithSomething_1234.txt</param>
+        /// <param name="template">The template e.g. PREF_LongName{SubName}_{Number}.{Ext}</param>
+        /// <returns></returns>
+        public static IDictionary<string, object> ParseTokenValues(string str, string template)
         {
-            var tokenValues = new Dictionary<string, string>();
+            var tokenValues = new Dictionary<string, object>();
+            if (string.IsNullOrEmpty(str) || string.IsNullOrEmpty(template))
+            {
+                return tokenValues;
+            }
+
             var tokenNames = ParseTokens(template);
 
             // convert string template into regex for parsing
@@ -94,13 +105,18 @@ namespace DataConnectors.Common
             return tokenValues;
         }
 
-        public static IList<string> ParseTokens(string str)
+        /// <summary>
+        /// Parses the tokens out of a string
+        /// </summary>
+        /// <param name="stringWithTokens">The string  e.g. PREF_LongName{SubName}_{Number}.{Ext}</param>
+        /// <returns></returns>
+        public static IList<string> ParseTokens(string stringWithTokens)
         {
             var tokens = new List<string>();
 
             var regex = new Regex(@"(?<start>\" + "{" + @")+(?<name>[\w\.\[\]]+)(?<end>\" + "}" + @")+", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 
-            var matches = regex.Matches(str);
+            var matches = regex.Matches(stringWithTokens);
             foreach (Match match in matches)
             {
                 Group startGroup = match.Groups["start"];
