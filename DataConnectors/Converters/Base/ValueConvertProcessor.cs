@@ -33,7 +33,9 @@ namespace DataConnectors.Converters
             set { this.converterDefinitions = value; }
         }
 
-        public string CultureColumnName { get; set; }
+        public string CountryColumnName { get; set; }
+
+        public string LanguageColumnName { get; set; }
 
         public CultureInfo DefaultCulture
         {
@@ -94,24 +96,12 @@ namespace DataConnectors.Converters
                 return;
             }
 
-            string cultureString = "";
-
-            // Is the culture in a column?
-            if (!string.IsNullOrEmpty(this.CultureColumnName))
-            {
-                cultureString = row[this.CultureColumnName].ToStringOrEmpty();
-            }
-
-            var culture = CultureUtil.GetCultureFromString(cultureString);
-            if (culture == null)
-            {
-                culture = this.DefaultCulture;
-            }
+            var culture = this.GetCulture(row);
 
             // when converters exists, convert the value
             foreach (var converterDef in this.converterDefinitions)
             {
-                // Converter for specific field
+                // Converter for specific field?
                 if (!string.IsNullOrEmpty(converterDef.FieldName))
                 {
                     switch (this.convertDirection)
@@ -126,6 +116,52 @@ namespace DataConnectors.Converters
                     }
                 }
             }
+        }
+
+        private CultureInfo GetCulture(DataRow row)
+        {
+            string cultureString = "";
+
+            if (!string.IsNullOrEmpty(this.CountryColumnName) &&
+                this.CountryColumnName == this.LanguageColumnName)
+            {
+                cultureString = row[this.CountryColumnName].ToStringOrEmpty();
+            }
+            else
+            {
+                // Is the country "US" in a column?
+                string countryString = "";
+                if (!string.IsNullOrEmpty(this.CountryColumnName))
+                {
+                    countryString = row[this.CountryColumnName].ToStringOrEmpty();
+                }
+
+                // Is the language "en" in a column?
+                string languageString = "";
+                if (!string.IsNullOrEmpty(this.LanguageColumnName))
+                {
+                    languageString = row[this.LanguageColumnName].ToStringOrEmpty();
+                }
+
+                // language an country? -> build "en-US"
+                if (!string.IsNullOrEmpty(languageString) && !string.IsNullOrEmpty(countryString))
+                {
+                    cultureString = languageString.ToLower() + "-" + countryString;
+                }
+                else
+                {
+                    // otherwise just take "US"
+                    cultureString = countryString;
+                }
+            }
+
+            var culture = CultureUtil.GetCultureFromString(cultureString);
+            if (culture == null)
+            {
+                culture = this.DefaultCulture;
+            }
+
+            return culture;
         }
     }
 }
