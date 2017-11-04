@@ -80,67 +80,54 @@ namespace DataConnectors.Adapter.FileAdapter
             return false;
         }
 
+        public Stream DataStream { get; set; }
+
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
             DataTable headerTable = null;
             var lines = new List<string>();
-            using (var reader = new StreamReader(this.FileName, this.Encoding))
+
+            StreamReader reader = null;
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                int readedRows = 0;
-                int rowIdx = 0;
-                DataTable table = new DataTable();
-                while (!reader.EndOfStream)
+                reader = new StreamReader(this.FileName, this.Encoding);
+            }
+            else if (this.DataStream != null)
+            {
+                reader = new StreamReader(this.DataStream);
+            }
+            else
+            {
+                throw new ArgumentNullException("reader");
+            }
+
+            int readedRows = 0;
+            int rowIdx = 0;
+            DataTable table = new DataTable();
+            while (!reader.EndOfStream)
+            {
+                var line = reader.ReadLine();
+                lines.Add(line);
+                rowIdx++;
+
+                //if (this.skipRows > 0 && rowIdx < this.skipRows)
+                //{
+                //    continue;
+                //}
+
+                // first row (header?)
+                if (readedRows == 0)
                 {
-                    var line = reader.ReadLine();
-                    lines.Add(line);
-                    rowIdx++;
+                    DataTableHelper.DisposeTable(table);
 
-                    //if (this.skipRows > 0 && rowIdx < this.skipRows)
-                    //{
-                    //    continue;
-                    //}
-
-                    // first row (header?)
-                    if (readedRows == 0)
-                    {
-                        DataTableHelper.DisposeTable(table);
-
-                        table = headerTable != null
-                            ? headerTable.Clone()
-                            : null;
-                    }
-
-                    readedRows++;
-
-                    if (blockSize.HasValue && blockSize > 0 && readedRows >= blockSize)
-                    {
-                        table = this.ReadFormatter.Format(lines, table) as DataTable;
-                        if (table != null)
-                        {
-                            this.ReadConverter.ExecuteConverters(table);
-
-                            table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
-
-                            if (headerTable == null)
-                            {
-                                headerTable = table.Clone();
-                                lines.Clear();
-                                continue;
-                            }
-                        }
-                        else
-                        {
-                            table = new DataTable();
-                        }
-
-                        lines.Clear();
-                        readedRows = 0;
-
-                        yield return table;
-                    }
+                    table = headerTable != null
+                        ? headerTable.Clone()
+                        : null;
                 }
 
-                if (readedRows > 0 || table == null)
+                readedRows++;
+
+                if (blockSize.HasValue && blockSize > 0 && readedRows >= blockSize)
                 {
                     table = this.ReadFormatter.Format(lines, table) as DataTable;
                     if (table != null)
@@ -148,16 +135,49 @@ namespace DataConnectors.Adapter.FileAdapter
                         this.ReadConverter.ExecuteConverters(table);
 
                         table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
+
+                        if (headerTable == null)
+                        {
+                            headerTable = table.Clone();
+                            lines.Clear();
+                            continue;
+                        }
                     }
                     else
                     {
                         table = new DataTable();
                     }
 
+                    lines.Clear();
+                    readedRows = 0;
+
                     yield return table;
                 }
+            }
 
-                DataTableHelper.DisposeTable(table);
+            if (readedRows > 0 || table == null)
+            {
+                table = this.ReadFormatter.Format(lines, table) as DataTable;
+                if (table != null)
+                {
+                    this.ReadConverter.ExecuteConverters(table);
+
+                    table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
+                }
+                else
+                {
+                    table = new DataTable();
+                }
+
+                yield return table;
+            }
+
+            DataTableHelper.DisposeTable(table);
+
+            if (reader != null)
+            {
+                reader.Close();
+                reader.Dispose();
             }
         }
 
@@ -190,6 +210,10 @@ namespace DataConnectors.Adapter.FileAdapter
                     userTableList.Add(this.FileName);
                 }
             }
+            else if (this.DataStream is FileStream)
+            {
+                userTableList.Add((this.DataStream as FileStream).Name);
+            }
 
             return userTableList;
         }
@@ -203,6 +227,10 @@ namespace DataConnectors.Adapter.FileAdapter
             if (!string.IsNullOrEmpty(this.FileName))
             {
                 reader = new StreamReader(this.FileName);
+            }
+            else if (this.DataStream != null)
+            {
+                reader = new StreamReader(this.DataStream);
             }
 
             if (reader == null)
@@ -297,7 +325,14 @@ namespace DataConnectors.Adapter.FileAdapter
                         writer.Dispose();
                     }
 
-                    writer = new StreamWriter(fileName, !isNewFile, this.Encoding);
+                    if (!string.IsNullOrEmpty(fileName))
+                    {
+                        writer = new StreamWriter(fileName, !isNewFile, this.Encoding);
+                    }
+                    else if (this.DataStream != null)
+                    {
+                        writer = new StreamWriter(this.DataStream, this.Encoding);
+                    }
 
                     lastFileName = fileName;
                 }
@@ -352,9 +387,16 @@ namespace DataConnectors.Adapter.FileAdapter
 
             try
             {
-                using (Stream reader = File.OpenRead(fileName))
+                if (!string.IsNullOrEmpty(fileName))
                 {
-                    encoding = EncodingUtil.DetectEncoding(reader);
+                    using (Stream reader = File.OpenRead(fileName))
+                    {
+                        encoding = EncodingUtil.DetectEncoding(reader);
+                    }
+                }
+                else if (this.DataStream != null)
+                {
+                    encoding = EncodingUtil.DetectEncoding(this.DataStream);
                 }
             }
             catch (Exception ex)
