@@ -26,7 +26,9 @@ namespace DataConnectors.Sample
 
             // Sample_DateFormats_Converted();
 
-            var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
+            // var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
+
+            Sample_String_To_CsvFile();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -365,6 +367,45 @@ namespace DataConnectors.Sample
                     watch.Stop();
                     Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
                     Console.ReadLine();
+                }
+            }
+        }
+
+        public static void Sample_String_To_CsvFile()
+        {
+            string data = @"Name;Address;Gpnr
+John;Main Road; 4711
+Jeffrey;;4712
+Mike;Hauptstr.1;4713";
+
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (Stream stream = StreamUtil.CreateStream(data))
+            {
+                using (var reader = new CsvAdapter(stream))
+                {
+                    reader.Separator = ";";
+
+                    using (var writer = new CsvAdapter())
+                    {
+                        writer.FileName = sampleDataPath + "StringData.csv";
+
+                        watch.Start();
+                        int lineCount = 0;
+
+                        reader.ReadData(30)
+                             .ForEach(x =>
+                             {
+                                 Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                                 lineCount += x.Rows.Count;
+                             })
+                             .Do(x => writer.WriteData(x));
+
+                        watch.Stop();
+                        Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                        Console.ReadLine();
+                    }
                 }
             }
         }
