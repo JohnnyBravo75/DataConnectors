@@ -16,6 +16,8 @@ namespace DataConnectors.Converters
                     culture = Thread.CurrentThread.CurrentCulture;
                 }
 
+                // new culture in which the number separators can be changed
+
                 var parseCulture = new CultureInfo(culture.Name);
 
                 if (parameter is string && !string.IsNullOrEmpty(parameter as string))

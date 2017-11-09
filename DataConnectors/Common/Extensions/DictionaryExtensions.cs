@@ -13,6 +13,11 @@ namespace DataConnectors.Common.Extensions
     {
         public static IDictionary<TKey, TValue> AddRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue> addDictionary)
         {
+            if (addDictionary == null)
+            {
+                return dictionary;
+            }
+
             foreach (var item in addDictionary)
             {
                 dictionary.Add(item.Key, item.Value);
@@ -23,6 +28,11 @@ namespace DataConnectors.Common.Extensions
 
         public static IDictionary<TKey, TValue> AddOrUpdateRange<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, IDictionary<TKey, TValue> addDictionary)
         {
+            if (addDictionary == null)
+            {
+                return dictionary;
+            }
+
             foreach (var item in addDictionary)
             {
                 dictionary.AddOrUpdate(item.Key, item.Value);
@@ -33,6 +43,11 @@ namespace DataConnectors.Common.Extensions
 
         public static IDictionary<TKey, TValue> AddRange<TKey, TValue, TA>(this IDictionary<TKey, TValue> dictionary, IEnumerable<TA> collection, Func<TA, TKey> getKey, Func<TA, TValue> getValue)
         {
+            if (collection == null)
+            {
+                return dictionary;
+            }
+
             foreach (var item in collection)
             {
                 dictionary.Add(getKey(item), getValue(item));
@@ -122,7 +137,7 @@ namespace DataConnectors.Common.Extensions
                  : defaultValueProvider();
         }
 
-        public static IDictionary<TKey, TValue> RemoveAll<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, Predicate<KeyValuePair<TKey, TValue>> condition)
+        public static IDictionary<TKey, TValue> RemoveAll<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, Predicate<KeyValuePair<TKey, TValue>> condition)
         {
             var temp = new List<TKey>();
 

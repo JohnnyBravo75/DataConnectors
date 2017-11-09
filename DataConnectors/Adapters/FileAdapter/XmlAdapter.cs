@@ -27,15 +27,13 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new FlatFileConnectionInfo();
         }
 
-        public XmlAdapter(string fileName)
+        public XmlAdapter(string fileName) : this()
         {
-            this.ConnectionInfo = new FlatFileConnectionInfo();
             this.FileName = fileName;
         }
 
-        public XmlAdapter(Stream dataStream)
+        public XmlAdapter(Stream dataStream) : this()
         {
-            this.ConnectionInfo = new FlatFileConnectionInfo();
             this.DataStream = dataStream;
         }
 
