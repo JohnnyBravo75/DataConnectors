@@ -364,9 +364,15 @@ namespace DataConnectors.Common.Extensions
         {
             var props = obj.GetType().GetProperties();
             var sb = new StringBuilder();
-            foreach (var p in props)
+            foreach (var prop in props)
             {
-                sb.AppendLine(p.Name + ": " + p.GetValue(obj, null));
+                if (prop.CanRead)
+                {
+                    if (prop.GetIndexParameters().Length == 0)
+                    {
+                        sb.AppendLine(prop.Name + ": " + prop.GetValue(obj, null));
+                    }
+                }
             }
             return sb.ToString();
         }

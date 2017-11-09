@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 
 namespace DataConnectors.Common.Extensions
 {
@@ -226,6 +227,32 @@ namespace DataConnectors.Common.Extensions
             }
 
             return result;
+        }
+
+        public static string ToFormattedString<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> items, string format = "")
+        {
+            if (items == null)
+            {
+                return string.Empty;
+            }
+
+            format = string.IsNullOrEmpty(format) ? "{0}='{1}' " : format;
+
+            var itemString = new StringBuilder();
+            foreach (var item in items)
+            {
+                string itemValue = (item.Value != null
+                                         ? (item.Value is IDictionary<string, object>
+                                                    ? (item.Value as IDictionary<string, object>).ToFormattedString()
+                                                    : item.Value.ToString()
+                                           )
+                                        : ""
+                                    );
+
+                itemString.AppendFormat(format, item.Key, itemValue);
+            }
+
+            return itemString.ToString();
         }
     }
 

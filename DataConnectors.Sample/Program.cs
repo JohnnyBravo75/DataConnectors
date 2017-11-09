@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
@@ -31,7 +33,9 @@ namespace DataConnectors.Sample
 
             // Sample_DateFormats_Converted();
 
-            var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
+            // var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
+
+            Sample_Rss_Focus();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -370,6 +374,30 @@ namespace DataConnectors.Sample
                     watch.Stop();
                     Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
                     Console.ReadLine();
+                }
+            }
+        }
+
+        public static void Sample_Rss_Focus()
+        {
+            var request = HttpWebRequest.Create("http://rss.focus.de/fol/XML/rss_folnews.xml") as HttpWebRequest;
+
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            {
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (var reader = new XmlAdapter(responseStream))
+                    {
+                        reader.XPath = "/rss/channel/item";
+
+                        foreach (var table in reader.ReadData(30))
+                        {
+                            foreach (DataRow row in table.Rows)
+                            {
+                                Console.WriteLine(row.ToDictionary<object>().ToFormattedString());
+                            }
+                        }
+                    }
                 }
             }
         }
