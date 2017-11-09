@@ -110,11 +110,13 @@
     <Compile Include="Adapters\FileAdapter\XPathAdapter.cs" />
     <Compile Include="Common\Helper\DateTimeUtil.cs" />
     <Compile Include="Common\Helper\CultureUtil.cs" />
+    <Compile Include="Common\Helper\StreamUtil.cs" />
     <Compile Include="Converters\Base\ValueConverterFactory.cs" />
     <Compile Include="Converters\Base\ValueConverterBase.cs" />
     <Compile Include="Converters\Base\ValueConvertProcessor.cs" />
     <Compile Include="Converters\DateTimeAutoDetectConverter.cs" />
     <Compile Include="Converters\Model\ValueConverterAttribute.cs" />
+    <Compile Include="Converters\NumberAutoDetectConverter.cs" />
     <Compile Include="Converters\NumberFormatConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
     <Compile Include="Converters\Model\ValueConverterDefinition.cs" />

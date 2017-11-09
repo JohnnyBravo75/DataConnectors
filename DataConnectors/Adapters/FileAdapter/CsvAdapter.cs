@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text;
 using DataConnectors.Converters;
 using DataConnectors.Formatters;
@@ -14,6 +15,16 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             this.fileAdapter.ReadFormatter = new CsvToDataTableFormatter() { Separator = ";" };
             this.fileAdapter.WriteFormatter = new DataTableToCsvFormatter() { Separator = ";" };
+        }
+
+        public CsvAdapter(string filenName) : this()
+        {
+            this.FileName = filenName;
+        }
+
+        public CsvAdapter(Stream dataStream) : this()
+        {
+            this.DataStream = dataStream;
         }
 
         public Encoding Encoding
@@ -39,6 +50,18 @@ namespace DataConnectors.Adapter.FileAdapter
             set
             {
                 this.fileAdapter.FileName = value;
+            }
+        }
+
+        public Stream DataStream
+        {
+            get
+            {
+                return this.fileAdapter.DataStream;
+            }
+            set
+            {
+                this.fileAdapter.DataStream = value;
             }
         }
 

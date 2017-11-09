@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Text;
 using DataConnectors.Common.Model;
 using DataConnectors.Converters;
@@ -18,6 +19,16 @@ namespace DataConnectors.Adapter.FileAdapter
 
             // set to the same reference
             (this.fileAdapter.ReadFormatter as FixedLengthToDataTableFormatter).FieldDefinitions = (this.fileAdapter.WriteFormatter as DataTableToFixedLengthFormatter).FieldDefinitions;
+        }
+
+        public FixedTextAdapter(string filenName) : this()
+        {
+            this.FileName = filenName;
+        }
+
+        public FixedTextAdapter(Stream dataStream) : this()
+        {
+            this.DataStream = dataStream;
         }
 
         public Encoding Encoding
@@ -43,6 +54,18 @@ namespace DataConnectors.Adapter.FileAdapter
             set
             {
                 this.fileAdapter.FileName = value;
+            }
+        }
+
+        public Stream DataStream
+        {
+            get
+            {
+                return this.fileAdapter.DataStream;
+            }
+            set
+            {
+                this.fileAdapter.DataStream = value;
             }
         }
 

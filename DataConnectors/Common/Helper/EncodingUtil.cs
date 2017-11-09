@@ -168,6 +168,7 @@ namespace DataConnectors.Common.Helper
                     {
                         try
                         {
+                            reader.Close();
                             reader.Dispose();
                         }
                         catch (Exception ex)
@@ -201,6 +202,39 @@ namespace DataConnectors.Common.Helper
             }
 
             return resultEnc;
+        }
+
+        /// <summary>
+        /// Detects the byte order mark of a file and returns
+        /// an appropriate encoding for the file.
+        /// </summary>
+        /// <param name="srcFile"></param>
+        /// <returns></returns>
+        public static Encoding DetectFileEncoding(string srcFile)
+        {
+            // *** Use Default of Encoding.Default (Ansi CodePage)
+            Encoding encoding = Encoding.Default;
+
+            // *** Detect byte order mark if any - otherwise assume default
+            byte[] buffer = new byte[5];
+            using (FileStream fileStream = new FileStream(srcFile, FileMode.Open))
+            {
+                fileStream.Read(buffer, 0, 5);
+                fileStream.Close();
+            }
+
+            if (buffer[0] == 0xef && buffer[1] == 0xbb && buffer[2] == 0xbf)
+                encoding = Encoding.UTF8;
+            else if (buffer[0] == 0xff && buffer[1] == 0xfe)
+                encoding = Encoding.Unicode;            // utf-16le
+            else if (buffer[0] == 0xfe && buffer[1] == 0xff)
+                encoding = Encoding.BigEndianUnicode;   // utf-16be
+            else if (buffer[0] == 0 && buffer[1] == 0 && buffer[2] == 0xfe && buffer[3] == 0xff)
+                encoding = Encoding.UTF32;
+            else if (buffer[0] == 0x2b && buffer[1] == 0x2f && buffer[2] == 0x76)
+                encoding = Encoding.UTF7;
+
+            return encoding;
         }
 
         /// <summary>
