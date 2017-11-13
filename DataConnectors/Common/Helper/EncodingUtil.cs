@@ -217,7 +217,7 @@ namespace DataConnectors.Common.Helper
 
             // *** Detect byte order mark if any - otherwise assume default
             byte[] buffer = new byte[5];
-            using (FileStream fileStream = new FileStream(srcFile, FileMode.Open))
+            using (FileStream fileStream = new FileStream(srcFile, FileMode.Open, FileAccess.Read))
             {
                 fileStream.Read(buffer, 0, 5);
                 fileStream.Close();
