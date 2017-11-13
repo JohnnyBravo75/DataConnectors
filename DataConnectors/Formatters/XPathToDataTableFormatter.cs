@@ -24,7 +24,7 @@ namespace DataConnectors.Formatters
         public XPathToDataTableFormatter()
         {
             this.FormatterOptions.Add(new FormatterOption() { Name = "RowXPath" });
-            this.FormatterOptions.Add(new FormatterOption() { Name = "RemoveNamespaces", Value = false });
+            this.FormatterOptions.Add(new FormatterOption() { Name = "RemoveNamespaces", Value = true });
         }
 
         [XmlIgnore]
@@ -212,7 +212,6 @@ namespace DataConnectors.Formatters
                 };
                 xPathMappingList.Add(xPathMapping);
             }
-
 
             return xPathMappingList;
         }
