@@ -58,7 +58,15 @@ namespace DataConnectors.Adapter.FileAdapter
         [XmlAttribute]
         public string FileName
         {
-            get { return (this.ConnectionInfo as FlatFileConnectionInfo).FileName; }
+            get
+            {
+                if (this.ConnectionInfo == null)
+                {
+                    return string.Empty;
+                }
+
+                return (this.ConnectionInfo as FlatFileConnectionInfo).FileName;
+            }
             set { (this.ConnectionInfo as FlatFileConnectionInfo).FileName = value; }
         }
 
@@ -81,6 +89,18 @@ namespace DataConnectors.Adapter.FileAdapter
         }
 
         public Stream DataStream { get; set; }
+
+        public override void Dispose()
+        {
+            if (this.DataStream != null)
+            {
+                this.DataStream.Close();
+                this.DataStream.Dispose();
+                this.DataStream = null;
+            }
+
+            base.Dispose();
+        }
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
