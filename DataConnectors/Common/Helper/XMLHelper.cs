@@ -83,44 +83,7 @@ namespace DataConnectors.Common.Helper
             return xml;
         }
 
-        /// <summary>
-        /// Strips/removes the XML name spaces.
-        /// </summary>
-        /// <param name="xDoc">The x xmlDoc.</param>
-        /// <returns>a XmlDocument without namespace declarations</returns>
-        public static XmlDocument StripXmlNameSpaces(XmlDocument xDoc)
-        {
-            string xml = xDoc.InnerXml;
-
-            if (string.IsNullOrEmpty(xml))
-            {
-                return xDoc;
-            }
-
-            string strippedXml = StripXmlNameSpaces(xml);
-            var strippedXDoc = new XmlDocument();
-            strippedXDoc.LoadXml(strippedXml);
-            return strippedXDoc;
-        }
-
-        /// <summary>
-        /// Strips/removes all XML namespaces.
-        /// </summary>
-        /// <param name="xml">The XML.</param>
-        /// <returns></returns>
-        public static string StripXmlNameSpaces(string xml)
-        {
-            if (string.IsNullOrEmpty(xml))
-            {
-                return xml;
-            }
-
-            string strXMLPattern = @"xmlns(:\w+)?=\""([^\""]*)\""";
-            string strippedXml = System.Text.RegularExpressions.Regex.Replace(xml, strXMLPattern, "", RegexOptions.IgnoreCase | RegexOptions.Multiline);
-            return strippedXml;
-        }
-
-        public static XmlDocument RemoveXmlns(XmlDocument xmlDoc)
+        public static XmlDocument RemoveXmlNamespaces(XmlDocument xmlDoc)
         {
             XDocument xDoc;
             using (var nodeReader = new XmlNodeReader(xmlDoc))
@@ -128,16 +91,16 @@ namespace DataConnectors.Common.Helper
                 xDoc = XDocument.Load(nodeReader);
             }
 
-            return RemoveXmlns(xDoc);
+            return RemoveXmlNamespaces(xDoc);
         }
 
-        public static XmlDocument RemoveXmlns(string xml)
+        public static string RemoveXmlNamespaces(string xml)
         {
             XDocument xDoc = XDocument.Parse(xml);
-            return RemoveXmlns(xDoc);
+            return RemoveXmlNamespaces(xDoc).OuterXml;
         }
 
-        public static XmlDocument RemoveXmlns(XDocument xDoc)
+        public static XmlDocument RemoveXmlNamespaces(XDocument xDoc)
         {
             if (xDoc == null)
             {
@@ -167,7 +130,7 @@ namespace DataConnectors.Common.Helper
             {
                 // attributes have an OwnerElement, not a ParentNode; also they have
                 // to be matched by name, not found by position
-                return String.Format(
+                return string.Format(
                     "{0}/@{1}",
                     GetXPathToNode(((XmlAttribute)node).OwnerElement),
                     node.Name
@@ -180,7 +143,7 @@ namespace DataConnectors.Common.Helper
             }
             // the path to a node is the path to its parent, plus "/node()[n]", where
             // n is its position among its siblings.
-            return String.Format(
+            return string.Format(
                 "{0}/node()[{1}]",
                 GetXPathToNode(node.ParentNode),
                 GetNodePosition(node)
