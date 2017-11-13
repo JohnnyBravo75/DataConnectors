@@ -200,7 +200,7 @@ namespace DataConnectors.Formatters
 
             if (removeNamespaces)
             {
-                xmlDoc = XmlHelper.StripXmlNameSpaces(xmlDoc);
+                xmlDoc = XmlHelper.RemoveXmlNamespaces(xmlDoc);
             }
             try
             {

@@ -31,7 +31,8 @@ namespace DataConnectors.Sample
 
             // var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
 
-            Sample_ReadXml_Books();
+            // Sample_ReadXml_Books();
+            Sample_Rss_Focus();
         }
 
         public static void Sample_CreateAdapterDynamic()
