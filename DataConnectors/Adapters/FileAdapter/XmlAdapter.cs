@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.Xml.XPath;
 using DataConnectors.Adapter.FileAdapter.ConnectionInfos;
@@ -37,6 +39,22 @@ namespace DataConnectors.Adapter.FileAdapter
             this.DataStream = dataStream;
         }
 
+        public XmlAdapter(XDocument xDoc)
+        {
+            this.DataStream = new MemoryStream();
+            xDoc.Save(this.DataStream);
+            this.DataStream.Flush();
+            this.DataStream.Position = 0;
+        }
+
+        public XmlAdapter(XmlDocument xmlDoc)
+        {
+            this.DataStream = new MemoryStream();
+            xmlDoc.Save(this.DataStream);
+            this.DataStream.Flush();
+            this.DataStream.Position = 0;
+        }
+
         [XmlElement]
         public List<XmlNameSpace> XmlNameSpaces
         {
@@ -68,7 +86,14 @@ namespace DataConnectors.Adapter.FileAdapter
         [XmlAttribute]
         public string FileName
         {
-            get { return (this.ConnectionInfo as FlatFileConnectionInfo).FileName; }
+            get
+            {
+                if (this.ConnectionInfo == null)
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as FlatFileConnectionInfo).FileName;
+            }
             set { (this.ConnectionInfo as FlatFileConnectionInfo).FileName = value; }
         }
 
@@ -81,9 +106,23 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public Stream DataStream { get; set; }
 
+        public bool AutoExtractNamespaces { get; set; }
+
         public override IList<DataColumn> GetAvailableColumns()
         {
             return new List<DataColumn>();
+        }
+
+        public override void Dispose()
+        {
+            if (this.DataStream != null)
+            {
+                this.DataStream.Close();
+                this.DataStream.Dispose();
+                this.DataStream = null;
+            }
+
+            base.Dispose();
         }
 
         public override IList<string> GetAvailableTables()
@@ -317,6 +356,9 @@ namespace DataConnectors.Adapter.FileAdapter
 
         private XPathNodeIterator CreateXPathIterator()
         {
+            string xPath = this.XPath;
+
+            // create xpath navigator
             XPathNavigator xPathNavigator = null;
 
             if (!string.IsNullOrEmpty(this.FileName))
@@ -332,14 +374,47 @@ namespace DataConnectors.Adapter.FileAdapter
                 return null;
             }
 
-            var xPathExpr = xPathNavigator.Compile(this.XPath);
-
             var nsMgr = new XmlNamespaceManager(new NameTable());
-            foreach (var xmlNameSpace in this.XmlNameSpaces)
+
+            // extract and add namespaces
+            if (this.AutoExtractNamespaces)
             {
-                nsMgr.AddNamespace(xmlNameSpace.Prefix, xmlNameSpace.NameSpace);
+                xPathNavigator.MoveToFollowing(XPathNodeType.Element);
+                var extractedNamespaces = xPathNavigator.GetNamespacesInScope(XmlNamespaceScope.All);
+                if (extractedNamespaces != null)
+                {
+                    foreach (var xmlNameSpace in extractedNamespaces)
+                    {
+                        string prefix = xmlNameSpace.Key;
+                        // empty default namespace does not work (Xpath 1.0!)
+                        if (string.IsNullOrEmpty(prefix))
+                        {
+                            nsMgr.AddNamespace(prefix, xmlNameSpace.Value);
+                            prefix = "ns";
+                        }
+
+                        nsMgr.AddNamespace(prefix, xmlNameSpace.Value);
+                    }
+                }
             }
 
+            // add defined namespaces
+            if (this.XmlNameSpaces != null)
+            {
+                foreach (var xmlNameSpace in this.XmlNameSpaces)
+                {
+                    nsMgr.AddNamespace(xmlNameSpace.Prefix, xmlNameSpace.NameSpace);
+                }
+            }
+
+            if (!string.IsNullOrEmpty(nsMgr.DefaultNamespace))
+
+            {
+                xPath = this.AddNamespacePrefixToXPath(xPath, "ns");
+            }
+
+            // compile and create iterator
+            var xPathExpr = xPathNavigator.Compile(xPath);
             xPathExpr.SetContext(nsMgr);
 
             var xPathIterator = xPathNavigator.Select(xPathExpr);
@@ -355,6 +430,27 @@ namespace DataConnectors.Adapter.FileAdapter
             }
 
             return false;
+        }
+
+        private string AddNamespacePrefixToXPath(string xPath, string namespacePrefix)
+        {
+            var pieces = xPath.Split(new string[] { @"/" }, StringSplitOptions.RemoveEmptyEntries);
+
+            string prefixedXPath = string.Empty;
+            foreach (var piece in pieces)
+            {
+                if (!string.IsNullOrWhiteSpace(piece))
+                {
+                    string prefixedPiece = piece;
+                    if (!prefixedPiece.StartsWith(namespacePrefix))
+                    {
+                        prefixedPiece = namespacePrefix + ":" + prefixedPiece;
+                    }
+
+                    prefixedXPath += @"/" + prefixedPiece;
+                }
+            }
+            return prefixedXPath;
         }
     }
 }
