@@ -117,7 +117,32 @@ string xml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
                 var dataTable = reader.ReadAllData();
             }
 ```
+Read RSS feed from the web
 
+```csharp
+var request = HttpWebRequest.Create("http://rss.focus.de/fol/XML/rss_folnews.xml") as HttpWebRequest;
 
+            if (request != null)
+            {
+                using (var response = request.GetResponse() as HttpWebResponse)
+                {
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        using (var reader = new XmlAdapter(responseStream))
+                        {
+                            reader.XPath = "/rss/channel/item";
+
+                            foreach (var table in reader.ReadData(30))
+                            {
+                                foreach (DataRow row in table.Rows)
+                                {
+                                    Console.WriteLine(row.ToDictionary<object>().ToFormattedString());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+```
 
 

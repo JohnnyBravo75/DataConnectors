@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Dynamic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -31,8 +32,8 @@ namespace DataConnectors.Sample
 
             // var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
 
-            // Sample_ReadXml_Books();
-            Sample_Rss_Focus();
+            Sample_ReadXml_Books();
+            // Sample_Rss_Focus();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -418,19 +419,22 @@ Mike;Hauptstr.1;4713";
         {
             var request = HttpWebRequest.Create("http://rss.focus.de/fol/XML/rss_folnews.xml") as HttpWebRequest;
 
-            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
+            if (request != null)
             {
-                using (Stream responseStream = response.GetResponseStream())
+                using (var response = request.GetResponse() as HttpWebResponse)
                 {
-                    using (var reader = new XmlAdapter(responseStream))
+                    using (var responseStream = response.GetResponseStream())
                     {
-                        reader.XPath = "/rss/channel/item";
-
-                        foreach (var table in reader.ReadData(30))
+                        using (var reader = new XmlAdapter(responseStream))
                         {
-                            foreach (DataRow row in table.Rows)
+                            reader.XPath = "/rss/channel/item";
+
+                            foreach (var table in reader.ReadData(30))
                             {
-                                Console.WriteLine(row.ToDictionary<object>().ToFormattedString());
+                                foreach (DataRow row in table.Rows)
+                                {
+                                    Console.WriteLine(row.ToDictionary<object>().ToFormattedString());
+                                }
                             }
                         }
                     }
@@ -474,6 +478,8 @@ Mike;Hauptstr.1;4713";
                 reader.XPath = "/bookstore/book";
                 reader.AutoExtractNamespaces = true;
                 var dataTable = reader.ReadAllData();
+
+                //var dynObjects = reader.ReadAllDataAs<ExpandoObject>();
             }
         }
     }
