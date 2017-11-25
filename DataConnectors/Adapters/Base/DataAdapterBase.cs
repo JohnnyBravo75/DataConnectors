@@ -4,11 +4,8 @@ using System.Linq;
 using System.Reflection;
 using DataConnectors.Common.Helper;
 using System;
-using System.Collections.ObjectModel;
 using System.Globalization;
-using DataConnectors.Common.Extensions;
 using DataConnectors.Converters;
-using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Adapter
 {
@@ -113,12 +110,22 @@ namespace DataConnectors.Adapter
         {
         }
 
-        public virtual DataTable ReadAllData()
+        public DataTable ReadAllData()
         {
             return this.ReadData().FirstOrDefault();
         }
 
-        public virtual IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null) where TObj : class
+        public IEnumerable<TObj> ReadAllDataAs<TObj>() where TObj : class
+        {
+            return this.ReadDataAs<TObj>().ToList();
+        }
+
+        public IEnumerable<Dictionary<string, object>> ReadAllDataAs()
+        {
+            return this.ReadDataAs().ToList();
+        }
+
+        public IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null) where TObj : class
         {
             return this.ConvertTablesToObjects<TObj>(this.ReadData(blockSize));
         }
@@ -128,7 +135,7 @@ namespace DataConnectors.Adapter
             return this.ConvertTablesToDictionaries(this.ReadData(blockSize));
         }
 
-        public virtual bool WriteDataFrom<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = null) where TObj : class
+        public bool WriteDataFrom<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = null) where TObj : class
         {
             return this.WriteData(this.ConvertObjectsToTables<TObj>(objects, blockSize), deleteBefore);
         }

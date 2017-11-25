@@ -130,7 +130,7 @@ namespace DataConnectors.Common.Helper
             T obj = default(T);
             if (row != null)
             {
-                if (obj is ExpandoObject)
+                if (typeof(T) == typeof(ExpandoObject))
                 {
                     obj = CreateExpandoObject<T>(row, culture, converterDefinitions);
                 }
