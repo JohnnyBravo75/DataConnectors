@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -10,6 +11,7 @@ using System.Xml.Serialization;
 using System.Xml.XPath;
 using DataConnectors.Adapter.FileAdapter.ConnectionInfos;
 using DataConnectors.Common.Helper;
+using DataConnectors.Common.Model;
 using DataConnectors.Formatters;
 using DataConnectors.Formatters.Model;
 
@@ -88,7 +90,7 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             get
             {
-                if (this.ConnectionInfo == null)
+                if (!(this.ConnectionInfo is FlatFileConnectionInfo))
                 {
                     return string.Empty;
                 }
@@ -273,6 +275,25 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        public override IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null)
+        {
+            if (this.readFormatter is XPathToDataTableFormatter)
+            {
+                this.ExtractXPathMappingFromAttributes<TObj>((this.readFormatter as XPathToDataTableFormatter).XPathMappings);
+            }
+
+            return base.ReadDataAs<TObj>(blockSize);
+        }
+
+        public override bool WriteDataFrom<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = null)
+        {
+            if (this.writeFormatter is DataTableToXPathFormatter)
+            {
+                this.ExtractXPathMappingFromAttributes<TObj>((this.writeFormatter as DataTableToXPathFormatter).XPathMappings);
+            }
+
+            return base.WriteDataFrom<TObj>(objects, deleteBefore, blockSize);
+        }
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
             var xmlDoc = new XmlDocument();
@@ -386,7 +407,7 @@ namespace DataConnectors.Adapter.FileAdapter
                     foreach (var xmlNameSpace in extractedNamespaces)
                     {
                         string prefix = xmlNameSpace.Key;
-                        // empty default namespace does not work (Xpath 1.0!)
+                        // empty default namespace does not work (Xpath 1.0!), so generate default prefix "ns"
                         if (string.IsNullOrEmpty(prefix))
                         {
                             nsMgr.AddNamespace(prefix, xmlNameSpace.Value);
@@ -452,5 +473,27 @@ namespace DataConnectors.Adapter.FileAdapter
             }
             return prefixedXPath;
         }
+
+        private void ExtractXPathMappingFromAttributes<TObj>(XPathMappingList xPathMappings) where TObj : class
+        {
+            var dataFieldsProps = typeof(TObj).GetProperties()
+                                .Where(p => Attribute.IsDefined(p, typeof(DataFieldAttribute)))
+                                .ToList();
+
+            foreach (var dataFieldProp in dataFieldsProps)
+            {
+                var attr = dataFieldProp.GetCustomAttribute<DataFieldAttribute>(false);
+                var xPathMapping = new XPathMapping()
+                {
+                    XPath = attr.XPath,
+                    Column = !string.IsNullOrEmpty(attr.Name)
+                                        ? attr.Name
+                                        : dataFieldProp.Name
+                };
+
+                xPathMappings.Add(xPathMapping);
+            }
+        }
+
     }
 }

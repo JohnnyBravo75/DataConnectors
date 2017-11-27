@@ -16,6 +16,7 @@ using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
+using DataConnectors.Common.Model;
 using DataConnectors.Converters;
 using DataConnectors.Converters.Model;
 using DataConnectors.Formatters;
@@ -442,6 +443,31 @@ Mike;Hauptstr.1;4713";
             }
         }
 
+
+        public class Book
+        {
+            [DataField(XPath = "/book/title")]
+            public string Title { get; set; }
+
+            [DataField(XPath = "/book/@genre")]
+            public string Genre { get; set; }
+
+            [DataField(XPath = "/book/@ISBN")]
+            public string ISBN { get; set; }
+
+            [DataField(XPath = "/book/@publicationdate")]
+            public DateTime PublicationDate { get; set; }
+
+            [DataField(XPath = "/book/author/first-name")]
+            public string FirstName { get; set; }
+
+            [DataField(XPath = "/book/author/last-name")]
+            public string LastName { get; set; }
+
+            [DataField(XPath = "/book/price")]
+            public float Price { get; set; }
+        }
+
         public static void Sample_ReadXml_Books()
         {
             string xml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
@@ -477,9 +503,18 @@ Mike;Hauptstr.1;4713";
             {
                 reader.XPath = "/bookstore/book";
                 reader.AutoExtractNamespaces = true;
-                var dataTable = reader.ReadAllData();
+                //var dataTable = reader.ReadAllData();
 
                 //var dynObjects = reader.ReadAllDataAs<ExpandoObject>();
+
+                var books = reader.ReadAllDataAs<Book>();
+
+                using (var writer = new XmlAdapter())
+                {
+                    writer.XPath = "/bookstore/book";
+                    writer.FileName = @"C:\Temp\out.xml";
+                    writer.WriteDataFrom<Book>(books, true);
+                }
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.ServiceModel;
 using System.Xml.Serialization;
 using DataConnectors.Common.Helper;
@@ -13,7 +14,7 @@ namespace DataConnectors.Formatters
     public abstract class FormatterBase
     {
         private FormatterOptions formatterOptions = new FormatterOptions();
-
+        private CultureInfo defaultCulture = null;
         private List<string> errorData = new List<string>();
 
         [Browsable(false)]
@@ -28,6 +29,19 @@ namespace DataConnectors.Formatters
         {
             get { return this.formatterOptions; }
             set { this.formatterOptions = value; }
+        }
+
+        public CultureInfo DefaultCulture
+        {
+            get
+            {
+                if (this.defaultCulture == null)
+                {
+                    return CultureInfo.InvariantCulture;
+                }
+                return this.defaultCulture;
+            }
+            set { this.defaultCulture = value; }
         }
 
         public virtual object Format(object data, object existingData = null)

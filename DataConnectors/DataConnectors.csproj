@@ -111,6 +111,7 @@
     <Compile Include="Common\Helper\DateTimeUtil.cs" />
     <Compile Include="Common\Helper\CultureUtil.cs" />
     <Compile Include="Common\Helper\StreamUtil.cs" />
+    <Compile Include="Common\Model\DataFieldAttribute.cs" />
     <Compile Include="Converters\Base\ValueConverterFactory.cs" />
     <Compile Include="Converters\Base\ValueConverterBase.cs" />
     <Compile Include="Converters\Base\ValueConvertProcessor.cs" />
