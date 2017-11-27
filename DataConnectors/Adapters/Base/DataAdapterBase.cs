@@ -37,7 +37,7 @@ namespace DataConnectors.Adapter
 
         public abstract bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
 
-        private IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
+        protected IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
         {
             foreach (DataTable table in tables)
             {
@@ -52,11 +52,11 @@ namespace DataConnectors.Adapter
             }
         }
 
-        private IEnumerable<TObj> ConvertTablesToObjects<TObj>(IEnumerable<DataTable> tables, CultureInfo culture = null)
+        protected IEnumerable<TObj> ConvertTablesToObjects<TObj>(IEnumerable<DataTable> tables, CultureInfo culture = null)
         {
             if (culture == null)
             {
-                culture = CultureInfo.CurrentCulture;
+                culture = CultureInfo.InvariantCulture;
             }
 
             foreach (DataTable table in tables)
@@ -70,7 +70,7 @@ namespace DataConnectors.Adapter
             }
         }
 
-        private IEnumerable<DataTable> ConvertObjectsToTables<TObj>(IEnumerable<TObj> objects, int? blockSize = null)
+        protected IEnumerable<DataTable> ConvertObjectsToTables<TObj>(IEnumerable<TObj> objects, int? blockSize = null)
         {
             var properties = typeof(TObj).GetProperties();
 
@@ -110,32 +110,32 @@ namespace DataConnectors.Adapter
         {
         }
 
-        public DataTable ReadAllData()
+        public virtual DataTable ReadAllData()
         {
             return this.ReadData().FirstOrDefault();
         }
 
-        public IEnumerable<TObj> ReadAllDataAs<TObj>() where TObj : class
+        public virtual IEnumerable<TObj> ReadAllDataAs<TObj>() where TObj : class
         {
             return this.ReadDataAs<TObj>().ToList();
         }
 
-        public IEnumerable<Dictionary<string, object>> ReadAllDataAs()
+        public virtual IEnumerable<Dictionary<string, object>> ReadAllDataAs()
         {
             return this.ReadDataAs().ToList();
         }
 
-        public IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null) where TObj : class
+        public virtual IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null) where TObj : class
         {
             return this.ConvertTablesToObjects<TObj>(this.ReadData(blockSize));
         }
 
-        public IEnumerable<Dictionary<string, object>> ReadDataAs(int? blockSize = null)
+        public virtual IEnumerable<Dictionary<string, object>> ReadDataAs(int? blockSize = null)
         {
             return this.ConvertTablesToDictionaries(this.ReadData(blockSize));
         }
 
-        public bool WriteDataFrom<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = null) where TObj : class
+        public virtual bool WriteDataFrom<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = null) where TObj : class
         {
             return this.WriteData(this.ConvertObjectsToTables<TObj>(objects, blockSize), deleteBefore);
         }

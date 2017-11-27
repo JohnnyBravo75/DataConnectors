@@ -65,7 +65,6 @@ namespace DataConnectors.Formatters
 
             table = this.FormatToDataTable(xmlData, table);
 
-            //return table;
             if (dataSet == null)
             {
                 dataSet = new DataSet();
@@ -147,13 +146,25 @@ namespace DataConnectors.Formatters
 
             var xdoc = new XmlDocument();
             xdoc.LoadXml(xmlRow.OuterXml);
+            // get the name of the root node e.g. <book>
+            var entityName = xdoc.FirstChild != null
+                                    ? xdoc.FirstChild.Name
+                                    : "";
 
             var nsMgr = this.CreateXmlNamespaceManager(xdoc);
 
             foreach (var xPathMapping in xPathMappings)
             {
+                var xPath = xPathMapping.XPath;
+
+                // "/book" -> "/book/title"
+                if (!string.IsNullOrEmpty(entityName) && !xPath.StartsWith("/" + entityName))
+                {
+                    xPath = "/" + entityName + xPath;
+                }
+
                 // add all values from the path to the column
-                var nodes = xdoc.SelectNodes(xPathMapping.XPath, nsMgr);
+                var nodes = xdoc.SelectNodes(xPath, nsMgr);
                 if (nodes != null)
                 {
                     foreach (XmlNode node in nodes)

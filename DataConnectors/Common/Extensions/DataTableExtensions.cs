@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 
 namespace DataConnectors.Common.Extensions
@@ -109,14 +110,20 @@ namespace DataConnectors.Common.Extensions
                                 .Select(column => column.ColumnName);
         }
 
-        public static T GetField<T>(this DataRow row, string name)
+        public static T GetField<T>(this DataRow row, string name, CultureInfo culture = null)
         {
             if (!row.Table.Columns.Contains(name))
             {
                 return default(T);
             }
 
-            return row.Field<T>(name);
+            if (culture == null)
+            {
+                culture = CultureInfo.InvariantCulture;
+            }
+
+            return row[name].ConvertTo<T>(culture);
+
         }
 
         /// <summary>

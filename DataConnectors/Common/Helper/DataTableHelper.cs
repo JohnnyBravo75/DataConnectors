@@ -148,8 +148,12 @@ namespace DataConnectors.Common.Helper
             var obj = Activator.CreateInstance<T>();
 
             var objType = obj.GetType();
-            var dataMemberAttrs = objType.GetProperties()
+            var dataMemberProps = objType.GetProperties()
                                         .Where(p => Attribute.IsDefined(p, typeof(DataMemberAttribute)))
+                                        .ToList();
+
+            var dataFieldsProps = objType.GetProperties()
+                                        .Where(p => Attribute.IsDefined(p, typeof(DataFieldAttribute)))
                                         .ToList();
 
             foreach (DataColumn column in row.Table.Columns)
@@ -159,10 +163,20 @@ namespace DataConnectors.Common.Helper
                 // get the property
                 var property = objType.GetProperty(column.ColumnName.Trim(), BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-                if (property == null && dataMemberAttrs.Any())
+                if (property == null && dataFieldsProps.Any())
+                {
+                    // look for [DataField] attribute
+                    property = dataFieldsProps.FirstOrDefault(p => ((DataFieldAttribute)Attribute.GetCustomAttribute(p, typeof(DataFieldAttribute))).Name == column.ColumnName);
+                    if (property != null)
+                    {
+                        isRequired = ((DataFieldAttribute)Attribute.GetCustomAttribute(property, typeof(DataFieldAttribute))).IsRequired;
+                    }
+                }
+
+                if (property == null && dataMemberProps.Any())
                 {
                     // otherwise look for [DataMember] attribute
-                    property = dataMemberAttrs.FirstOrDefault(p => ((DataMemberAttribute)Attribute.GetCustomAttribute(p, typeof(DataMemberAttribute))).Name == column.ColumnName);
+                    property = dataMemberProps.FirstOrDefault(p => ((DataMemberAttribute)Attribute.GetCustomAttribute(p, typeof(DataMemberAttribute))).Name == column.ColumnName);
                     if (property != null)
                     {
                         isRequired = ((DataMemberAttribute)Attribute.GetCustomAttribute(property, typeof(DataMemberAttribute))).IsRequired;

@@ -42,7 +42,7 @@ namespace DataConnectors.Formatters
 
                     foreach (var xPathMapping in this.XPathMappings)
                     {
-                        var value = row.GetField<string>(xPathMapping.Column);
+                        var value = row.GetField<string>(xPathMapping.Column, this.DefaultCulture);
                         if (value != null)
                         {
                             var subValues = value.Split(new string[] { "#" }, StringSplitOptions.None);
