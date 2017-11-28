@@ -123,7 +123,7 @@ namespace DataConnectors.Adapter.FileAdapter
             return (this.workbook == null);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             this.Disconnect();
         }
