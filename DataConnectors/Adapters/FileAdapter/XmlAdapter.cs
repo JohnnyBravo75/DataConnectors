@@ -123,8 +123,6 @@ namespace DataConnectors.Adapter.FileAdapter
                 this.DataStream.Dispose();
                 this.DataStream = null;
             }
-
-            base.Dispose();
         }
 
         public override IList<string> GetAvailableTables()

@@ -106,9 +106,7 @@ namespace DataConnectors.Adapter
             yield return table;
         }
 
-        public virtual void Dispose()
-        {
-        }
+        public abstract void Dispose();
 
         public virtual DataTable ReadAllData()
         {

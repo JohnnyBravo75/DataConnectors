@@ -69,6 +69,11 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             get
             {
+                if (!(this.fileAdapter.ReadFormatter is CsvToDataTableFormatter))
+                {
+                    return string.Empty;
+                }
+
                 return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Separator;
             }
             set
@@ -82,6 +87,11 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             get
             {
+                if (!(this.fileAdapter.ReadFormatter is CsvToDataTableFormatter))
+                {
+                    return string.Empty;
+                }
+
                 return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Enclosure;
             }
             set
@@ -126,6 +136,14 @@ namespace DataConnectors.Adapter.FileAdapter
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
             return this.fileAdapter.WriteData(tables, deleteBefore);
+        }
+
+        public override void Dispose()
+        {
+            if (this.fileAdapter != null)
+            {
+                this.fileAdapter.Dispose();
+            }
         }
     }
 }

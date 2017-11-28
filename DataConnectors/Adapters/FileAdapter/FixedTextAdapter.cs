@@ -110,5 +110,13 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             return this.fileAdapter.WriteData(tables, deleteBefore);
         }
+
+        public override void Dispose()
+        {
+            if (this.fileAdapter != null)
+            {
+                this.fileAdapter.Dispose();
+            }
+        }
     }
 }

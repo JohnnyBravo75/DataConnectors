@@ -60,11 +60,10 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             get
             {
-                if (this.ConnectionInfo == null)
+                if (!(this.ConnectionInfo is FlatFileConnectionInfo))
                 {
                     return string.Empty;
                 }
-
                 return (this.ConnectionInfo as FlatFileConnectionInfo).FileName;
             }
             set { (this.ConnectionInfo as FlatFileConnectionInfo).FileName = value; }
@@ -98,8 +97,6 @@ namespace DataConnectors.Adapter.FileAdapter
                 this.DataStream.Dispose();
                 this.DataStream = null;
             }
-
-            base.Dispose();
         }
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)

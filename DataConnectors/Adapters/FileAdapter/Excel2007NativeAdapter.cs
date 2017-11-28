@@ -44,14 +44,28 @@ namespace DataConnectors.Adapter.FileAdapter
         [XmlAttribute]
         public string FileName
         {
-            get { return (this.ConnectionInfo as ExcelConnectionInfo).FileName; }
+            get
+            {
+                if (!(this.ConnectionInfo is ExcelConnectionInfo))
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as ExcelConnectionInfo).FileName;
+            }
             set { (this.ConnectionInfo as ExcelConnectionInfo).FileName = value; }
         }
 
         [XmlAttribute]
         public string SheetName
         {
-            get { return (this.ConnectionInfo as ExcelConnectionInfo).SheetName; }
+            get
+            {
+                if (!(this.ConnectionInfo is ExcelConnectionInfo))
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as ExcelConnectionInfo).SheetName;
+            }
             set { (this.ConnectionInfo as ExcelConnectionInfo).SheetName = value; }
         }
 
@@ -117,7 +131,7 @@ namespace DataConnectors.Adapter.FileAdapter
             return (this.excelPackage == null);
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             this.Disconnect();
         }
