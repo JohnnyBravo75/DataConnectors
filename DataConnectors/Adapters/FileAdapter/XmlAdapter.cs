@@ -25,6 +25,7 @@ namespace DataConnectors.Adapter.FileAdapter
         private List<XmlNameSpace> xmlNameSpaces = new List<XmlNameSpace>();
         private string xPath;
         private FileConnectionInfoBase connectionInfo;
+        private bool isMyDataStream = false;
 
         public XmlAdapter()
         {
@@ -47,6 +48,7 @@ namespace DataConnectors.Adapter.FileAdapter
             xDoc.Save(this.DataStream);
             this.DataStream.Flush();
             this.DataStream.Position = 0;
+            this.isMyDataStream = true;
         }
 
         public XmlAdapter(XmlDocument xmlDoc)
@@ -55,6 +57,7 @@ namespace DataConnectors.Adapter.FileAdapter
             xmlDoc.Save(this.DataStream);
             this.DataStream.Flush();
             this.DataStream.Position = 0;
+            this.isMyDataStream = true;
         }
 
         [XmlElement]
@@ -119,8 +122,13 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             if (this.DataStream != null)
             {
-                this.DataStream.Close();
-                this.DataStream.Dispose();
+                // only destroy stream when I´m the owner/creator
+                if (this.isMyDataStream)
+                {
+                    this.DataStream.Close();
+                    this.DataStream.Dispose();
+                }
+
                 this.DataStream = null;
             }
         }

@@ -93,17 +93,15 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             if (this.DataStream != null)
             {
-                this.DataStream.Close();
-                this.DataStream.Dispose();
+                // do not destroy stream I´m not the owner/creator
+                //this.DataStream.Close();
+                //this.DataStream.Dispose();
                 this.DataStream = null;
             }
         }
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
-            DataTable headerTable = null;
-            var lines = new List<string>();
-
             StreamReader reader = null;
             if (!string.IsNullOrEmpty(this.FileName))
             {
@@ -118,6 +116,8 @@ namespace DataConnectors.Adapter.FileAdapter
                 throw new ArgumentNullException("reader");
             }
 
+            DataTable headerTable = null;
+            var lines = new List<string>();
             int readedRows = 0;
             int rowIdx = 0;
             DataTable table = new DataTable();

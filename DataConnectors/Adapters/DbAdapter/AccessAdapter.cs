@@ -11,7 +11,14 @@ namespace DataConnectors.Adapter.DbAdapter
 
         public string FileName
         {
-            get { return (this.ConnectionInfo as AccessConnectionInfo).FileName; }
+            get
+            {
+                if (!(this.ConnectionInfo is AccessConnectionInfo))
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as AccessConnectionInfo).FileName;
+            }
             set { (this.ConnectionInfo as AccessConnectionInfo).FileName = value; }
         }
 
@@ -25,7 +32,6 @@ namespace DataConnectors.Adapter.DbAdapter
             // create access database file with the ADO-ActiveX
             ADOX.Catalog catalog = new ADOX.Catalog();
             catalog.Create(connectionString);
-            catalog = null;
             return true;
         }
     }
