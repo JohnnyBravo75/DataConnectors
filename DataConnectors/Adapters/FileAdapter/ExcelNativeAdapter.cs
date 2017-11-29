@@ -48,6 +48,8 @@ namespace DataConnectors.Adapter.FileAdapter
             set { this.connectionInfo = value; }
         }
 
+        public Stream DataStream { get; set; }
+
         [XmlAttribute]
         public bool ApplyCellStyles
         {
@@ -87,7 +89,7 @@ namespace DataConnectors.Adapter.FileAdapter
 
             try
             {
-                this.workbook = this.OpenExcelFile(this.FileName);
+                this.workbook = this.OpenExcelFile();
             }
             catch { }
 
@@ -396,7 +398,7 @@ namespace DataConnectors.Adapter.FileAdapter
             tableName = string.IsNullOrEmpty(tableName) ? "Sheet1" : tableName;
             this.sheet = this.workbook.CreateSheet(tableName);
 
-            this.WriteExcelFile(this.FileName, this.workbook);
+            this.WriteExcelFile(this.workbook);
         }
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
@@ -476,7 +478,7 @@ namespace DataConnectors.Adapter.FileAdapter
             // Forcing formula recalculation
             this.sheet.ForceFormulaRecalculation = true;
 
-            this.WriteExcelFile(this.FileName, this.workbook);
+            this.WriteExcelFile(this.workbook);
 
             return true;
         }
@@ -587,25 +589,39 @@ namespace DataConnectors.Adapter.FileAdapter
             return headerLabelCellStyle;
         }
 
-        private HSSFWorkbook OpenExcelFile(string filePath)
+        private HSSFWorkbook OpenExcelFile()
         {
-            HSSFWorkbook hssfworkbookLocal = null;
+            HSSFWorkbook workBook = null;
 
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                hssfworkbookLocal = new HSSFWorkbook(fileStream);
-                fileStream.Close();
+                using (var fileStream = new FileStream(this.FileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                {
+                    workBook = new HSSFWorkbook(fileStream);
+                    fileStream.Close();
+                }
+            }
+            else
+            {
+                workBook = new HSSFWorkbook(this.DataStream);
             }
 
-            return hssfworkbookLocal;
+            return workBook;
         }
 
-        private void WriteExcelFile(string filePath, HSSFWorkbook hssfworkbook)
+        private void WriteExcelFile(HSSFWorkbook workBook)
         {
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                hssfworkbook.Write(fileStream);
-                fileStream.Close();
+                using (var fileStream = new FileStream(this.FileName, FileMode.Create))
+                {
+                    workBook.Write(fileStream);
+                    fileStream.Close();
+                }
+            }
+            else
+            {
+                workBook.Write(this.DataStream);
             }
         }
 

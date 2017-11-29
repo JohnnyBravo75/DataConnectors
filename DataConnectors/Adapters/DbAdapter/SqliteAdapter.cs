@@ -13,7 +13,14 @@ namespace DataConnectors.Adapter.DbAdapter
 
         public string FileName
         {
-            get { return (this.ConnectionInfo as SqLiteConnectionInfo).Database; }
+            get
+            {
+                if (!(this.ConnectionInfo is SqLiteConnectionInfo))
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as SqLiteConnectionInfo).Database;
+            }
             set { (this.ConnectionInfo as SqLiteConnectionInfo).Database = value; }
         }
 

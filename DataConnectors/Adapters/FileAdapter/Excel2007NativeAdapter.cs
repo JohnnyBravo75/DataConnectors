@@ -14,11 +14,9 @@ namespace DataConnectors.Adapter.FileAdapter
 
         private ExcelPackage excelPackage;
 
-        protected int importRowIndex = 0;
-        protected StreamReader importReader;
+        private ConnectionInfoBase connectionInfo;
 
-        protected int exportRowIndex = 0;
-        protected StreamWriter exportWriter;
+        private int rowIndex;
 
         // ***********************Constructors***********************
 
@@ -27,7 +25,8 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new ExcelConnectionInfo();
         }
 
-        private ConnectionInfoBase connectionInfo;
+
+        public Stream DataStream { get; set; }
 
         public ConnectionInfoBase ConnectionInfo
         {
@@ -78,17 +77,14 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             this.Disconnect();
 
-            if (string.IsNullOrEmpty(this.FileName))
+            if (!string.IsNullOrEmpty(this.FileName))
             {
-                return false;
+                this.excelPackage = new ExcelPackage(new FileInfo(this.FileName));
             }
-
-            //if (!File.Exists(this.fileName))
-            //{
-            //    return false;
-            //}
-
-            this.excelPackage = new ExcelPackage(new FileInfo(this.FileName));
+            else if (this.DataStream != null)
+            {
+                this.excelPackage = new ExcelPackage(this.DataStream);
+            }
 
             if (this.excelPackage != null)
             {
@@ -134,6 +130,14 @@ namespace DataConnectors.Adapter.FileAdapter
         public override void Dispose()
         {
             this.Disconnect();
+
+            if (this.DataStream != null)
+            {
+                // do not destroy stream I´m not the owner/creator
+                //this.DataStream.Close();
+                //this.DataStream.Dispose();
+                this.DataStream = null;
+            }
         }
 
         public override IList<DataColumn> GetAvailableColumns()
@@ -208,17 +212,10 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public void ResetToStart()
         {
-            this.importRowIndex = 0;
-            if (this.importReader != null)
+            this.rowIndex = 0;
+            if (this.DataStream != null)
             {
-                this.importReader.BaseStream.Position = 0;
-                this.importReader.DiscardBufferedData();
-            }
-
-            this.exportRowIndex = 0;
-            if (this.exportWriter != null)
-            {
-                this.exportWriter.BaseStream.Position = 0;
+                this.DataStream.Position = 0;
             }
         }
 
@@ -260,7 +257,7 @@ namespace DataConnectors.Adapter.FileAdapter
             // loop the rows
             for (int y = 0; y < rowCnt; y++)
             {
-                y = this.importRowIndex;
+                y = this.rowIndex;
 
                 // first row?
                 if (y == 0)
@@ -298,7 +295,7 @@ namespace DataConnectors.Adapter.FileAdapter
                 }
 
                 rowsRead++;
-                this.importRowIndex++;
+                this.rowIndex++;
 
                 if (blockSize.HasValue && y % blockSize == 0)
                 {
