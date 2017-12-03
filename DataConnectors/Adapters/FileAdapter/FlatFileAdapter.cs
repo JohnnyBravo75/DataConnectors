@@ -15,9 +15,7 @@ namespace DataConnectors.Adapter.FileAdapter
     {
         private FormatterBase readFormatter = new FlatFileToDataTableFormatter();
         private FormatterBase writeFormatter = new DefaultFormatter();
-
         private string recordSeperator = Environment.NewLine;
-
         private FileConnectionInfoBase connectionInfo;
 
         public FileConnectionInfoBase ConnectionInfo
@@ -37,18 +35,21 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new FlatFileConnectionInfo();
         }
 
+        [XmlAttribute]
         public string RecordSeperator
         {
             get { return this.recordSeperator; }
             set { this.recordSeperator = value; }
         }
 
+        [XmlElement]
         public FormatterBase ReadFormatter
         {
             get { return this.readFormatter; }
             set { this.readFormatter = value; }
         }
 
+        [XmlElement]
         public FormatterBase WriteFormatter
         {
             get { return this.writeFormatter; }
@@ -69,12 +70,15 @@ namespace DataConnectors.Adapter.FileAdapter
             set { (this.ConnectionInfo as FlatFileConnectionInfo).FileName = value; }
         }
 
-        [XmlAttribute]
+        // [XmlAttribute]
         public Encoding Encoding
         {
             get { return (this.ConnectionInfo as FlatFileConnectionInfo).Encoding; }
             set { (this.ConnectionInfo as FlatFileConnectionInfo).Encoding = value; }
         }
+
+        [XmlIgnore]
+        public Stream DataStream { get; set; }
 
         private bool IsNewFile(string fileName)
         {
@@ -86,8 +90,6 @@ namespace DataConnectors.Adapter.FileAdapter
 
             return false;
         }
-
-        public Stream DataStream { get; set; }
 
         public override void Dispose()
         {

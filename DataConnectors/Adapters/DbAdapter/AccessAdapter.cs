@@ -1,4 +1,5 @@
-﻿using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
+﻿using System.Xml.Serialization;
+using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 
 namespace DataConnectors.Adapter.DbAdapter
 {
@@ -9,6 +10,7 @@ namespace DataConnectors.Adapter.DbAdapter
             this.ConnectionInfo = new AccessConnectionInfo();
         }
 
+        [XmlIgnore]
         public string FileName
         {
             get

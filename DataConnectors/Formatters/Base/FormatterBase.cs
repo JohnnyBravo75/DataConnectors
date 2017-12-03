@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.ServiceModel;
 using System.Xml.Serialization;
+using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Formatters.Model;
 
@@ -31,6 +32,21 @@ namespace DataConnectors.Formatters
             set { this.formatterOptions = value; }
         }
 
+        [XmlAttribute]
+        public string Culture
+        {
+            get
+            {
+                return this.DefaultCulture.ToStringOrEmpty();
+            }
+            set
+            {
+                this.DefaultCulture = new CultureInfo(value);
+            }
+
+        }
+
+        [XmlIgnore]
         public CultureInfo DefaultCulture
         {
             get

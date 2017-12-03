@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using DataConnectors.Adapter;
+using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
@@ -138,6 +142,43 @@ namespace DataConnectors.Test
             public override string ToString()
             {
                 return this.ToPropertyString();
+            }
+        }
+
+        public void Save(string fileName, DataAdapterBase dataAdapterBase)
+        {
+            var serializer = new XmlSerializerHelper<DataAdapterBase>();
+            serializer.FileName = fileName;
+            serializer.Save(dataAdapterBase);
+        }
+
+        public DataAdapterBase Load(string fileName)
+        {
+            var serializer = new XmlSerializerHelper<DataAdapterBase>();
+            serializer.FileName = fileName;
+            var dataAdapterBase = serializer.Load();
+
+            return dataAdapterBase;
+        }
+
+        [TestMethod]
+        public void Test_Load_Save()
+        {
+            var adapters = new List<DataAdapterBase>();
+            adapters.Add(new CsvAdapter());
+            adapters.Add(new FixedTextAdapter());
+            adapters.Add(new XmlAdapter());
+            adapters.Add(new ExcelNativeAdapter());
+            adapters.Add(new Excel2007NativeAdapter());
+            adapters.Add(new AccessAdapter());
+
+            int i = 0;
+            foreach (var adapter in adapters)
+            {
+                var fileName = string.Format("C:\\temp\\{0}_{1}.xml", i, adapter.GetType().Name);
+                this.Save(fileName, adapter);
+                var loadedAdapter = this.Load(fileName);
+                i++;
             }
         }
     }

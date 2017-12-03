@@ -5,10 +5,19 @@ using System.Reflection;
 using DataConnectors.Common.Helper;
 using System;
 using System.Globalization;
+using System.Xml.Serialization;
+using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Converters;
 
 namespace DataConnectors.Adapter
 {
+    [XmlInclude(typeof(CsvAdapter))]
+    [XmlInclude(typeof(FixedTextAdapter))]
+    [XmlInclude(typeof(XmlAdapter))]
+    [XmlInclude(typeof(FlatFileAdapter))]
+    [XmlInclude(typeof(ExcelNativeAdapter))]
+    [XmlInclude(typeof(Excel2007NativeAdapter))]
+    [Serializable]
     public abstract class DataAdapterBase : IDataAdapterBase
     {
         private ValueConvertProcessor readConverter = new ValueConvertProcessor(ValueConvertProcessor.ConvertDirections.Read);
