@@ -109,8 +109,10 @@ namespace DataConnectors.Adapter.FileAdapter
             set { this.xPath = value; }
         }
 
+        [XmlIgnore]
         public Stream DataStream { get; set; }
 
+        [XmlAttribute]
         public bool AutoExtractNamespaces { get; set; }
 
         public override IList<DataColumn> GetAvailableColumns()

@@ -48,6 +48,7 @@ namespace DataConnectors.Adapter.FileAdapter
             set { this.connectionInfo = value; }
         }
 
+        [XmlIgnore]
         public Stream DataStream { get; set; }
 
         [XmlAttribute]

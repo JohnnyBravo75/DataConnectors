@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Text;
+using System.Xml.Serialization;
 using DataConnectors.Converters;
 using DataConnectors.Formatters;
 
@@ -27,6 +28,7 @@ namespace DataConnectors.Adapter.FileAdapter
             this.DataStream = dataStream;
         }
 
+        [XmlIgnore]
         public Encoding Encoding
         {
             get
@@ -40,6 +42,7 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        [XmlAttribute]
         public string FileName
         {
             get
@@ -53,6 +56,7 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        [XmlIgnore]
         public Stream DataStream
         {
             get
@@ -65,6 +69,7 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        [XmlAttribute]
         public string Separator
         {
             get
@@ -83,6 +88,7 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        [XmlAttribute]
         public string Enclosure
         {
             get
@@ -101,12 +107,14 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        [XmlElement]
         public ValueConvertProcessor ReadConverter
         {
             get { return this.fileAdapter.ReadConverter; }
             set { this.fileAdapter.ReadConverter = value; }
         }
 
+        [XmlElement]
         public ValueConvertProcessor WriteConverter
         {
             get { return this.fileAdapter.WriteConverter; }

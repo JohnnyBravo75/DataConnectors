@@ -4,12 +4,14 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Xml.Serialization;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 
 namespace DataConnectors.Adapter.DbAdapter
 {
+    [Serializable]
     public class DbAdapter : DataAdapterBase, IDbAdapter
     {
         private DbConnection connection;
@@ -17,8 +19,10 @@ namespace DataConnectors.Adapter.DbAdapter
         private DbDataAdapter sqlDataAdapter;
         private DbConnectionInfoBase connectionInfo;
 
+        [XmlAttribute]
         public int CommandTimeout { get; set; }
 
+        [XmlElement]
         public DbConnectionInfoBase ConnectionInfo
         {
             get
@@ -31,18 +35,21 @@ namespace DataConnectors.Adapter.DbAdapter
             }
         }
 
+        [XmlAttribute]
         public string TableName
         {
             get { return this.tableName; }
             set { this.tableName = value; }
         }
 
+        [XmlIgnore]
         public DbConnection Connection
         {
             get { return this.connection; }
             set { this.connection = value; }
         }
 
+        [XmlIgnore]
         public DbProviderFactory DbProviderFactory
         {
             get

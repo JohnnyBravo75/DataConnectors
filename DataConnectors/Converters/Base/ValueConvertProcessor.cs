@@ -2,6 +2,7 @@
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Xml.Serialization;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Converters.Model;
@@ -15,6 +16,11 @@ namespace DataConnectors.Converters
         private CultureInfo defaultCulture = null;
 
         private readonly ConvertDirections convertDirection;
+
+        public ValueConvertProcessor()
+        {
+        }
+
 
         public ValueConvertProcessor(ConvertDirections convertDirection)
         {
@@ -37,6 +43,21 @@ namespace DataConnectors.Converters
 
         public string LanguageColumnName { get; set; }
 
+        [XmlAttribute]
+        public string Culture
+        {
+            get
+            {
+                return this.DefaultCulture.ToStringOrEmpty();
+            }
+            set
+            {
+                this.DefaultCulture = new CultureInfo(value);
+            }
+
+        }
+
+        [XmlIgnore]
         public CultureInfo DefaultCulture
         {
             get

@@ -25,9 +25,10 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new ExcelConnectionInfo();
         }
 
-
+        [XmlIgnore]
         public Stream DataStream { get; set; }
 
+        [XmlElement]
         public ConnectionInfoBase ConnectionInfo
         {
             get
