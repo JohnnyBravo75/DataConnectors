@@ -18,14 +18,16 @@ namespace DataConnectors.Adapter.FileAdapter
             this.fileAdapter.WriteFormatter = new DataTableToCsvFormatter() { Separator = ";" };
         }
 
-        public CsvAdapter(string filenName) : this()
+        public CsvAdapter(string filenName, string separator = null) : this()
         {
             this.FileName = filenName;
+            this.Separator = separator;
         }
 
-        public CsvAdapter(Stream dataStream) : this()
+        public CsvAdapter(Stream dataStream, string separator = null) : this()
         {
             this.DataStream = dataStream;
+            this.Separator = separator;
         }
 
         [XmlIgnore]
