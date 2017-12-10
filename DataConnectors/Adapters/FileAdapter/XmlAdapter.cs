@@ -32,14 +32,16 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new FlatFileConnectionInfo();
         }
 
-        public XmlAdapter(string fileName) : this()
+        public XmlAdapter(string fileName, string xPath = null) : this()
         {
             this.FileName = fileName;
+            this.XPath = xPath;
         }
 
-        public XmlAdapter(Stream dataStream) : this()
+        public XmlAdapter(Stream dataStream, string xPath = null) : this()
         {
             this.DataStream = dataStream;
+            this.XPath = xPath;
         }
 
         public XmlAdapter(XDocument xDoc)
@@ -302,6 +304,7 @@ namespace DataConnectors.Adapter.FileAdapter
 
             return base.WriteDataFrom<TObj>(objects, deleteBefore, blockSize);
         }
+
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
             var xmlDoc = new XmlDocument();
@@ -502,6 +505,5 @@ namespace DataConnectors.Adapter.FileAdapter
                 xPathMappings.Add(xPathMapping);
             }
         }
-
     }
 }

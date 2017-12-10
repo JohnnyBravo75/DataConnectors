@@ -35,6 +35,11 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new FlatFileConnectionInfo();
         }
 
+        public FlatFileAdapter(string filenName) : this()
+        {
+            this.FileName = filenName;
+        }
+
         [XmlAttribute]
         public string RecordSeperator
         {

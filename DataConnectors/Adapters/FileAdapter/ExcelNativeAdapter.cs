@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Xml.Serialization;
 using DataConnectors.Adapter.FileAdapter.ConnectionInfos;
 using DataConnectors.Common.Extensions;
@@ -41,6 +42,12 @@ namespace DataConnectors.Adapter.FileAdapter
             this.ConnectionInfo = new ExcelConnectionInfo();
         }
 
+        public ExcelNativeAdapter(string filenName, string sheetName = null) : this()
+        {
+            this.FileName = filenName;
+            this.SheetName = sheetName;
+        }
+
         [XmlElement]
         public FileConnectionInfoBase ConnectionInfo
         {
@@ -68,14 +75,28 @@ namespace DataConnectors.Adapter.FileAdapter
         [XmlAttribute]
         public string FileName
         {
-            get { return (this.ConnectionInfo as ExcelConnectionInfo).FileName; }
+            get
+            {
+                if (!(this.ConnectionInfo is ExcelConnectionInfo))
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as ExcelConnectionInfo).FileName;
+            }
             set { (this.ConnectionInfo as ExcelConnectionInfo).FileName = value; }
         }
 
         [XmlAttribute]
         public string SheetName
         {
-            get { return (this.ConnectionInfo as ExcelConnectionInfo).SheetName; }
+            get
+            {
+                if (!(this.ConnectionInfo is ExcelConnectionInfo))
+                {
+                    return string.Empty;
+                }
+                return (this.ConnectionInfo as ExcelConnectionInfo).SheetName;
+            }
             set { (this.ConnectionInfo as ExcelConnectionInfo).SheetName = value; }
         }
 
@@ -88,16 +109,14 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             this.Disconnect();
 
-            try
-            {
-                this.workbook = this.OpenExcelFile();
-            }
-            catch { }
+            this.workbook = this.OpenExcelFile();
 
-            if (this.workbook != null)
+            if (this.workbook == null)
             {
-                this.IsConnected = true;
+                throw new ArgumentNullException("Workbook", "The workbook was not found or could not be opened.");
             }
+
+            this.IsConnected = true;
 
             return this.IsConnected;
         }
@@ -236,6 +255,11 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
+            if (!this.IsConnected)
+            {
+                this.Connect();
+            }
+
             this.ResetToStart();
 
             bool hasHeader = true;
@@ -245,9 +269,14 @@ namespace DataConnectors.Adapter.FileAdapter
             DataTable table = null;
             string tableName = this.SheetName;
 
+            if (string.IsNullOrEmpty(this.SheetName))
+            {
+                throw new ArgumentNullException("SheetName", "Please provide a sheet name");
+            }
+
             if (!this.IsConnected)
             {
-                yield return table;
+                yield break;
             }
 
             // create a new datatable
@@ -256,14 +285,14 @@ namespace DataConnectors.Adapter.FileAdapter
 
             if (this.workbook == null)
             {
-                yield return table;
+                yield break;
             }
 
             this.sheet = this.workbook.GetSheet(tableName);
 
             if (this.sheet == null)
             {
-                yield return table;
+                throw new Exception(string.Format("The sheet '{0}' was not found.", this.SheetName));
             }
 
             int rowsRead = 0;

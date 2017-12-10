@@ -33,8 +33,9 @@ namespace DataConnectors.Sample
 
             // var token = TokenProcessor.ParseTokenValues("PREF_LongNameSub_1212Name_Num_ber.Ext", "PREF_LongName{Subname}_{Number}.{Ext}");
 
-            Sample_ReadXml_Books();
+            // Sample_ReadXml_Books();
             // Sample_Rss_Focus();
+            Sample_ReadExcel_WriteCsv();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -443,7 +444,6 @@ Mike;Hauptstr.1;4713";
             }
         }
 
-
         public class Book
         {
             [DataField(XPath = "/book/title")]
@@ -503,6 +503,7 @@ Mike;Hauptstr.1;4713";
             {
                 reader.XPath = "/bookstore/book";
                 reader.AutoExtractNamespaces = true;
+
                 //var dataTable = reader.ReadAllData();
 
                 //var dynObjects = reader.ReadAllDataAs<ExpandoObject>();
@@ -515,6 +516,41 @@ Mike;Hauptstr.1;4713";
                     writer.FileName = @"C:\Temp\out.xml";
                     writer.WriteDataFrom<Book>(books, true);
                 }
+            }
+        }
+
+        public static void Sample_ReadExcel_WriteCsv()
+        {
+            string sampleDataPath = @"..\..\Samples\";
+            var watch = new Stopwatch();
+
+            using (var reader = new ExcelNativeAdapter())
+            {
+                reader.FileName = sampleDataPath + @"cd-Daten.xls";
+                reader.SheetName = "Tabelle1";
+                reader.Connect();
+
+                using (var writer = new CsvAdapter())
+                {
+                    writer.FileName = Path.Combine(sampleDataPath, "cd-Daten_FromXls.csv");
+
+                    watch.Start();
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                          .ForEach(x =>
+                          {
+                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                              lineCount += x.Rows.Count;
+                          })
+                          .Do(x => writer.WriteData(x, false));
+
+                    watch.Stop();
+                    Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                    Console.ReadLine();
+                }
+
+                reader.Disconnect();
             }
         }
     }
