@@ -196,8 +196,6 @@ namespace DataConnectors.Adapter.FileAdapter
                 yield return table;
             }
 
-            DataTableHelper.DisposeTable(table);
-
             if (reader != null)
             {
                 reader.Close();
@@ -403,6 +401,11 @@ namespace DataConnectors.Adapter.FileAdapter
             }
 
             return true;
+        }
+
+        public void AutoDetectEncoding()
+        {
+            this.Encoding = this.AutoDetectEncoding(this.FileName);
         }
 
         public Encoding AutoDetectEncoding(string fileName)

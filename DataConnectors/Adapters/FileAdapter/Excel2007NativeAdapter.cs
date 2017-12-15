@@ -85,6 +85,11 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             this.Disconnect();
 
+            if (string.IsNullOrEmpty(this.FileName) && this.DataStream == null)
+            {
+                throw new ArgumentNullException("Please provide a DataStream or a FileName.");
+            }
+
             this.excelPackage = this.OpenExcelFile();
 
             if (this.excelPackage == null)
@@ -342,6 +347,11 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
+            if (!this.IsConnected)
+            {
+                this.Connect();
+            }
+
             string tableName = this.SheetName;
 
             ExcelWorksheet sheet = this.excelPackage.Workbook.Worksheets[tableName];

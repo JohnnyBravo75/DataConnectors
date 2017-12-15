@@ -8,7 +8,7 @@ namespace DataConnectors.Adapter.FileAdapter.ConnectionInfos
     [Serializable]
     public class FlatFileConnectionInfo : FileConnectionInfoBase
     {
-        private Encoding encoding = Encoding.Default;
+        private Encoding encoding = Encoding.UTF8;
 
         [XmlIgnore]
         public Encoding Encoding

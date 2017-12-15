@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Xml;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
@@ -35,7 +36,7 @@ namespace DataConnectors.Sample
 
             // Sample_ReadXml_Books();
             // Sample_Rss_Focus();
-            Sample_ReadExcel_WriteCsv();
+            // Sample_ReadExcel_WriteCsv();
         }
 
         public static void Sample_CreateAdapterDynamic()
