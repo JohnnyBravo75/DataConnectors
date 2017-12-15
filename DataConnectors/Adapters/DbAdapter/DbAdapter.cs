@@ -4,6 +4,9 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Web.UI.WebControls;
 using System.Xml.Serialization;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Common.Extensions;
@@ -18,6 +21,12 @@ namespace DataConnectors.Adapter.DbAdapter
         private string tableName = "";
         private DbDataAdapter sqlDataAdapter;
         private DbConnectionInfoBase connectionInfo;
+
+        [XmlIgnore]
+        protected virtual string QuotePrefix { get; set; }
+
+        [XmlIgnore]
+        protected virtual string QuoteSuffix { get; set; }
 
         [XmlAttribute]
         public int CommandTimeout { get; set; }
@@ -346,15 +355,20 @@ namespace DataConnectors.Adapter.DbAdapter
             var restrictions = new string[1];
             restrictions[0] = this.ConnectionInfo.UserName.ToUpper();
 
-            // Get list of tables (for user)
-            var userTables = this.Connection.GetSchema("Tables", restrictions);
-
-            // copy to a list
             var userTableList = new List<string>();
-            for (var i = 0; i < userTables.Rows.Count; i++)
+
+            try
             {
-                userTableList.Add(userTables.Rows[i]["TABLE_NAME"].ToString());
+                // Get list of tables (for user)
+                var userTables = this.Connection.GetSchema("Tables", restrictions);
+
+                // copy to a list
+                for (var i = 0; i < userTables.Rows.Count; i++)
+                {
+                    userTableList.Add(userTables.Rows[i]["TABLE_NAME"].ToString());
+                }
             }
+            catch { }
 
             return userTableList;
         }
@@ -382,17 +396,35 @@ namespace DataConnectors.Adapter.DbAdapter
             return tableColumnList;
         }
 
-        public string QuoteIdentifier(string unquotedIdentifier)
+        public virtual string QuoteIdentifier(string unquotedIdentifier)
         {
+            if (string.IsNullOrEmpty(this.QuotePrefix))
+            {
+                return unquotedIdentifier;
+            }
+
             using (var commandBuilder = this.DbProviderFactory.CreateCommandBuilder())
             {
-                var identifiers = unquotedIdentifier.Split(new string[] { commandBuilder.SchemaSeparator }, StringSplitOptions.RemoveEmptyEntries);
-                return string.Join(commandBuilder.SchemaSeparator, identifiers.ForEach(str => commandBuilder.QuoteIdentifier(str)));
+                commandBuilder.QuotePrefix = this.QuotePrefix;
+                commandBuilder.QuoteSuffix = this.QuoteSuffix;
+                var unquotedIdentifiers = unquotedIdentifier.Split(new string[] { commandBuilder.SchemaSeparator }, StringSplitOptions.RemoveEmptyEntries);
+                var quotedIdentifiers = new List<string>();
+                foreach (var identifier in unquotedIdentifiers)
+                {
+                    quotedIdentifiers.Add(commandBuilder.QuoteIdentifier(unquotedIdentifier));
+                }
+
+                return string.Join(commandBuilder.SchemaSeparator, quotedIdentifiers);
             }
         }
 
-        public bool IsIdentifierQuoted(string unquotedIdentifier)
+        public virtual bool IsIdentifierQuoted(string unquotedIdentifier)
         {
+            if (string.IsNullOrEmpty(this.QuotePrefix))
+            {
+                return false;
+            }
+
             using (var commandBuilder = this.DbProviderFactory.CreateCommandBuilder())
             {
                 if (unquotedIdentifier.StartsWith(commandBuilder.QuotePrefix) && unquotedIdentifier.EndsWith(commandBuilder.QuoteSuffix))
@@ -404,7 +436,7 @@ namespace DataConnectors.Adapter.DbAdapter
             }
         }
 
-        public void CreateDataModel(DataSet dataSet, bool withContraints = true)
+        public virtual void CreateDataModel(DataSet dataSet, bool withContraints = true)
         {
             var exisitingTables = this.GetAvailableTables();
 
@@ -433,7 +465,7 @@ namespace DataConnectors.Adapter.DbAdapter
                     {
                         if (!string.IsNullOrEmpty(columns))
                         {
-                            columns += Environment.NewLine + ",";
+                            columns += ", ";
                         }
 
                         // maps the internal dataType (e.g. "System.String") to a database type of the adapter (e.g. VARCHAR2(100))
@@ -453,7 +485,7 @@ namespace DataConnectors.Adapter.DbAdapter
                         columns = columns.Append(column.ColumnName + " " + dbDataType + " ");
                     }
 
-                    commandText = "CREATE TABLE " + this.QuoteIdentifier(table.TableName) + " (" + columns + ")";
+                    commandText = "CREATE TABLE " + table.TableName + " (" + columns + ")";
                     cmd.CommandText = commandText;
                     cmd.ExecuteNonQuery();
                 }
@@ -634,9 +666,14 @@ namespace DataConnectors.Adapter.DbAdapter
 
             if (string.IsNullOrEmpty(this.TableName))
             {
-                yield return table;
+                yield break;
             }
 
+            if (!this.IsConnected)
+            {
+                this.Connect();
+            }
+            Thread.Sleep(200);
             using (var cmd = this.connection.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;
@@ -651,7 +688,7 @@ namespace DataConnectors.Adapter.DbAdapter
 
                     if (schemaTable != null)
                     {
-                        // create the columns in the datatable
+                        // first read the defintion of the table to create the columns in the datatable
                         var columnName = "";
                         var primaryKeys = new List<DataColumn>();
                         foreach (DataRow row in schemaTable.Rows)
@@ -683,7 +720,8 @@ namespace DataConnectors.Adapter.DbAdapter
                                 column.MaxLength = (int)row["ColumnSize"];
                             }
 
-                            if (schemaTable.Columns.Contains("IsKey") && row["IsKey"] is bool)
+                            // Only not Nullable keys are allowed
+                            if (schemaTable.Columns.Contains("IsKey") && row["IsKey"] is bool && !column.AllowDBNull)
                             {
                                 primaryKeys.Add(column);
                             }
@@ -829,114 +867,117 @@ namespace DataConnectors.Adapter.DbAdapter
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
-            try
+            if (!this.IsConnected)
             {
-                using (var cmd = this.connection.CreateCommand())
-                {
-                    int tblCount = 0;
-                    foreach (DataTable table in tables)
-                    {
-                        // im ersten Durchlauf prüfen...
-                        if (tblCount == 0)
-                        {
-                            // ob Tabelle schon da, wenn nicht erstellen
-                            if (!this.ExistsTable(this.TableName))
-                            {
-                                this.CreateTable(table, withContraints: false);
-                            }
-                            // soll alles gelöscht werden
-                            else if (deleteBefore)
-                            {
-                                this.DeleteData();
-                            }
-                        }
-
-                        // build the insert
-                        cmd.Parameters.Clear();
-                        var sqlColumns = "";
-                        var sqlValues = "";
-                        var colIndex = 0;
-                        object cellValue = "";
-
-                        foreach (DataColumn column in table.Columns)
-                        {
-                            var columnName = "";
-
-                            columnName = column.ColumnName;
-
-                            sqlColumns += this.QuoteIdentifier(columnName);
-
-                            switch (this.DbProviderFactory.GetType().Name)
-                            {
-                                case "SqlClientFactory":
-                                    sqlValues += "@" + column.ColumnName;
-                                    break;
-
-                                case "OracleClientFactory":
-                                    sqlValues += ":" + column.ColumnName;
-                                    break;
-
-                                case "OleDbFactory":
-                                case "OdbcFactory":
-                                    sqlValues += "?" + column.ColumnName;
-                                    break;
-
-                                case "SQLiteFactory":
-                                    sqlValues += "?";
-                                    break;
-
-                                default:
-                                    sqlValues += "?" + column.ColumnName;
-                                    break;
-                            }
-
-                            if (colIndex < table.Columns.Count - 1)
-                            {
-                                sqlColumns += ",";
-                                sqlValues += ",";
-                            }
-
-                            var parameter = cmd.CreateParameter();
-                            parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
-                            parameter.ParameterName = table.Columns[colIndex].ColumnName;
-                            cmd.Parameters.Add(parameter);
-
-                            colIndex++;
-                        }
-
-                        var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
-                                            + @" (" + sqlColumns + ") " + Environment.NewLine
-                                            + @" values (" + sqlValues + ") ";
-
-                        cmd.CommandText = sql;
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandTimeout = this.CommandTimeout;
-
-                        foreach (DataRow row in table.Rows)
-                        {
-                            // set parameter vales for one row
-                            for (var i = 0; i < table.Columns.Count; i++)
-                            {
-                                cellValue = row[i].ToString();
-
-                                if (string.IsNullOrEmpty(cellValue as string))
-                                {
-                                    cellValue = DBNull.Value;
-                                }
-
-                                cmd.Parameters[table.Columns[i].ColumnName].Value = cellValue;
-                            }
-
-                            cmd.ExecuteNonQuery();
-                        }
-
-                        tblCount++;
-                    }
-                }
+                this.Connect();
             }
-            catch (Exception ex)
+
+            using (var cmd = this.connection.CreateCommand())
             {
-                throw;
+                int tblCount = 0;
+                foreach (DataTable table in tables)
+                {
+                    if (!string.IsNullOrEmpty(this.TableName))
+                    {
+                        table.TableName = this.TableName;
+                    }
+
+                    // check in the first run...
+                    if (tblCount == 0)
+                    {
+                        // create a table when not exists
+                        if (!this.ExistsTable(table.TableName))
+                        {
+                            this.CreateTable(table, withContraints: false);
+                        }
+                        // delete all before
+                        else if (deleteBefore)
+                        {
+                            this.DeleteData();
+                        }
+                    }
+
+                    // build the insert
+                    cmd.Parameters.Clear();
+                    var sqlColumns = "";
+                    var sqlValues = "";
+                    var colIndex = 0;
+                    object cellValue = "";
+
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        var columnName = "";
+
+                        columnName = column.ColumnName;
+
+                        sqlColumns += this.QuoteIdentifier(columnName);
+
+                        string parameterPrefix = "";
+                        switch (this.DbProviderFactory.GetType().Name)
+                        {
+                            case "OleDbFactory":
+                            case "SqlClientFactory":
+                                parameterPrefix = "@";
+                                break;
+
+                            case "OracleClientFactory":
+                                parameterPrefix = ":";
+                                break;
+
+                            case "SQLiteFactory":
+                            case "OdbcFactory":
+                                parameterPrefix = "?";
+                                break;
+
+                            default:
+                                parameterPrefix = "?";
+                                break;
+                        }
+
+                        sqlValues += parameterPrefix + column.ColumnName;
+
+                        if (colIndex < table.Columns.Count - 1)
+                        {
+                            sqlColumns += ",";
+                            sqlValues += ",";
+                        }
+
+                        var parameter = cmd.CreateParameter();
+                        parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
+                        parameter.ParameterName = table.Columns[colIndex].ColumnName;
+                        cmd.Parameters.Add(parameter);
+
+                        colIndex++;
+                    }
+
+                    var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
+                                        + @" (" + sqlColumns + ") " + Environment.NewLine
+                                        + @" values (" + sqlValues + ") ";
+
+                    cmd.CommandText = sql;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = this.CommandTimeout;
+
+                    foreach (DataRow row in table.Rows)
+                    {
+                        // set parameter vales for one row
+                        for (var i = 0; i < table.Columns.Count; i++)
+                        {
+                            cellValue = row[i].ToString();
+
+                            if (string.IsNullOrEmpty(cellValue as string))
+                            {
+                                cellValue = DBNull.Value;
+                            }
+
+                            cmd.Parameters[table.Columns[i].ColumnName].Value = cellValue;
+                        }
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    tblCount++;
+                }
             }
 
             return true;
@@ -975,6 +1016,11 @@ namespace DataConnectors.Adapter.DbAdapter
             if (this.ConnectionInfo == null)
             {
                 messages.Add("ConnectionInfo must not be empty");
+            }
+
+            if (string.IsNullOrEmpty(this.TableName))
+            {
+                messages.Add("TableName must not be null");
             }
 
             if (this.ConnectionInfo != null)

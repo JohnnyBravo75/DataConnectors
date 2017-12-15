@@ -146,5 +146,12 @@ namespace DataConnectors.Adapter
         {
             return this.WriteData(this.ConvertObjectsToTables<TObj>(objects, blockSize), deleteBefore);
         }
+
+        public virtual void WriteAllData(DataTable table)
+        {
+            var list = new List<DataTable>();
+            list.Add(table);
+            this.WriteData(list);
+        }
     }
 }

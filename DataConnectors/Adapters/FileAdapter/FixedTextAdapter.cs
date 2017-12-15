@@ -118,6 +118,11 @@ namespace DataConnectors.Adapter.FileAdapter
             return this.fileAdapter.WriteData(tables, deleteBefore);
         }
 
+        public void AutoDetectEncoding()
+        {
+            this.fileAdapter.AutoDetectEncoding();
+        }
+
         public override void Dispose()
         {
             if (this.fileAdapter != null)

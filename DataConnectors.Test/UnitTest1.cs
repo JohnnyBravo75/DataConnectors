@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.FileAdapter;
@@ -162,7 +163,7 @@ namespace DataConnectors.Test
         }
 
         [TestMethod]
-        public void Test_Load_Save()
+        public void Test_Serialize_LoadSave()
         {
             var adapters = new List<DataAdapterBase>();
             adapters.Add(new CsvAdapter());
@@ -179,6 +180,83 @@ namespace DataConnectors.Test
                 this.Save(fileName, adapter);
                 var loadedAdapter = this.Load(fileName);
                 i++;
+            }
+        }
+
+        [TestMethod]
+        public void Test_Csv_Excel_Csv()
+        {
+            using (var csvReader = new CsvAdapter())
+            using (var excelWriter = new ExcelNativeAdapter())
+            using (var excelReader = new ExcelNativeAdapter())
+            using (var csvWriter = new CsvAdapter())
+            {
+                csvReader.Enclosure = "\"";
+                csvReader.FileName = this.testDataPath + @"cd-Daten.txt";
+                var csvData = csvReader.ReadAllData();
+
+                excelWriter.FileName = Path.Combine(this.resultPath, "cd-Daten.xls");
+                excelWriter.SheetName = "Tabelle1";
+                excelWriter.CreateNewFile();
+                excelWriter.Connect();
+                excelWriter.WriteAllData(csvData);
+                excelWriter.Disconnect();
+
+                excelReader.FileName = excelWriter.FileName;
+                excelReader.SheetName = excelWriter.SheetName;
+                excelReader.Connect();
+                var accessData = excelReader.ReadAllData();
+
+                csvWriter.Encoding = csvReader.Encoding;
+                csvWriter.Enclosure = csvReader.Enclosure;
+                csvWriter.FileName = this.resultPath + @"cd-Daten_ExcelRoundtrip.csv";
+                csvWriter.WriteAllData(accessData);
+
+                if (!FileUtil.CompareFiles(csvReader.FileName, csvWriter.FileName))
+                {
+                    throw new Exception("Original and copied file do not match");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_Csv_Access_Csv()
+        {
+            string resultPath = Environment.ExpandEnvironmentVariables(@"%TEMP%\TestResultData\");
+            DirectoryUtil.ClearDirectory(resultPath);
+
+            using (var csvReader = new CsvAdapter())
+            using (var accessWriter = new AccessAdapter())
+            using (var accessReader = new AccessAdapter())
+            using (var csvWriter = new CsvAdapter())
+            {
+                csvReader.Enclosure = "";
+                csvReader.FileName = this.testDataPath + @"StringData.csv";
+                csvReader.AutoDetectEncoding();
+                var csvData = csvReader.ReadAllData();
+
+                accessWriter.FileName = Path.Combine(resultPath, "cd-Daten.mdb");
+                accessWriter.TableName = "Tabelle1";
+                accessWriter.CreateNewFile();
+                accessWriter.Connect();
+                accessWriter.WriteAllData(csvData);
+                accessWriter.Disconnect();
+
+                accessReader.FileName = accessWriter.FileName;
+                accessReader.TableName = accessWriter.TableName;
+                accessReader.Connect();
+                var accessData = accessReader.ReadAllData();
+                accessReader.Disconnect();
+
+                csvWriter.Encoding = csvReader.Encoding;
+                csvWriter.Enclosure = csvReader.Enclosure;
+                csvWriter.FileName = resultPath + @"cd-Daten_AccessRoundtrip.csv";
+                csvWriter.WriteAllData(accessData);
+
+                if (!FileUtil.CompareFiles(csvReader.FileName, csvWriter.FileName))
+                {
+                    throw new Exception("Original and copied file do not match");
+                }
             }
         }
     }
