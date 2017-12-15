@@ -75,7 +75,7 @@ namespace DataConnectors.Adapter.FileAdapter
             set { (this.ConnectionInfo as FlatFileConnectionInfo).FileName = value; }
         }
 
-        // [XmlAttribute]
+        [XmlIgnore]
         public Encoding Encoding
         {
             get { return (this.ConnectionInfo as FlatFileConnectionInfo).Encoding; }
@@ -109,6 +109,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
+            this.ValidateAndThrow();
+
             StreamReader reader = null;
             if (!string.IsNullOrEmpty(this.FileName))
             {
@@ -117,10 +119,6 @@ namespace DataConnectors.Adapter.FileAdapter
             else if (this.DataStream != null)
             {
                 reader = new StreamReader(this.DataStream);
-            }
-            else
-            {
-                throw new ArgumentNullException("reader");
             }
 
             DataTable headerTable = null;
@@ -205,6 +203,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override IList<DataColumn> GetAvailableColumns()
         {
+            this.ValidateAndThrow();
+
             IList<DataColumn> tableColumnList = new List<DataColumn>();
 
             var header = this.ReadData(1).FirstOrDefault();
@@ -223,6 +223,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override IList<string> GetAvailableTables()
         {
+            this.ValidateAndThrow();
+
             IList<string> userTableList = new List<string>();
 
             if (!string.IsNullOrEmpty(this.FileName))
@@ -242,6 +244,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override int GetCount()
         {
+            this.ValidateAndThrow();
+
             int count = 0;
 
             TextReader reader = null;
@@ -310,6 +314,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
+            this.ValidateAndThrow();
+
             string lastFileName = "";
             string fileName = "";
             bool isNewFile = true;
@@ -410,6 +416,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public Encoding AutoDetectEncoding(string fileName)
         {
+            this.ValidateAndThrow();
+
             Encoding encoding = Encoding.Default;
 
             try
@@ -432,6 +440,27 @@ namespace DataConnectors.Adapter.FileAdapter
             }
 
             return encoding;
+        }
+
+        public IList<string> Validate()
+        {
+            var messages = new List<string>();
+
+            if (string.IsNullOrEmpty(this.FileName) && this.DataStream == null)
+            {
+                messages.Add("FileName or DataStream must not be null");
+            }
+
+            return messages;
+        }
+
+        private void ValidateAndThrow()
+        {
+            var messages = this.Validate();
+            if (messages.Any())
+            {
+                throw new Exception(messages.First());
+            }
         }
     }
 }

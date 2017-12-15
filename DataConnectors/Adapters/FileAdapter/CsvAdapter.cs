@@ -160,5 +160,10 @@ namespace DataConnectors.Adapter.FileAdapter
                 this.fileAdapter.Dispose();
             }
         }
+
+        public IList<string> Validate()
+        {
+            return this.fileAdapter.Validate();
+        }
     }
 }
