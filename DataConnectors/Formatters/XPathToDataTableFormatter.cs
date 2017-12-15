@@ -12,6 +12,8 @@ namespace DataConnectors.Formatters
 {
     public class XPathToDataTableFormatter : FormatterBase, IHasXmlNameSpaces
     {
+        private string attributePrefixReplacement = "$";
+
         private XPathMappingList xPathMappings = new XPathMappingList();
         private List<XmlNameSpace> xmlNameSpaces = new List<XmlNameSpace>();
 
@@ -45,6 +47,13 @@ namespace DataConnectors.Formatters
         {
             get { return this.xmlNameSpaces; }
             set { this.xmlNameSpaces = value; }
+        }
+
+        [XmlIgnore]
+        public string AttributePrefixReplacement
+        {
+            get { return this.attributePrefixReplacement; }
+            set { this.attributePrefixReplacement = value; }
         }
 
         public override object Format(object data, object existingData = null)
@@ -284,7 +293,7 @@ namespace DataConnectors.Formatters
             }
 
             var columnName = xpath.Replace("/", "_")
-                                  .Replace("@", "$")
+                                  .Replace("@", this.attributePrefixReplacement)
                                   .TrimStart('_');
 
             // remove Namespaceprefix
