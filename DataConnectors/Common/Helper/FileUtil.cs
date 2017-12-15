@@ -65,6 +65,11 @@ namespace DataConnectors.Common.Helper
 
         public static bool DeleteFileIfExists(string fileName, bool deletePermanent = false, bool forceDelete = true)
         {
+            if (string.IsNullOrEmpty(fileName))
+            {
+                return false;
+            }
+
             if (File.Exists(fileName))
             {
                 DeleteFile(fileName, deletePermanent, forceDelete);

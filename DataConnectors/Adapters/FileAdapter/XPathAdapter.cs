@@ -20,6 +20,11 @@ namespace DataConnectors.Adapter.FileAdapter
         private FileConnectionInfoBase connectionInfo;
         private string xPath;
 
+        private XPathAdapter()
+        {
+            throw new ArgumentException("Please use XmlAdapter this is not usable at the moment");
+        }
+
         public FormatterBase Formatter
         {
             get { return this.formatter; }

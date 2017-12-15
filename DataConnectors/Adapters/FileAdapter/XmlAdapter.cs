@@ -119,6 +119,7 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override IList<DataColumn> GetAvailableColumns()
         {
+            // not supported at the moment, table (xpath) is needed to look for the elements/attributes
             return new List<DataColumn>();
         }
 
@@ -137,8 +138,18 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        /// <summary>
+        /// Gets the available tables (xpaths) in the xml.
+        /// All possible Xpaths are constructed.
+        /// e.g. /books
+        ///      /books/book
+        ///      /books/book/pages
+        /// </summary>
+        /// <returns></returns>
         public override IList<string> GetAvailableTables()
         {
+            this.ValidateAndThrow();
+
             IList<string> userTableList = new List<string>();
 
             XmlTextReader reader = null;
@@ -180,6 +191,8 @@ namespace DataConnectors.Adapter.FileAdapter
                     }
                 }
 
+                // EndElement=</element>
+                // EmptyElement = the end of an empty open/closing element with no value <element/>
                 if (reader.NodeType == XmlNodeType.EndElement || reader.IsEmptyElement)
                 {
                     // when end element, remove from the path list
@@ -218,6 +231,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override IEnumerable<DataTable> ReadData(int? blockSize = null)
         {
+            this.ValidateAndThrow();
+
             foreach (object dataObj in this.ReadDataObjects<object>(blockSize))
             {
                 if (dataObj is DataSet)
@@ -307,6 +322,8 @@ namespace DataConnectors.Adapter.FileAdapter
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
+            this.ValidateAndThrow();
+
             var xmlDoc = new XmlDocument();
             var namespaceMgr = new XmlNamespaceManager(xmlDoc.NameTable);
 
@@ -464,6 +481,13 @@ namespace DataConnectors.Adapter.FileAdapter
             return false;
         }
 
+        /// <summary>
+        /// Adds a prefix to each part of the xpath
+        ///  e.g. "/books/book/pages" -> "/ns:books/ns:book/ns:pages"
+        /// </summary>
+        /// <param name="xPath">The xpath.</param>
+        /// <param name="namespacePrefix">The namespace prefix.</param>
+        /// <returns></returns>
         private string AddNamespacePrefixToXPath(string xPath, string namespacePrefix)
         {
             var pieces = xPath.Split(new string[] { @"/" }, StringSplitOptions.RemoveEmptyEntries);
@@ -503,6 +527,27 @@ namespace DataConnectors.Adapter.FileAdapter
                 };
 
                 xPathMappings.Add(xPathMapping);
+            }
+        }
+
+        public IList<string> Validate()
+        {
+            var messages = new List<string>();
+
+            if (string.IsNullOrEmpty(this.FileName) && this.DataStream == null)
+            {
+                messages.Add("FileName or DataStream must not be null");
+            }
+
+            return messages;
+        }
+
+        private void ValidateAndThrow()
+        {
+            var messages = this.Validate();
+            if (messages.Any())
+            {
+                throw new Exception(messages.First());
             }
         }
     }

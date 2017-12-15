@@ -38,7 +38,7 @@ namespace DataConnectors.Sample
             // Sample_Rss_Focus();
             // Sample_ReadExcel_WriteCsv();
 
-            Sample_String_To_Sqlite();
+            // Sample_String_To_Sqlite();
         }
 
         public static void Sample_CreateAdapterDynamic()
