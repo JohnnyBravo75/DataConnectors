@@ -57,6 +57,7 @@ namespace DataConnectors.Adapter.DbAdapter
             // create access database file with the ADO-ActiveX
             ADOX.Catalog catalog = new ADOX.Catalog();
             catalog.Create(connectionString);
+            catalog.ActiveConnection.Close();
             return true;
         }
     }

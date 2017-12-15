@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.CompilerServices;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
@@ -222,8 +224,7 @@ namespace DataConnectors.Test
         [TestMethod]
         public void Test_Csv_Access_Csv()
         {
-            string resultPath = Environment.ExpandEnvironmentVariables(@"%TEMP%\TestResultData\");
-            DirectoryUtil.ClearDirectory(resultPath);
+            DirectoryUtil.ClearDirectory(this.resultPath);
 
             using (var csvReader = new CsvAdapter())
             using (var accessWriter = new AccessAdapter())
@@ -235,7 +236,7 @@ namespace DataConnectors.Test
                 csvReader.AutoDetectEncoding();
                 var csvData = csvReader.ReadAllData();
 
-                accessWriter.FileName = Path.Combine(resultPath, "cd-Daten.mdb");
+                accessWriter.FileName = Path.Combine(this.resultPath, "cd-Daten.mdb");
                 accessWriter.TableName = "Tabelle1";
                 accessWriter.CreateNewFile();
                 accessWriter.Connect();
@@ -250,12 +251,82 @@ namespace DataConnectors.Test
 
                 csvWriter.Encoding = csvReader.Encoding;
                 csvWriter.Enclosure = csvReader.Enclosure;
-                csvWriter.FileName = resultPath + @"cd-Daten_AccessRoundtrip.csv";
+                csvWriter.FileName = this.resultPath + @"cd-Daten_AccessRoundtrip.csv";
                 csvWriter.WriteAllData(accessData);
 
                 if (!FileUtil.CompareFiles(csvReader.FileName, csvWriter.FileName))
                 {
                     throw new Exception("Original and copied file do not match");
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_CreateAdapterDynamic()
+        {
+            var csvAdapter = GenericFactory.GetInstance<DataAdapterBase>("CsvAdapter");
+
+            Assert.IsInstanceOfType(csvAdapter, typeof(CsvAdapter));
+        }
+
+        [TestMethod]
+        public void Test_Rss_Focus()
+        {
+            DataTable rssFeeds = null;
+            var request = WebRequest.Create("http://rss.focus.de/fol/XML/rss_folnews.xml") as HttpWebRequest;
+
+            if (request != null)
+            {
+                using (var response = request.GetResponse() as HttpWebResponse)
+                {
+                    using (var responseStream = response.GetResponseStream())
+                    {
+                        using (var reader = new XmlAdapter(responseStream))
+                        {
+                            reader.XPath = "/rss/channel/item";
+
+                            rssFeeds = reader.ReadAllData();
+                        }
+                    }
+                }
+            }
+
+            Assert.IsNotNull(rssFeeds);
+            Assert.IsTrue(rssFeeds.Rows.Count > 0);
+        }
+
+        [TestMethod]
+        public void Test_ReadXml_WriteSqlite_Address()
+        {
+            using (var reader = new XmlAdapter())
+            {
+                reader.FileName = this.testDataPath + @"GetAddressResponse.xml";
+                reader.XPath = "/GetAddressResponse/GetAddressResult/result/address";
+
+                using (var writer = new SqliteAdapter())
+                {
+                    writer.FileName = this.resultPath + @"flatxml.sqlite";
+                    writer.CreateNewFile();
+
+                    if (!writer.Connect())
+                    {
+                        throw new Exception("No connection");
+                    }
+
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                         .ForEach(x =>
+                         {
+                             Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                             lineCount += x.Rows.Count;
+                         })
+                         .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
+
+                    Assert.IsTrue(File.Exists(writer.FileName));
+                    Assert.AreEqual(2, lineCount);
                 }
             }
         }

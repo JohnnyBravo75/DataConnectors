@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Xml;
+using System.Xml.Serialization;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Formatters.Model;
@@ -10,7 +11,12 @@ namespace DataConnectors.Formatters
 {
     public class DataTableToXPathFormatter : FormatterBase
     {
+        private string attributePrefixReplacement = "$";
         private XPathMappingList xPathMappings = new XPathMappingList();
+
+        public DataTableToXPathFormatter()
+        {
+        }
 
         public XPathMappingList XPathMappings
         {
@@ -18,8 +24,11 @@ namespace DataConnectors.Formatters
             private set { this.xPathMappings = value; }
         }
 
-        public DataTableToXPathFormatter()
+        [XmlIgnore]
+        public string AttributePrefixReplacement
         {
+            get { return this.attributePrefixReplacement; }
+            set { this.attributePrefixReplacement = value; }
         }
 
         public override object Format(object data, object existingData = null)
@@ -101,14 +110,14 @@ namespace DataConnectors.Formatters
         {
             string leftPart = columnName;
             string rightPart = "";
-            var index = columnName.IndexOf("$", StringComparison.Ordinal);
+            var index = columnName.IndexOf(this.attributePrefixReplacement, StringComparison.Ordinal);
             if (index > -1)
             {
                 leftPart = columnName.Substring(0, index);
                 rightPart = columnName.Substring(index);
             }
             leftPart = leftPart.Replace("_", "/");
-            rightPart = rightPart.Replace("$", "@");
+            rightPart = rightPart.Replace(this.attributePrefixReplacement, "@");
             string xpath = "/" + leftPart + rightPart;
 
             xpath = this.AddRowGrouperWhenNotNested(xpath);

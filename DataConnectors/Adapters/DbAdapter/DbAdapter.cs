@@ -673,7 +673,7 @@ namespace DataConnectors.Adapter.DbAdapter
             {
                 this.Connect();
             }
-            Thread.Sleep(200);
+
             using (var cmd = this.connection.CreateCommand())
             {
                 cmd.CommandType = CommandType.Text;
@@ -918,23 +918,28 @@ namespace DataConnectors.Adapter.DbAdapter
                             case "OleDbFactory":
                             case "SqlClientFactory":
                                 parameterPrefix = "@";
+                                sqlValues += parameterPrefix + column.ColumnName;
                                 break;
 
                             case "OracleClientFactory":
                                 parameterPrefix = ":";
+                                sqlValues += parameterPrefix + column.ColumnName;
                                 break;
 
                             case "SQLiteFactory":
+                                parameterPrefix = "?";
+                                sqlValues += parameterPrefix;
+                                break;
+
                             case "OdbcFactory":
                                 parameterPrefix = "?";
+                                sqlValues += parameterPrefix + column.ColumnName;
                                 break;
 
                             default:
                                 parameterPrefix = "?";
                                 break;
                         }
-
-                        sqlValues += parameterPrefix + column.ColumnName;
 
                         if (colIndex < table.Columns.Count - 1)
                         {
