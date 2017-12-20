@@ -11,7 +11,8 @@ namespace DataConnectors.Formatters
 {
     public class DataTableToXPathFormatter : FormatterBase
     {
-        private string attributePrefixReplacement = "$";
+        private string csvHierarchicalColumnSeparator = "_";
+        private string csvAttributePrefixReplacement = "$";
         private XPathMappingList xPathMappings = new XPathMappingList();
 
         public DataTableToXPathFormatter()
@@ -25,10 +26,17 @@ namespace DataConnectors.Formatters
         }
 
         [XmlIgnore]
-        public string AttributePrefixReplacement
+        public string CsvAttributePrefixReplacement
         {
-            get { return this.attributePrefixReplacement; }
-            set { this.attributePrefixReplacement = value; }
+            get { return this.csvAttributePrefixReplacement; }
+            set { this.csvAttributePrefixReplacement = value; }
+        }
+
+        [XmlIgnore]
+        public string CsvHierarchicalColumnSeparator
+        {
+            get { return this.csvHierarchicalColumnSeparator; }
+            set { this.csvHierarchicalColumnSeparator = value; }
         }
 
         public override object Format(object data, object existingData = null)
@@ -106,18 +114,24 @@ namespace DataConnectors.Formatters
             return xPathMappingList;
         }
 
+        /// <summary>
+        /// Builds a xpath from the column name.
+        /// e.g.  "books_book_$page" -> "/books/book/@page"
+        /// </summary>
+        /// <param name="columnName">Name of the column.</param>
+        /// <returns></returns>
         private string BuildXpathFromColumnName(string columnName)
         {
             string leftPart = columnName;
             string rightPart = "";
-            var index = columnName.IndexOf(this.attributePrefixReplacement, StringComparison.Ordinal);
+            var index = columnName.IndexOf(this.csvAttributePrefixReplacement, StringComparison.Ordinal);
             if (index > -1)
             {
                 leftPart = columnName.Substring(0, index);
                 rightPart = columnName.Substring(index);
             }
-            leftPart = leftPart.Replace("_", "/");
-            rightPart = rightPart.Replace(this.attributePrefixReplacement, "@");
+            leftPart = leftPart.Replace(this.csvHierarchicalColumnSeparator, "/");
+            rightPart = rightPart.Replace(this.csvAttributePrefixReplacement, "@");
             string xpath = "/" + leftPart + rightPart;
 
             xpath = this.AddRowGrouperWhenNotNested(xpath);

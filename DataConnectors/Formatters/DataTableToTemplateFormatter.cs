@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Xml.Serialization;
-using DataConnectors.Common;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Formatters.Model;
 
@@ -10,8 +9,6 @@ namespace DataConnectors.Formatters
 {
     public class DataTableToTemplateFormatter : FormatterBase
     {
-        private TokenProcessor tokenProcessor = new TokenProcessor();
-
         public DataTableToTemplateFormatter()
         {
             this.FormatterOptions.Add(new FormatterOption() { Name = "Template", Value = "" });
@@ -39,16 +36,16 @@ namespace DataConnectors.Formatters
                     // generate header line
                     var columnNames = table.GetColumnNames().ToArray();
 
-                    var line = template;
+                    headerLine = template;
                     for (int i = 0; i < columnNames.Length; i++)
                     {
                         var columnName = table.Columns[i].ColumnName;
                         var value = columnNames[i].ToStringOrEmpty();
 
-                        line = TokenProcessor.ReplaceToken(line, columnName, value);
+                        headerLine = headerLine.Replace(columnName, value.ToStringOrEmpty());
                     }
 
-                    lines.Add(line);
+                    lines.Add(headerLine);
                 }
 
                 foreach (DataRow row in table.Rows)
@@ -62,7 +59,7 @@ namespace DataConnectors.Formatters
                         var columnName = table.Columns[i].ColumnName;
                         var value = row[i].ToStringOrEmpty();
 
-                        line = TokenProcessor.ReplaceToken(line, columnName, value);
+                        line = line.Replace("{" + columnName + "}", value);
                     }
 
                     lines.Add(line);

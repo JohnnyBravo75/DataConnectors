@@ -12,7 +12,8 @@ namespace DataConnectors.Formatters
 {
     public class XPathToDataTableFormatter : FormatterBase, IHasXmlNameSpaces
     {
-        private string attributePrefixReplacement = "$";
+        private string csvHierarchicalColumnSeparator = "_";
+        private string csvAttributePrefixReplacement = "$";
 
         private XPathMappingList xPathMappings = new XPathMappingList();
         private List<XmlNameSpace> xmlNameSpaces = new List<XmlNameSpace>();
@@ -50,10 +51,17 @@ namespace DataConnectors.Formatters
         }
 
         [XmlIgnore]
-        public string AttributePrefixReplacement
+        public string CsvAttributePrefixReplacement
         {
-            get { return this.attributePrefixReplacement; }
-            set { this.attributePrefixReplacement = value; }
+            get { return this.csvAttributePrefixReplacement; }
+            set { this.csvAttributePrefixReplacement = value; }
+        }
+
+        [XmlIgnore]
+        public string CsvHierarchicalColumnSeparator
+        {
+            get { return this.csvHierarchicalColumnSeparator; }
+            set { this.csvHierarchicalColumnSeparator = value; }
         }
 
         public override object Format(object data, object existingData = null)
@@ -281,7 +289,8 @@ namespace DataConnectors.Formatters
         }
 
         /// <summary>
-        /// Builds the column name from xpath.
+        /// Builds the column name from a xpath.
+        ///  e.g. "/books/book/@page" -> "books_book_$page"
         /// </summary>
         /// <param name="xpath">The xpath.</param>
         /// <returns></returns>
@@ -292,9 +301,10 @@ namespace DataConnectors.Formatters
                 return string.Empty;
             }
 
-            var columnName = xpath.Replace("/", "_")
-                                  .Replace("@", this.attributePrefixReplacement)
-                                  .TrimStart('_');
+            // convert Xpath to a valid columname e.g. "/books/book/@page" -> "books_book_$page"
+            var columnName = xpath.Replace("/", this.csvHierarchicalColumnSeparator)
+                                  .Replace("@", this.csvAttributePrefixReplacement)
+                                  .TrimStart(!string.IsNullOrEmpty(this.csvHierarchicalColumnSeparator) ? this.csvHierarchicalColumnSeparator[0] : Char.MinValue);
 
             // remove Namespaceprefix
             var index = columnName.IndexOf(":", StringComparison.Ordinal);

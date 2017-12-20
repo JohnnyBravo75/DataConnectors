@@ -123,7 +123,6 @@
     <Compile Include="Converters\Model\ValueConverterDefinition.cs" />
     <Compile Include="Formatters\CsvToDataTableFormatter.cs" />
     <Compile Include="Formatters\DataTableToCsvFormatter.cs" />
-    <Compile Include="Formatters\DataTableToCustomPatternFormatter.cs" />
     <Compile Include="Formatters\DataTableToFixedLengthFormatter.cs" />
     <Compile Include="Formatters\DataTableToHtmlFormatter.cs" />
     <Compile Include="Formatters\DataTableToJsonFormatter.cs" />
@@ -170,10 +169,8 @@
     <Compile Include="Common\Model\Field.cs" />
     <Compile Include="Common\Model\FieldDefinition.cs" />
     <Compile Include="Common\Model\FieldDefinitionList.cs" />
-    <Compile Include="Common\Model\Parameter.cs" />
     <Compile Include="Common\NotifyPropertyChangedBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Common\TokenProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
