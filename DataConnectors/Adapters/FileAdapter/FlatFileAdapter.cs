@@ -275,42 +275,71 @@ namespace DataConnectors.Adapter.FileAdapter
             return count;
         }
 
-        //public void WriteBinaryData(object data, bool deleteBefore = false)
-        //{
-        //    var fileName = this.FileName;
+        public byte[] ReadBinaryData()
+        {
+            byte[] data = null;
 
-        //    if (string.IsNullOrEmpty(fileName))
-        //    {
-        //        return;
-        //    }
+            this.ValidateAndThrow();
 
-        //    DirectoryUtil.CreateDirectoryIfNotExists(Path.GetDirectoryName(fileName));
+            var fileName = this.FileName;
 
-        //    if (deleteBefore)
-        //    {
-        //        FileUtil.DeleteFileIfExists(fileName);
-        //    }
+            BinaryReader reader = null;
 
-        //    if (data is byte[])
-        //    {
-        //        using (FileStream stream = new FileStream(fileName, FileMode.Create))
-        //        {
-        //            using (BinaryWriter writer = new BinaryWriter(stream))
-        //            {
-        //                writer.Write(data as byte[]);
-        //                writer.Close();
-        //            }
-        //        }
-        //    }
-        //    else
-        //    {
-        //        using (var writer = new StreamWriter(fileName, true, this.Encoding))
-        //        {
-        //            writer.Write(data);
-        //            writer.Close();
-        //        }
-        //    }
-        //}
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                reader = new BinaryReader(File.Open(fileName, FileMode.Open));
+            }
+            else if (this.DataStream != null)
+            {
+                reader = new BinaryReader(this.DataStream);
+            }
+
+            if (reader != null)
+            {
+                int length = (int)reader.BaseStream.Length;
+
+                data = reader.ReadBytes(length);
+                reader.Close();
+                reader.Dispose();
+            }
+
+            return data;
+        }
+
+        public void WriteBinaryData(byte[] data, bool deleteBefore = false)
+        {
+            this.ValidateAndThrow();
+
+            var fileName = this.FileName;
+
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                DirectoryUtil.CreateDirectoryIfNotExists(Path.GetDirectoryName(fileName));
+
+                if (deleteBefore)
+                {
+                    FileUtil.DeleteFileIfExists(fileName);
+                }
+            }
+
+            BinaryWriter writer = null;
+
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                writer = new BinaryWriter(File.Open(fileName, FileMode.Create));
+            }
+            else if (this.DataStream != null)
+            {
+                writer = new BinaryWriter(this.DataStream);
+            }
+
+            if (writer != null)
+            {
+                writer.Write(data);
+                writer.Close();
+                writer.Dispose();
+            }
+        }
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
         {
