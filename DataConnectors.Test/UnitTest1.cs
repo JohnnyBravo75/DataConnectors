@@ -330,5 +330,26 @@ namespace DataConnectors.Test
                 }
             }
         }
+
+        [TestMethod]
+        public void Test_WriteRead_Binary()
+        {
+            var originalBuffer = new byte[] { 12, 43, 76, 98, 09, 88, 255, 0 };
+            byte[] readedBuffer = null;
+
+            using (var writer = new FlatFileAdapter())
+            {
+                using (var reader = new FlatFileAdapter())
+                {
+                    writer.FileName = this.resultPath + @"binary.bin";
+                    writer.WriteBinaryData(originalBuffer);
+
+                    reader.FileName = writer.FileName;
+                    readedBuffer = reader.ReadBinaryData();
+                }
+            }
+
+            Assert.IsTrue(originalBuffer.SequenceEqual(readedBuffer));
+        }
     }
 }

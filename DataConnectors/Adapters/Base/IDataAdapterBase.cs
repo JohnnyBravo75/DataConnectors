@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using DataConnectors.Converters;
 
 namespace DataConnectors.Adapter
 {
@@ -12,20 +13,34 @@ namespace DataConnectors.Adapter
 
         //bool Disconnect();
 
+        //bool IsConnected { get; }
+
+        ValueConvertProcessor ReadConverter { get; set; }
+
+        ValueConvertProcessor WriteConverter { get; set; }
+
         IList<DataColumn> GetAvailableColumns();
 
         IList<string> GetAvailableTables();
 
-        //bool IsConnected { get; }
-
         int GetCount();
 
-        IEnumerable<DataTable> ReadData(int? blockSize = null);
+        DataTable ReadAllData();
+
+        IEnumerable<Dictionary<string, object>> ReadAllDataAs();
+
+        IEnumerable<TObj> ReadAllDataAs<TObj>() where TObj : class;
+
+        IEnumerable<DataTable> ReadData(int? blockSize = default(int?));
+
+        IEnumerable<Dictionary<string, object>> ReadDataAs(int? blockSize = default(int?));
+
+        IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = default(int?)) where TObj : class;
+
+        void WriteAllData(DataTable table, bool deleteBefore = false);
 
         bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
 
-        IEnumerable<TObj> ReadDataAs<TObj>(int? blockSize = null) where TObj : class;
-
-        IEnumerable<Dictionary<string, object>> ReadDataAs(int? blockSize = null);
+        bool WriteDataFrom<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = default(int?)) where TObj : class;
     }
 }
