@@ -253,7 +253,7 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
-        private IEnumerable<TObj> ReadDataObjects<TObj>(int? blockSize = null) where TObj : class
+        public IEnumerable<TObj> ReadDataObjects<TObj>(int? blockSize = null) where TObj : class
         {
             DataSet dataSet = new DataSet();
             TObj result = default(TObj);

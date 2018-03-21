@@ -122,6 +122,24 @@ namespace DataConnectors.Common.Helper
                     "dd.MM.yy"
         };
 
+        public static DateTime? TryParseExact(string s, string format, IFormatProvider provider = null)
+        {
+            if (provider == null)
+            {
+                provider = CultureInfo.InvariantCulture;
+            }
+
+            DateTime date;
+            if (DateTime.TryParseExact(s, format, provider, DateTimeStyles.None, out date))
+            {
+                return date;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public static DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             return unixTimeStamp > MaxUnixSeconds

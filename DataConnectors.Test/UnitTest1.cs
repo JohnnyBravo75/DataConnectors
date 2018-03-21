@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.CompilerServices;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
+using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
+using DataConnectors.Converters;
+using DataConnectors.Converters.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DataConnectors.Test
@@ -130,14 +131,19 @@ namespace DataConnectors.Test
 
         public class DataFormatTest
         {
+            [ValueConverter(typeof(BooleanConverter))]
             public bool? BoolColumn { get; set; }
 
+            [ValueConverter(typeof(NumberAutoDetectConverter))]
             public int? NumberColumn { get; set; }
 
+            [ValueConverter(typeof(NumberAutoDetectConverter))]
             public float? FloatColumn { get; set; }
 
+            [ValueConverter(typeof(DateTimeAutoDetectConverter))]
             public DateTime? DateColumn { get; set; }
 
+            [ValueConverter(typeof(DateTimeAutoDetectConverter))]
             public DateTime? DatetimeColumn { get; set; }
 
             public string StringColumn { get; set; }
@@ -350,6 +356,40 @@ namespace DataConnectors.Test
             }
 
             Assert.IsTrue(originalBuffer.SequenceEqual(readedBuffer));
+        }
+
+        [TestMethod]
+        public void Test_ReadOracle_WriteCsv()
+        {
+            using (var reader = new DbAdapter())
+            {
+                reader.ConnectionInfo = new OracleNativeDbConnectionInfo()
+                {
+                    Database = "TESTDB01",
+                    UserName = "USER01",
+                    Password = "***",
+                    Host = "COMPUTER01"
+                };
+                reader.TableName = "TB_DATA";
+                reader.Connect();
+
+                using (var writer = new CsvAdapter())
+                {
+                    writer.FileName = Path.Combine(this.testDataPath, "TB_DATA.csv");
+
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                          .ForEach(x =>
+                          {
+                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                              lineCount += x.Rows.Count;
+                          })
+                          .Do(x => writer.WriteData(x, false));
+                }
+
+                reader.Disconnect();
+            }
         }
     }
 }

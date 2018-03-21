@@ -109,16 +109,8 @@ namespace DataConnectors.Common.Extensions
 
             if ((tgtType == typeof(bool) || tgtType == typeof(bool?)) && value is string)
             {
-                // Special handling for Boolean
-                string strValue = (value as string).Trim().ToLower();
-                if (strValue == "1" || strValue == "true" || strValue == "yes" || strValue == "y")
-                {
-                    tgtValue = true;
-                }
-                else
-                {
-                    tgtValue = false;
-                }
+                string strValue = (value as string).Trim();
+                tgtValue = Convert.ToBoolean(strValue);
             }
             else if (tgtType != typeof(string) && string.IsNullOrWhiteSpace(value.ToStringOrEmpty()))
             {

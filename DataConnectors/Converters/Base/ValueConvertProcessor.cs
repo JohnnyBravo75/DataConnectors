@@ -21,7 +21,6 @@ namespace DataConnectors.Converters
         {
         }
 
-
         public ValueConvertProcessor(ConvertDirections convertDirection)
         {
             this.convertDirection = convertDirection;
@@ -54,7 +53,6 @@ namespace DataConnectors.Converters
             {
                 this.DefaultCulture = new CultureInfo(value);
             }
-
         }
 
         [XmlIgnore]

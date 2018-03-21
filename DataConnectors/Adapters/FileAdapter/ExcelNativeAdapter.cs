@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Xml.Serialization;
 using DataConnectors.Adapter.FileAdapter.ConnectionInfos;
 using DataConnectors.Common.Extensions;

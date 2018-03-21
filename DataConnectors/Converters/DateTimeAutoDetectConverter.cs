@@ -19,14 +19,19 @@ namespace DataConnectors.Converters
                 }
                 else if (culture != null)
                 {
-                    // get countrycode from culture e.g. "DE"
-                    var region = new RegionInfo(culture.LCID);
-                    twoLetterCountryCode = region.TwoLetterISORegionName;
+                    // when not invariant...
+                    if (culture.TwoLetterISOLanguageName != "iv")
+                    {
+                        // get countrycode from culture e.g. "DE"
+                        var region = new RegionInfo(culture.LCID);
+                        twoLetterCountryCode = region.TwoLetterISORegionName;
+                    }
                 }
 
                 DateTime returnValue;
 
                 returnValue = DateTimeUtil.TryParseDate(value as string, twoLetterCountryCode);
+
                 return returnValue;
             }
 
