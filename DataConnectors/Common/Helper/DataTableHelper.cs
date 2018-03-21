@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Model;
+using DataConnectors.Converters;
 using DataConnectors.Converters.Model;
 
 namespace DataConnectors.Common.Helper
@@ -169,7 +170,11 @@ namespace DataConnectors.Common.Helper
                     property = dataFieldsProps.FirstOrDefault(p => ((DataFieldAttribute)Attribute.GetCustomAttribute(p, typeof(DataFieldAttribute))).Name == column.ColumnName);
                     if (property != null)
                     {
-                        isRequired = ((DataFieldAttribute)Attribute.GetCustomAttribute(property, typeof(DataFieldAttribute))).IsRequired;
+                        var dataFieldAttr = ((DataFieldAttribute)Attribute.GetCustomAttribute(property, typeof(DataFieldAttribute)));
+                        if (dataFieldAttr != null)
+                        {
+                            isRequired = dataFieldAttr.IsRequired;
+                        }
                     }
                 }
 
@@ -179,7 +184,11 @@ namespace DataConnectors.Common.Helper
                     property = dataMemberProps.FirstOrDefault(p => ((DataMemberAttribute)Attribute.GetCustomAttribute(p, typeof(DataMemberAttribute))).Name == column.ColumnName);
                     if (property != null)
                     {
-                        isRequired = ((DataMemberAttribute)Attribute.GetCustomAttribute(property, typeof(DataMemberAttribute))).IsRequired;
+                        var dataMemberAttr = ((DataMemberAttribute)Attribute.GetCustomAttribute(property, typeof(DataMemberAttribute)));
+                        if (dataMemberAttr != null)
+                        {
+                            isRequired = dataMemberAttr.IsRequired;
+                        }
                     }
                 }
 
@@ -194,18 +203,39 @@ namespace DataConnectors.Common.Helper
                     }
                     else
                     {
-                        // when converters exits convert the value
-                        if (converterDefinitions != null)
+                        // when converters exists, convert the value
+                        if (converterDefinitions != null && converterDefinitions.Any())
                         {
                             foreach (var converterDef in converterDefinitions.Where(x => x.FieldName == column.ColumnName))
                             {
-                                value = converterDef.Converter.Convert(value, property.PropertyType, converterDef.ConverterParameter, culture);
+                                var converter = converterDef.Converter;
+                                value = converter.Convert(value, property.PropertyType, converterDef.ConverterParameter, culture);
+                            }
+                        }
+                        else
+                        {
+                            // lookup a converter attribute
+                            var converterAttr = ((ValueConverterAttribute)Attribute.GetCustomAttribute(property, typeof(ValueConverterAttribute)));
+                            if (converterAttr != null)
+                            {
+                                var converter = Activator.CreateInstance(converterAttr.ConverterType) as ValueConverterBase;
+                                if (converter != null)
+                                {
+                                    value = converter.Convert(value, property.PropertyType, converterAttr.ConverterParameter, culture);
+                                }
                             }
                         }
 
-                        object tgtValue = ConvertExtensions.ChangeTypeExtended(value, property.PropertyType, culture);
+                        try
+                        {
+                            object tgtValue = ConvertExtensions.ChangeTypeExtended(value, property.PropertyType, culture);
 
-                        property.SetValue(obj, tgtValue, null);
+                            property.SetValue(obj, tgtValue, null);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new FormatException(string.Format("The value '{0}' cannot be converted to the target type '{1}' with the given culture '{2}'", value, property.PropertyType, culture?.DisplayName));
+                        }
                     }
                 }
             }

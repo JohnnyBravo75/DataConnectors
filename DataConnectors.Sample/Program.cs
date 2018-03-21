@@ -1,20 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
-using System.Dynamic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Xml;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
-using DataConnectors.Common;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Common.Model;
@@ -188,6 +183,7 @@ namespace DataConnectors.Sample
 
         public class DataFormatTest
         {
+            [ValueConverter(typeof(BooleanConverter))]
             public bool? BoolColumn { get; set; }
 
             public int? NumberColumn { get; set; }
