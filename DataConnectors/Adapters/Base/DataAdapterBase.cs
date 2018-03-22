@@ -8,6 +8,8 @@ using System.Globalization;
 using System.Xml.Serialization;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Converters;
+using System.Threading.Tasks;
+using DataConnectors.Adapter.DbAdapter;
 
 namespace DataConnectors.Adapter
 {
@@ -17,6 +19,9 @@ namespace DataConnectors.Adapter
     [XmlInclude(typeof(FlatFileAdapter))]
     [XmlInclude(typeof(ExcelNativeAdapter))]
     [XmlInclude(typeof(Excel2007NativeAdapter))]
+    [XmlInclude(typeof(AccessAdapter))]
+    [XmlInclude(typeof(SqliteAdapter))]
+    [XmlInclude(typeof(XPathAdapter))]
     [Serializable]
     public abstract class DataAdapterBase : IDataAdapterBase
     {
@@ -35,16 +40,6 @@ namespace DataConnectors.Adapter
             get { return this.writeConverter; }
             set { this.writeConverter = value; }
         }
-
-        public abstract IList<DataColumn> GetAvailableColumns();
-
-        public abstract IList<string> GetAvailableTables();
-
-        public abstract int GetCount();
-
-        public abstract IEnumerable<DataTable> ReadData(int? blockSize = null);
-
-        public abstract bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
 
         protected IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
         {
@@ -117,6 +112,16 @@ namespace DataConnectors.Adapter
 
         public abstract void Dispose();
 
+        public abstract IList<DataColumn> GetAvailableColumns();
+
+        public abstract IList<string> GetAvailableTables();
+
+        public abstract int GetCount();
+
+        public abstract IEnumerable<DataTable> ReadData(int? blockSize = null);
+
+        public abstract bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false);
+
         public virtual DataTable ReadAllData()
         {
             return this.ReadData().FirstOrDefault();
@@ -153,5 +158,98 @@ namespace DataConnectors.Adapter
             list.Add(table);
             this.WriteData(list, deleteBefore);
         }
+
+        #region *************************************************** Async ********************************************************
+
+        public Task<IList<DataColumn>> GetAvailableColumnsAsync()
+        {
+            return Task.Run(() =>
+            {
+                return this.GetAvailableColumns();
+            });
+        }
+
+        public Task<IList<string>> GetAvailableTablesAsync()
+        {
+            return Task.Run(() =>
+            {
+                return this.GetAvailableTables();
+            });
+        }
+
+        public Task<int> GetCountAsync()
+        {
+            return Task.Run(() =>
+            {
+                return this.GetCount();
+            });
+        }
+
+        public Task<IEnumerable<DataTable>> ReadDataAsync(int? blockSize = null)
+        {
+            return Task.Run(() =>
+            {
+                return this.ReadData(blockSize);
+            });
+        }
+
+        public Task<bool> WriteDataAsync(IEnumerable<DataTable> tables, bool deleteBefore = false)
+        {
+            return Task.Run(() =>
+            {
+                return this.WriteData(tables, deleteBefore);
+            });
+        }
+
+        public virtual Task<bool> WriteDataFromAsync<TObj>(IEnumerable<TObj> objects, bool deleteBefore = false, int? blockSize = null) where TObj : class
+        {
+            return Task.Run(() =>
+            {
+                return this.WriteDataFrom(objects, deleteBefore, blockSize);
+            });
+        }
+
+        public virtual Task<bool> WriteAllDataAsync<TObj>(DataTable table, bool deleteBefore = false)
+        {
+            return Task.Run(() =>
+            {
+                this.WriteAllData(table, deleteBefore);
+                return true;
+            });
+        }
+
+        public Task<IEnumerable<TObj>> ReadAllDataAsAsync<TObj>() where TObj : class
+        {
+            return Task.Run(() =>
+            {
+                return this.ReadAllDataAs<TObj>();
+            });
+        }
+
+        public Task<IEnumerable<Dictionary<string, object>>> ReadAllDataAsAsync()
+        {
+            return Task.Run(() =>
+            {
+                return this.ReadDataAs();
+            });
+        }
+
+        public Task<IEnumerable<TObj>> ReadDataAsAsync<TObj>(int? blockSize = null) where TObj : class
+        {
+            return Task.Run(() =>
+            {
+                return this.ReadDataAs<TObj>(blockSize);
+            });
+        }
+
+        public Task<IEnumerable<Dictionary<string, object>>> ReadDataAsAsync(int? blockSize = null)
+        {
+            return Task.Run(() =>
+            {
+                return this.ReadDataAs(blockSize);
+            });
+        }
+
+        #endregion *************************************************** Async ********************************************************
     }
 }
