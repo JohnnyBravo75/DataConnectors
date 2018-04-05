@@ -117,7 +117,7 @@ namespace DataConnectors.Formatters
         {
             // Check field<->header count
             if (columns.Count > 0 &&
-                columns.Count != values.Count())
+                columns.Count != values.Count)
             {
                 return false;
             }
@@ -125,7 +125,7 @@ namespace DataConnectors.Formatters
             if (this.FieldDefinitions.Any())
             {
                 // Check field<->definition count
-                if (this.FieldDefinitions.Count != values.Count())
+                if (this.FieldDefinitions.Count != values.Count)
                 {
                     return false;
                 }

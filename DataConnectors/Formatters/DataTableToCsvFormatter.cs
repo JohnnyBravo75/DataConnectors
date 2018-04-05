@@ -81,7 +81,7 @@ namespace DataConnectors.Formatters
                     line.Append(enclosure);
                 }
 
-                line.Append(fields[i].ToString());
+                line.Append(fields[i]);
 
                 if (quoted)
                 {

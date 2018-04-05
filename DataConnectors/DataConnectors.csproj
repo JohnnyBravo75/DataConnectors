@@ -132,7 +132,6 @@
     <Compile Include="Formatters\DataTableToTemplateFormatter.cs" />
     <Compile Include="Formatters\DataTableToXPathFormatter.cs" />
     <Compile Include="Formatters\DefaultFormatter.cs" />
-    <Compile Include="Formatters\EventLogToDataTableFormatter.cs" />
     <Compile Include="Formatters\FixedLengthToDataTableFormatter.cs" />
     <Compile Include="Formatters\FlatFileToDataTableFormatter.cs" />
     <Compile Include="Formatters\Base\FormatterBase.cs" />

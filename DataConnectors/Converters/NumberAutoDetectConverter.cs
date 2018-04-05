@@ -6,7 +6,7 @@ namespace DataConnectors.Converters
 {
     public class NumberAutoDetectConverter : ValueConverterBase
     {
-        public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string)
             {
