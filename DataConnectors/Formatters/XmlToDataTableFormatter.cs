@@ -195,7 +195,7 @@ namespace DataConnectors.Formatters
             int y = 0;
 
             string rowXPath = this.FormatterOptions.GetValueOrDefault<string>("RowXPath", "/*");
-            bool UseAttributes = this.FormatterOptions.GetValue<bool>("UseAttributes");
+            bool useAttributes = this.FormatterOptions.GetValue<bool>("UseAttributes");
             bool removeNamespaces = this.FormatterOptions.GetValue<bool>("RemoveNamespaces");
 
             if (removeNamespaces)
@@ -208,7 +208,7 @@ namespace DataConnectors.Formatters
                 {
                     var row = table.NewRow();
 
-                    var rowValues = this.ReadRowValues(rowNode, UseAttributes);
+                    var rowValues = this.ReadRowValues(rowNode, useAttributes);
 
                     foreach (var field in rowValues)
                     {
@@ -243,13 +243,13 @@ namespace DataConnectors.Formatters
         /// Reads the row values.
         /// </summary>
         /// <param name="xmlRow">The XML row.</param>
-        /// <param name="UseAttributes">if set to <c>true</c> [take attributes].</param>
+        /// <param name="useAttributes">if set to <c>true</c> [take attributes].</param>
         /// <returns>the rowdata as dictionary</returns>
-        private Dictionary<string, string> ReadRowValues(XmlNode xmlRow, bool UseAttributes = false)
+        private Dictionary<string, string> ReadRowValues(XmlNode xmlRow, bool useAttributes = false)
         {
             var rowValues = new Dictionary<string, string>();
 
-            if (UseAttributes)
+            if (useAttributes)
             {
                 if (xmlRow.Attributes != null)
                 {

@@ -35,11 +35,11 @@ namespace DataConnectors.Formatters
 
             var result = XmlHelper.XslTransform(xmlData, this.XslPath);
 
-            string[] lines = result.Split(new string[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
+            string[] lines = result.Split(new[] { "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var line in lines)
             {
-                var values = line.Split(new string[] { this.FieldSeperator }, StringSplitOptions.RemoveEmptyEntries);
+                var values = line.Split(new[] { this.FieldSeperator }, StringSplitOptions.RemoveEmptyEntries);
 
                 if (table == null)
                 {

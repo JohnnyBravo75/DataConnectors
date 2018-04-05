@@ -42,7 +42,6 @@ namespace DataConnectors.Formatters
         public override object Format(object data, object existingData = null)
         {
             var table = data as DataTable;
-            var headerLine = existingData as string;
 
             var xmlLines = new List<string>();
             if (table != null)
@@ -62,7 +61,7 @@ namespace DataConnectors.Formatters
                         var value = row.GetField<string>(xPathMapping.Column, this.DefaultCulture);
                         if (value != null)
                         {
-                            var subValues = value.Split(new string[] { "#" }, StringSplitOptions.None);
+                            var subValues = value.Split(new[] { "#" }, StringSplitOptions.None);
                             if (subValues.Length > 1)
                             {
                                 var index = 1;

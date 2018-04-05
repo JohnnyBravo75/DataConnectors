@@ -1,6 +1,6 @@
 ﻿namespace DataConnectors.Converters.Base
 {
-    using DataConnectors.Common.Helper;
+    using Common.Helper;
 
     public class ValueConverterFactory : GenericFactory
     {

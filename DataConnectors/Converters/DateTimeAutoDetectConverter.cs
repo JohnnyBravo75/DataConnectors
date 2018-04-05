@@ -6,7 +6,7 @@ namespace DataConnectors.Converters
 {
     public class DateTimeAutoDetectConverter : ValueConverterBase
     {
-        public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string)
             {
@@ -27,7 +27,6 @@ namespace DataConnectors.Converters
                         twoLetterCountryCode = region.TwoLetterISORegionName;
                     }
                 }
-
                 DateTime returnValue;
 
                 returnValue = DateTimeUtil.TryParseDate(value as string, twoLetterCountryCode);

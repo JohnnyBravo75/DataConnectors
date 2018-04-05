@@ -75,10 +75,12 @@ namespace DataConnectors.Formatters
                 }
 
                 // XML -> Datatable
-                var xmlDataTableFormatter = new XmlToDataTableFormatter();
-                xmlDataTableFormatter.RowXPath = hasDummyRoot ? ("/root" + this.RowXPath) : this.RowXPath;
-                xmlDataTableFormatter.UseAttributes = this.UseAttributes;
-                xmlDataTableFormatter.RemoveNamespaces = this.RemoveNamespaces;
+                var xmlDataTableFormatter = new XmlToDataTableFormatter
+                {
+                    RowXPath = hasDummyRoot ? ("/root" + this.RowXPath) : this.RowXPath,
+                    UseAttributes = this.UseAttributes,
+                    RemoveNamespaces = this.RemoveNamespaces
+                };
 
                 result = xmlDataTableFormatter.Format(xmlDoc, existingTable);
             }

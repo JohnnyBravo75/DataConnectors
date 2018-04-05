@@ -145,4 +145,8 @@ var request = HttpWebRequest.Create("http://rss.focus.de/fol/XML/rss_folnews.xml
             }
 ```
 
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
 
