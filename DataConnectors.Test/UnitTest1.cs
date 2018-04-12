@@ -131,7 +131,7 @@ namespace DataConnectors.Test
 
         public class DataFormatTest
         {
-            [ValueConverter(typeof(BooleanConverter))]
+            [ValueConverter(typeof(BooleanAutoDetectConverter))]
             public bool? BoolColumn { get; set; }
 
             [ValueConverter(typeof(NumberAutoDetectConverter))]

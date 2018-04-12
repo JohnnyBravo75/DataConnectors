@@ -33,42 +33,24 @@ namespace DataConnectors.Adapter.FileAdapter
         [XmlIgnore]
         public Encoding Encoding
         {
-            get
-            {
-                return this.fileAdapter.Encoding;
-            }
+            get { return this.fileAdapter.Encoding; }
 
-            set
-            {
-                this.fileAdapter.Encoding = value;
-            }
+            set { this.fileAdapter.Encoding = value; }
         }
 
         [XmlAttribute]
         public string FileName
         {
-            get
-            {
-                return this.fileAdapter.FileName;
-            }
+            get { return this.fileAdapter.FileName; }
 
-            set
-            {
-                this.fileAdapter.FileName = value;
-            }
+            set { this.fileAdapter.FileName = value; }
         }
 
         [XmlIgnore]
         public Stream DataStream
         {
-            get
-            {
-                return this.fileAdapter.DataStream;
-            }
-            set
-            {
-                this.fileAdapter.DataStream = value;
-            }
+            get { return this.fileAdapter.DataStream; }
+            set { this.fileAdapter.DataStream = value; }
         }
 
         [XmlAttribute]

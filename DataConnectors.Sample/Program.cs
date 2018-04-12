@@ -140,11 +140,13 @@ namespace DataConnectors.Sample
 
         public class CdDaten
         {
+            [DataField(Name = "pk", IsRequired = false)]
             public string pk { get; set; }
 
-            [DataMember(Name = "genre", IsRequired = true)]
+            [DataField(Name = "genre", IsRequired = true)]
             public string Genre { get; set; }
 
+            [DataField(Name = "Track01", IsRequired = false)]
             public string Track01 { get; set; }
         }
 
@@ -183,7 +185,7 @@ namespace DataConnectors.Sample
 
         public class DataFormatTest
         {
-            [ValueConverter(typeof(BooleanConverter))]
+            [ValueConverter(typeof(BooleanAutoDetectConverter))]
             public bool? BoolColumn { get; set; }
 
             public int? NumberColumn { get; set; }
