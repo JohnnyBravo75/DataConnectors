@@ -3,13 +3,15 @@ using System.Collections.Generic;
 
 namespace DataConnectors.Converters
 {
-    public class BooleanConverter : ValueConverterBase
+    public class BooleanAutoDetectConverter : ValueConverterBase
     {
         private readonly List<string> trueValues = new List<string>()
         {  "1",
            "true",
+           "t",
            "yes",
-           "y"
+           "y",
+           "x"
         };
 
         public override object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

@@ -119,7 +119,7 @@
     <Compile Include="Converters\DateTimeAutoDetectConverter.cs" />
     <Compile Include="Converters\Model\ValueConverterAttribute.cs" />
     <Compile Include="Converters\NumberAutoDetectConverter.cs" />
-    <Compile Include="Converters\BooleanConverter.cs" />
+    <Compile Include="Converters\BooleanAutoDetectConverter.cs" />
     <Compile Include="Converters\NumberFormatConverter.cs" />
     <Compile Include="Converters\DateTimeFormatConverter.cs" />
     <Compile Include="Converters\Model\ValueConverterDefinition.cs" />

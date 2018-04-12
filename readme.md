@@ -4,6 +4,17 @@
 * supported formats: Csv, Fixed, Sql, Xml, Excel, Access, ADO (Oracle SqlServer, PostGre,...) 
 * supports streaming an pipelining 
 
+
+## Install
+
+To install DataConnectors use the  Nuget package manager console
+
+    PM> Install-Package DataConnectors.Nuget
++ [DataConnectors.Nuget](https://www.nuget.org/packages/DataConnectors.Nuget/)   
+
+or download release binary
++ [DataConnectors/releases](https://github.com/JohnnyBravo75/DataConnectors/releases)
+
 ## Samples
 
 ### CSV
@@ -26,11 +37,13 @@ Read CSV into a model class and write Fixed
 ```csharp
 public class CdData
 {
+    [DataField(Name = "pk", IsRequired = true)]
     public string pk { get; set; }
 
-    [DataMember(Name = "genre", IsRequired = true)]
+    [DataField(Name = "genre", IsRequired = true)]
     public string Genre { get; set; }
 
+    [DataField(Name = "Track01", IsRequired = true)]
     public string Track01 { get; set; }
 }
 ```
@@ -66,14 +79,14 @@ John;Main Road; 4711
 Jeffrey;;4712
 Mike;Hauptstr.1;4713";
 
-            using (Stream stream = StreamUtil.CreateStream(data))
-            {
-                using (var reader = new CsvAdapter(stream))
-                {
-                    reader.Separator = ";";
-                    var dataTable = reader.ReadAllData();
-                }
-            }
+using (Stream stream = StreamUtil.CreateStream(data))
+{
+    using (var reader = new CsvAdapter(stream))
+    {
+        reader.Separator = ";";
+        var dataTable = reader.ReadAllData();
+    }
+}
 ```
 
 ### XML
@@ -107,46 +120,92 @@ string xml = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
         <price>9.99</price>
     </book>
 </bookstore> ";
-            var xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(xml);
 
-            using (var reader = new XmlAdapter(xmlDoc))
-            {
-                reader.XPath = "/bookstore/book";
-                reader.AutoExtractNamespaces = true;
-                var dataTable = reader.ReadAllData();
-            }
+var xmlDoc = new XmlDocument();
+xmlDoc.LoadXml(xml);
+
+using (var reader = new XmlAdapter(xmlDoc))
+{
+    reader.XPath = "/bookstore/book";
+    reader.AutoExtractNamespaces = true;
+    var dataTable = reader.ReadAllData();
+}
 ```
+
+Reading into a model object/POCO
+```csharp
+public class Book
+{
+    [DataField(XPath = "/book/title")]
+    public string Title { get; set; }
+
+    [DataField(XPath = "/book/@genre")]
+    public string Genre { get; set; }
+
+    [DataField(XPath = "/book/@ISBN")]
+    public string ISBN { get; set; }
+
+    [DataField(XPath = "/book/@publicationdate")]
+    public DateTime PublicationDate { get; set; }
+
+    [DataField(XPath = "/book/author/first-name")]
+    public string FirstName { get; set; }
+
+    [DataField(XPath = "/book/author/last-name")]
+    public string LastName { get; set; }
+
+    [DataField(XPath = "/book/price")]
+    public float Price { get; set; }
+}
+
+var xmlDoc = new XmlDocument();
+xmlDoc.LoadXml(xml);
+
+using (var reader = new XmlAdapter(xmlDoc))
+{
+	reader.XPath = "/bookstore/book";
+	reader.AutoExtractNamespaces = true;
+
+	var books = reader.ReadAllDataAs<Book>();
+}
+
+```
+
 Read RSS feed from the web
 
 ```csharp
 var request = HttpWebRequest.Create("http://rss.focus.de/fol/XML/rss_folnews.xml") as HttpWebRequest;
 
-            if (request != null)
+if (request != null)
+{
+    using (var response = request.GetResponse() as HttpWebResponse)
+    {
+        using (var responseStream = response.GetResponseStream())
+        {
+            using (var reader = new XmlAdapter(responseStream))
             {
-                using (var response = request.GetResponse() as HttpWebResponse)
-                {
-                    using (var responseStream = response.GetResponseStream())
-                    {
-                        using (var reader = new XmlAdapter(responseStream))
-                        {
-                            reader.XPath = "/rss/channel/item";
+                reader.XPath = "/rss/channel/item";
 
-                            foreach (var table in reader.ReadData(30))
-                            {
-                                foreach (DataRow row in table.Rows)
-                                {
-                                    Console.WriteLine(row.ToDictionary<object>().ToFormattedString());
-                                }
-                            }
-                        }
+                foreach (var table in reader.ReadData(30))
+                {
+                    foreach (DataRow row in table.Rows)
+                    {
+                        Console.WriteLine(row.ToDictionary<object>().ToFormattedString());
                     }
                 }
             }
+        }
+    }
+}
 ```
 
 ## License
 
 [MIT](https://opensource.org/licenses/MIT)
 
+ DataConnectors source and binaries are **free for commercial and non commercial use**.
+
+### Sponsored by
+
+[Jetbrains Resharper](http://www.jetbrains.com/resharper/)
 
