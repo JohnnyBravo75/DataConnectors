@@ -157,15 +157,13 @@ namespace DataConnectors.Test
         public void Save(string fileName, DataAdapterBase dataAdapterBase)
         {
             var serializer = new XmlSerializerHelper<DataAdapterBase>();
-            serializer.FileName = fileName;
-            serializer.Save(dataAdapterBase);
+            serializer.Save(fileName, dataAdapterBase);
         }
 
         public DataAdapterBase Load(string fileName)
         {
             var serializer = new XmlSerializerHelper<DataAdapterBase>();
-            serializer.FileName = fileName;
-            var dataAdapterBase = serializer.Load();
+            var dataAdapterBase = serializer.Load(fileName);
 
             return dataAdapterBase;
         }
