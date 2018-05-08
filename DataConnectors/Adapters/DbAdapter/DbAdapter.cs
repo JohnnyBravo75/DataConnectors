@@ -498,6 +498,40 @@ namespace DataConnectors.Adapter.DbAdapter
             }
         }
 
+        private string CleanTableName(string columnName)
+        {
+            if (string.IsNullOrEmpty(columnName))
+            {
+                return columnName;
+            }
+
+            return columnName.Replace("(", @"")
+                             .Replace(")", @"")
+                             .Replace("[", @"")
+                             .Replace("]", @"")
+                             .Replace(".", @"")
+                             .Replace("/", @"")
+                             .Replace(@"\", @"")
+                             .Replace(" ", @"_");
+        }
+
+        private string CleanColumnName(string columnName)
+        {
+            if (string.IsNullOrEmpty(columnName))
+            {
+                return columnName;
+            }
+
+            return columnName.Replace("(", @"")
+                             .Replace(")", @"")
+                             .Replace("[", @"")
+                             .Replace("]", @"")
+                             .Replace(".", @"")
+                             .Replace("/", @"")
+                             .Replace(@"\", @"")
+                             .Replace(" ", @"_");
+        }
+
         public void ModifyTable(DataTable table)
         {
             using (var cmd = this.Connection.CreateCommand())
@@ -871,114 +905,121 @@ namespace DataConnectors.Adapter.DbAdapter
 
             using (var cmd = this.connection.CreateCommand())
             {
-                int tblCount = 0;
-                foreach (DataTable table in tables)
+                try
                 {
-                    if (!string.IsNullOrEmpty(this.TableName))
+                    int tblCount = 0;
+                    foreach (DataTable table in tables)
                     {
-                        table.TableName = this.TableName;
-                    }
-
-                    // check in the first run...
-                    if (tblCount == 0)
-                    {
-                        // create a table when not exists
-                        if (!this.ExistsTable(table.TableName))
+                        if (!string.IsNullOrEmpty(this.TableName))
                         {
-                            this.CreateTable(table, withContraints: false);
-                        }
-                        // delete all before
-                        else if (deleteBefore)
-                        {
-                            this.DeleteData();
-                        }
-                    }
-
-                    // build the insert
-                    cmd.Parameters.Clear();
-                    var sqlColumns = "";
-                    var sqlValues = "";
-                    var colIndex = 0;
-                    object cellValue = "";
-
-                    foreach (DataColumn column in table.Columns)
-                    {
-                        var columnName = "";
-
-                        columnName = column.ColumnName;
-
-                        sqlColumns += this.QuoteIdentifier(columnName);
-
-                        string parameterPrefix = "";
-                        switch (this.DbProviderFactory.GetType().Name)
-                        {
-                            case "OleDbFactory":
-                            case "SqlClientFactory":
-                                parameterPrefix = "@";
-                                sqlValues += parameterPrefix + column.ColumnName;
-                                break;
-
-                            case "OracleClientFactory":
-                                parameterPrefix = ":";
-                                sqlValues += parameterPrefix + column.ColumnName;
-                                break;
-
-                            case "SQLiteFactory":
-                                parameterPrefix = "?";
-                                sqlValues += parameterPrefix;
-                                break;
-
-                            case "OdbcFactory":
-                                parameterPrefix = "?";
-                                sqlValues += parameterPrefix + column.ColumnName;
-                                break;
-
-                            default:
-                                parameterPrefix = "?";
-                                break;
+                            table.TableName = this.TableName;
                         }
 
-                        if (colIndex < table.Columns.Count - 1)
+                        // check in the first run...
+                        if (tblCount == 0)
                         {
-                            sqlColumns += ",";
-                            sqlValues += ",";
-                        }
-
-                        var parameter = cmd.CreateParameter();
-                        parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
-                        parameter.ParameterName = table.Columns[colIndex].ColumnName;
-                        cmd.Parameters.Add(parameter);
-
-                        colIndex++;
-                    }
-
-                    var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
-                                        + @" (" + sqlColumns + ") " + Environment.NewLine
-                                        + @" values (" + sqlValues + ") ";
-
-                    cmd.CommandText = sql;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandTimeout = this.CommandTimeout;
-
-                    foreach (DataRow row in table.Rows)
-                    {
-                        // set parameter vales for one row
-                        for (var i = 0; i < table.Columns.Count; i++)
-                        {
-                            cellValue = row[i].ToString();
-
-                            if (string.IsNullOrEmpty(cellValue as string))
+                            // create a table when not exists
+                            if (!this.ExistsTable(table.TableName))
                             {
-                                cellValue = DBNull.Value;
+                                this.CreateTable(table, withContraints: false);
+                            }
+                            // delete all before
+                            else if (deleteBefore)
+                            {
+                                this.DeleteData();
+                            }
+                        }
+
+                        // build the insert
+                        cmd.Parameters.Clear();
+                        var sqlColumns = "";
+                        var sqlValues = "";
+                        var colIndex = 0;
+                        object cellValue = "";
+
+                        foreach (DataColumn column in table.Columns)
+                        {
+                            var columnName = "";
+
+                            columnName = column.ColumnName;
+
+                            sqlColumns += this.QuoteIdentifier(columnName);
+
+                            string parameterPrefix = "";
+                            switch (this.DbProviderFactory.GetType().Name)
+                            {
+                                case "OleDbFactory":
+                                case "SqlClientFactory":
+                                    parameterPrefix = "@";
+                                    sqlValues += parameterPrefix + column.ColumnName;
+                                    break;
+
+                                case "OracleClientFactory":
+                                    parameterPrefix = ":";
+                                    sqlValues += parameterPrefix + column.ColumnName;
+                                    break;
+
+                                case "SQLiteFactory":
+                                    parameterPrefix = "?";
+                                    sqlValues += parameterPrefix;
+                                    break;
+
+                                case "OdbcFactory":
+                                    parameterPrefix = "?";
+                                    sqlValues += parameterPrefix + column.ColumnName;
+                                    break;
+
+                                default:
+                                    parameterPrefix = "?";
+                                    break;
                             }
 
-                            cmd.Parameters[table.Columns[i].ColumnName].Value = cellValue;
+                            if (colIndex < table.Columns.Count - 1)
+                            {
+                                sqlColumns += ",";
+                                sqlValues += ",";
+                            }
+
+                            var parameter = cmd.CreateParameter();
+                            parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
+                            parameter.ParameterName = table.Columns[colIndex].ColumnName;
+                            cmd.Parameters.Add(parameter);
+
+                            colIndex++;
                         }
 
-                        cmd.ExecuteNonQuery();
-                    }
+                        var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
+                                            + @" (" + sqlColumns + ") " + Environment.NewLine
+                                            + @" values (" + sqlValues + ") ";
 
-                    tblCount++;
+                        cmd.CommandText = sql;
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandTimeout = this.CommandTimeout;
+
+                        foreach (DataRow row in table.Rows)
+                        {
+                            // set parameter vales for one row
+                            for (var i = 0; i < table.Columns.Count; i++)
+                            {
+                                cellValue = row[i].ToString();
+
+                                if (string.IsNullOrEmpty(cellValue as string))
+                                {
+                                    cellValue = DBNull.Value;
+                                }
+
+                                cmd.Parameters[table.Columns[i].ColumnName].Value = cellValue;
+                            }
+
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        tblCount++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw;
                 }
             }
 

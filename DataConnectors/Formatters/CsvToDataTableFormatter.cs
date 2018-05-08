@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
 using DataConnectors.Common.Model;
 using DataConnectors.Formatters.Model;
@@ -188,7 +189,7 @@ namespace DataConnectors.Formatters
                     {
                         if (this.FieldDefinitions.Any())
                         {
-                            DataTableHelper.CreateTableColumns(table, this.FieldDefinitions.TableFields, isHeader);
+                            this.CreateTableColumns(table, this.FieldDefinitions.SourceFields, isHeader);
                         }
                         else
                         {
@@ -205,12 +206,115 @@ namespace DataConnectors.Formatters
                     }
                     else
                     {
-                        DataTableHelper.AddTableRow(table, values);
+                        this.AddTableRow(table, values);
+                        // DataTableHelper.AddTableRow(table, values);
                     }
                 }
             }
 
             return table;
+        }
+
+        private void CreateTableColumns(DataTable table, IList<Field> fields, bool hasHeader)
+        {
+            for (int i = 0; i < fields.Count; i++)
+            {
+                // default column name, when file has no header line
+                string columnName = string.Format("Column{0}", (i + 1));
+
+                if (hasHeader && !string.IsNullOrEmpty(fields[i].Name))
+                {
+                    columnName = fields[i].Name.Truncate(254);
+                }
+                else if (this.FieldDefinitions.Count > 0)
+                {
+                    var activeFieldDef = this.FieldDefinitions.GetActiveFieldbyIndex(i);
+                    if (activeFieldDef != null)
+                    {
+                        columnName = activeFieldDef.DataSourceField.Name;
+                    }
+                }
+
+                // check, if field is in the defintion (or no defintion)
+                var fieldDef = this.FieldDefinitions.FirstOrDefault(x => x.DataSourceField.Name == columnName);
+
+                if (fieldDef != null && fieldDef.IsActive)
+                {
+                    // set the index (for faster array access, not always searching by name)
+                    fieldDef.DataSourceFieldIndex = i;
+
+                    // does a mapped column exits?
+                    if (!string.IsNullOrEmpty(fieldDef.TableField?.Name))
+                    {
+                        // take the mapped column name e.g. first_name -> FIRSTNAME
+                        columnName = fieldDef.TableField.Name;
+                    }
+
+                    // add column, when not exists
+                    if (!string.IsNullOrEmpty(columnName) && !table.Columns.Contains(columnName))
+                    {
+                        table.Columns.Add(new DataColumn(columnName, fieldDef.TableField?.Datatype ?? typeof(string)));
+                    }
+                }
+                else if (this.FieldDefinitions.Count == 0)
+                {
+                    // add column, when not exists
+                    if (!string.IsNullOrEmpty(columnName) && !table.Columns.Contains(columnName))
+                    {
+                        table.Columns.Add(new DataColumn(columnName, typeof(string)));
+                    }
+                }
+            }
+        }
+
+        private void AddTableRow(DataTable table, IList<string> splitedRow)
+        {
+            // check for an empty row
+            if (splitedRow == null || splitedRow.Count == 0)
+            {
+                return;
+            }
+
+            // has mapping?
+            if (this.FieldDefinitions.Count > 0)
+            {
+                // map the fields to the columns
+                var tableRow = table.NewRow();
+
+                int j = 0;
+                foreach (var fieldDef in this.FieldDefinitions)
+                {
+                    if (fieldDef.DataSourceFieldIndex > -1 && fieldDef.DataSourceFieldIndex < splitedRow.Count && fieldDef.IsActive)
+                    {
+                        if (fieldDef.TableField != null)
+                        {
+                            // map to the target field
+                            tableRow[fieldDef.TableField.Name] = splitedRow[fieldDef.DataSourceFieldIndex];
+                        }
+                        else
+                        {
+                            // add to the next position
+                            tableRow[j] = splitedRow[fieldDef.DataSourceFieldIndex];
+                        }
+                    }
+
+                    j++;
+                }
+
+                table.Rows.Add(tableRow);
+            }
+            else
+            {
+                // enough columns existing? (can happen, when there arw rows with differnt number of separators)
+                if (table.Columns.Count < splitedRow.Count)
+                {
+                    // no, add the missing
+                    DataTableHelper.CreateTableColumns(table, splitedRow, true);
+                }
+
+                // put the whole row into the table
+                table.Rows.Add(splitedRow);
+            }
         }
 
         private List<string> SplitLine(string line, char separator, string enclosure)

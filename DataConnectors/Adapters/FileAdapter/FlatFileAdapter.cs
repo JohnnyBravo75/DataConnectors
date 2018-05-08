@@ -156,7 +156,9 @@ namespace DataConnectors.Adapter.FileAdapter
                     {
                         this.ReadConverter.ExecuteConverters(table);
 
-                        table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
+                        table.TableName = !string.IsNullOrEmpty(this.TableName)
+                                                    ? this.TableName
+                                                    : Path.GetFileNameWithoutExtension(this.FileName);
 
                         if (headerTable == null)
                         {
@@ -184,7 +186,9 @@ namespace DataConnectors.Adapter.FileAdapter
                 {
                     this.ReadConverter.ExecuteConverters(table);
 
-                    table.TableName = Path.GetFileNameWithoutExtension(this.FileName);
+                    table.TableName = !string.IsNullOrEmpty(this.TableName)
+                                                    ? this.TableName
+                                                    : Path.GetFileNameWithoutExtension(this.FileName);
                 }
                 else
                 {

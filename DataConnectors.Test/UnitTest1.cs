@@ -11,6 +11,7 @@ using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
 using DataConnectors.Adapter.FileAdapter;
 using DataConnectors.Common.Extensions;
 using DataConnectors.Common.Helper;
+using DataConnectors.Common.Model;
 using DataConnectors.Converters;
 using DataConnectors.Converters.Model;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -178,6 +179,7 @@ namespace DataConnectors.Test
             adapters.Add(new ExcelNativeAdapter());
             adapters.Add(new Excel2007NativeAdapter());
             adapters.Add(new AccessAdapter());
+            adapters.Add(new DbAdapter());
 
             int i = 0;
             foreach (var adapter in adapters)
@@ -387,6 +389,49 @@ namespace DataConnectors.Test
                 }
 
                 reader.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_ReadCsv_WriteSqlite_Art()
+        {
+            using (var reader = new CsvAdapter())
+            {
+                reader.FileName = this.testDataPath + @"Master Works of Art.csv";
+                reader.Separator = ",";
+                reader.Enclosure = "\"";
+                reader.FieldDefinitions.Add(new FieldDefinition("Artist", "Artist"));
+                reader.FieldDefinitions.Add(new FieldDefinition("Title", "Title"));
+                reader.FieldDefinitions.Add(new FieldDefinition("Year (Approximate)", "Year_Approximate"));
+                reader.FieldDefinitions.Add(new FieldDefinition("Movement", "Movement"));
+                reader.FieldDefinitions.Add(new FieldDefinition("Total Height (cm)", "Total_Height_cm"));
+                reader.TableName = "Arts";
+
+                using (var writer = new SqliteAdapter())
+                {
+                    writer.FileName = this.resultPath + @"Master Works of Art.sqlite";
+                    writer.CreateNewFile();
+
+                    if (!writer.Connect())
+                    {
+                        throw new Exception("No connection");
+                    }
+
+                    int lineCount = 0;
+
+                    reader.ReadData(30)
+                         .ForEach(x =>
+                         {
+                             Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                             lineCount += x.Rows.Count;
+                         })
+                         .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
+
+                    Assert.IsTrue(File.Exists(writer.FileName));
+                    Assert.AreEqual(200, lineCount);
+                }
             }
         }
     }

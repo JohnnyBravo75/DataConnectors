@@ -35,59 +35,46 @@ namespace DataConnectors.Adapter.FileAdapter
         [XmlIgnore]
         public Encoding Encoding
         {
-            get
-            {
-                return this.fileAdapter.Encoding;
-            }
-
-            set
-            {
-                this.fileAdapter.Encoding = value;
-            }
+            get { return this.fileAdapter.Encoding; }
+            set { this.fileAdapter.Encoding = value; }
         }
 
         [XmlAttribute]
         public string FileName
         {
-            get
-            {
-                return this.fileAdapter.FileName;
-            }
-
-            set
-            {
-                this.fileAdapter.FileName = value;
-            }
+            get { return this.fileAdapter.FileName; }
+            set { this.fileAdapter.FileName = value; }
         }
 
         [XmlIgnore]
         public Stream DataStream
         {
-            get
-            {
-                return this.fileAdapter.DataStream;
-            }
-            set
-            {
-                this.fileAdapter.DataStream = value;
-            }
+            get { return this.fileAdapter.DataStream; }
+            set { this.fileAdapter.DataStream = value; }
+        }
+
+        [XmlAttribute]
+        public override string TableName
+        {
+            get { return this.fileAdapter.TableName; }
+            set { this.fileAdapter.TableName = value; }
         }
 
         [XmlElement]
         public FieldDefinitionList FieldDefinitions
         {
-            get { return (this.fileAdapter.ReadFormatter as FixedLengthToDataTableFormatter).FieldDefinitions; }
+            get { return (this.fileAdapter.ReadFormatter as FixedLengthToDataTableFormatter)?.FieldDefinitions; }
         }
 
         [XmlElement]
-        public ValueConvertProcessor ReadConverter
+        public override ValueConvertProcessor ReadConverter
         {
             get { return this.fileAdapter.ReadConverter; }
             set { this.fileAdapter.ReadConverter = value; }
         }
 
         [XmlElement]
-        public ValueConvertProcessor WriteConverter
+        public override ValueConvertProcessor WriteConverter
         {
             get { return this.fileAdapter.WriteConverter; }
             set { this.fileAdapter.WriteConverter = value; }

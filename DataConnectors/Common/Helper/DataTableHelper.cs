@@ -51,7 +51,7 @@ namespace DataConnectors.Common.Helper
             }
 
             // enough columns existing? (can happen, when there arw rows with differnt number of separators)
-            if (table.Columns.Count < values.Count())
+            if (table.Columns.Count < values.Count)
             {
                 // no, add the missing
                 CreateTableColumns(table, values, true);
