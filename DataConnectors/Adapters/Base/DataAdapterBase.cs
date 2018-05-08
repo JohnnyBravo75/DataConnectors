@@ -29,13 +29,22 @@ namespace DataConnectors.Adapter
 
         private ValueConvertProcessor writeConverter = new ValueConvertProcessor(ValueConvertProcessor.ConvertDirections.Write);
 
-        public ValueConvertProcessor ReadConverter
+        private string tableName;
+
+        public virtual ValueConvertProcessor ReadConverter
         {
             get { return this.readConverter; }
             set { this.readConverter = value; }
         }
 
-        public ValueConvertProcessor WriteConverter
+        [XmlAttribute]
+        public virtual string TableName
+        {
+            get { return this.tableName; }
+            set { this.tableName = value; }
+        }
+
+        public virtual ValueConvertProcessor WriteConverter
         {
             get { return this.writeConverter; }
             set { this.writeConverter = value; }

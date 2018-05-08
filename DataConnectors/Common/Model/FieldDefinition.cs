@@ -39,6 +39,26 @@ namespace DataConnectors.Common.Model
             this.tableField = tableField;
         }
 
+        public FieldDefinition(string dataSourceFieldName, string tableFieldName = "", Type type = null)
+        {
+            if (type == null)
+            {
+                type = typeof(string);
+            }
+
+            this.dataSourceField = new Field()
+            {
+                Name = dataSourceFieldName,
+                Datatype = type
+            };
+
+            this.tableField = new Field()
+            {
+                Name = (!string.IsNullOrEmpty(tableFieldName) ? tableFieldName : dataSourceFieldName),
+                Datatype = type
+            };
+        }
+
         // ***********************Properties***********************
 
         public bool IsActive

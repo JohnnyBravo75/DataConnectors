@@ -3,6 +3,7 @@ using System.Data;
 using System.IO;
 using System.Text;
 using System.Xml.Serialization;
+using DataConnectors.Common.Model;
 using DataConnectors.Converters;
 using DataConnectors.Formatters;
 
@@ -16,6 +17,9 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             this.fileAdapter.ReadFormatter = new CsvToDataTableFormatter() { Separator = ";" };
             this.fileAdapter.WriteFormatter = new DataTableToCsvFormatter() { Separator = ";" };
+
+            // set to the same reference
+            (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).FieldDefinitions = (this.fileAdapter.WriteFormatter as DataTableToCsvFormatter).FieldDefinitions;
         }
 
         public CsvAdapter(string filenName, string separator = null) : this()
@@ -34,7 +38,6 @@ namespace DataConnectors.Adapter.FileAdapter
         public Encoding Encoding
         {
             get { return this.fileAdapter.Encoding; }
-
             set { this.fileAdapter.Encoding = value; }
         }
 
@@ -42,7 +45,6 @@ namespace DataConnectors.Adapter.FileAdapter
         public string FileName
         {
             get { return this.fileAdapter.FileName; }
-
             set { this.fileAdapter.FileName = value; }
         }
 
@@ -51,6 +53,13 @@ namespace DataConnectors.Adapter.FileAdapter
         {
             get { return this.fileAdapter.DataStream; }
             set { this.fileAdapter.DataStream = value; }
+        }
+
+        [XmlAttribute]
+        public override string TableName
+        {
+            get { return this.fileAdapter.TableName; }
+            set { this.fileAdapter.TableName = value; }
         }
 
         [XmlAttribute]
@@ -70,6 +79,12 @@ namespace DataConnectors.Adapter.FileAdapter
                 (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).Separator = value;
                 (this.fileAdapter.WriteFormatter as DataTableToCsvFormatter).Separator = value;
             }
+        }
+
+        [XmlElement]
+        public FieldDefinitionList FieldDefinitions
+        {
+            get { return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter)?.FieldDefinitions; }
         }
 
         [XmlAttribute]
@@ -92,14 +107,14 @@ namespace DataConnectors.Adapter.FileAdapter
         }
 
         [XmlElement]
-        public ValueConvertProcessor ReadConverter
+        public override ValueConvertProcessor ReadConverter
         {
             get { return this.fileAdapter.ReadConverter; }
             set { this.fileAdapter.ReadConverter = value; }
         }
 
         [XmlElement]
-        public ValueConvertProcessor WriteConverter
+        public override ValueConvertProcessor WriteConverter
         {
             get { return this.fileAdapter.WriteConverter; }
             set { this.fileAdapter.WriteConverter = value; }
