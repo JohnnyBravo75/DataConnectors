@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace DataConnectors.Converters
 {
-    public class DateTimeFormatConverter : ValueConverterBase
+    public class StringToDateTimeFormatConverter : ValueConverterBase
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

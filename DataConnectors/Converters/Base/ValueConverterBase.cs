@@ -11,7 +11,10 @@ namespace DataConnectors.Converters
 
         public virtual object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            return value;
+            var formattable = value as IFormattable;
+            return formattable == null
+                            ? value.ToString()
+                            : formattable.ToString(null, culture);
         }
     }
 }

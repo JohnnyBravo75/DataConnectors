@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace DataConnectors.Converters
 {
-    public class NumberAutoDetectConverter : ValueConverterBase
+    public class StringToNumberAutoConverter : ValueConverterBase
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

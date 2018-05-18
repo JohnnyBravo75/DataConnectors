@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -286,15 +287,19 @@ namespace DataConnectors.Formatters
                 {
                     if (fieldDef.DataSourceFieldIndex > -1 && fieldDef.DataSourceFieldIndex < splitedRow.Count && fieldDef.IsActive)
                     {
+                        var convertedValue = fieldDef.ValueConverter != null
+                                                    ? fieldDef.ValueConverter.Convert(splitedRow[fieldDef.DataSourceFieldIndex], fieldDef.TableField.Datatype, null, CultureInfo.InvariantCulture)
+                                                    : splitedRow[fieldDef.DataSourceFieldIndex];
+
                         if (fieldDef.TableField != null)
                         {
                             // map to the target field
-                            tableRow[fieldDef.TableField.Name] = splitedRow[fieldDef.DataSourceFieldIndex];
+                            tableRow[fieldDef.TableField.Name] = convertedValue;
                         }
                         else
                         {
                             // add to the next position
-                            tableRow[j] = splitedRow[fieldDef.DataSourceFieldIndex];
+                            tableRow[j] = convertedValue;
                         }
                     }
 

@@ -185,7 +185,7 @@ namespace DataConnectors.Sample
 
         public class DataFormatTest
         {
-            [ValueConverter(typeof(BooleanAutoDetectConverter))]
+            [ValueConverter(typeof(StringToBooleanAutoConverter))]
             public bool? BoolColumn { get; set; }
 
             public int? NumberColumn { get; set; }
@@ -198,7 +198,7 @@ namespace DataConnectors.Sample
 
             public string StringColumn { get; set; }
 
-            [ValueConverter(typeof(DateTimeFormatConverter), "yyyyMMddHHmmss")]
+            [ValueConverter(typeof(StringToDateTimeFormatConverter), "yyyyMMddHHmmss")]
             public DateTime? ReverseDateColumn { get; set; }
 
             public override string ToString()
@@ -353,7 +353,7 @@ namespace DataConnectors.Sample
 
                 reader.ReadConverter.CountryColumnName = "CountryCode";
                 reader.ReadConverter.DefaultCulture = CultureInfo.CurrentCulture;
-                reader.ReadConverter.ConverterDefinitions.Add(new ValueConverterDefinition("ReverseDate", typeof(DateTimeFormatConverter), "yyyyMMddHHmmss"));
+                reader.ReadConverter.ConverterDefinitions.Add(new ValueConverterDefinition("ReverseDate", typeof(StringToDateTimeFormatConverter), "yyyyMMddHHmmss"));
 
                 using (var writer = new CsvAdapter())
                 {

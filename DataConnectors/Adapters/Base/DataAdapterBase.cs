@@ -22,6 +22,7 @@ namespace DataConnectors.Adapter
     [XmlInclude(typeof(AccessAdapter))]
     [XmlInclude(typeof(SqliteAdapter))]
     [XmlInclude(typeof(XPathAdapter))]
+    [XmlInclude(typeof(DbAdapter.DbAdapter))]
     [Serializable]
     public abstract class DataAdapterBase : IDataAdapterBase
     {
