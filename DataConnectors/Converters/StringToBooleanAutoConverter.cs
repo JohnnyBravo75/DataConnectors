@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataConnectors.Converters
 {
-    public class BooleanAutoDetectConverter : ValueConverterBase
+    public class StringToBooleanAutoConverter : ValueConverterBase
     {
         private readonly List<string> trueValues = new List<string>()
         {  "1",

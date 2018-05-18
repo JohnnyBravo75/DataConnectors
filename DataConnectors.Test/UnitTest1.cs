@@ -132,19 +132,19 @@ namespace DataConnectors.Test
 
         public class DataFormatTest
         {
-            [ValueConverter(typeof(BooleanAutoDetectConverter))]
+            [ValueConverter(typeof(StringToBooleanAutoConverter))]
             public bool? BoolColumn { get; set; }
 
-            [ValueConverter(typeof(NumberAutoDetectConverter))]
+            [ValueConverter(typeof(StringToNumberAutoConverter))]
             public int? NumberColumn { get; set; }
 
-            [ValueConverter(typeof(NumberAutoDetectConverter))]
+            [ValueConverter(typeof(StringToNumberAutoConverter))]
             public float? FloatColumn { get; set; }
 
-            [ValueConverter(typeof(DateTimeAutoDetectConverter))]
+            [ValueConverter(typeof(StringToDateTimeAutoConverter))]
             public DateTime? DateColumn { get; set; }
 
-            [ValueConverter(typeof(DateTimeAutoDetectConverter))]
+            [ValueConverter(typeof(StringToDateTimeAutoConverter))]
             public DateTime? DatetimeColumn { get; set; }
 
             public string StringColumn { get; set; }
@@ -400,11 +400,11 @@ namespace DataConnectors.Test
                 reader.FileName = this.testDataPath + @"Master Works of Art.csv";
                 reader.Separator = ",";
                 reader.Enclosure = "\"";
-                reader.FieldDefinitions.Add(new FieldDefinition("Artist", "Artist"));
-                reader.FieldDefinitions.Add(new FieldDefinition("Title", "Title"));
-                reader.FieldDefinitions.Add(new FieldDefinition("Year (Approximate)", "Year_Approximate"));
-                reader.FieldDefinitions.Add(new FieldDefinition("Movement", "Movement"));
-                reader.FieldDefinitions.Add(new FieldDefinition("Total Height (cm)", "Total_Height_cm"));
+                reader.FieldDefinitions.Add(new FieldDefinition("Artist", "Artist", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("Title", "Title", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("Year (Approximate)", "Year_Approximate", typeof(float), new StringToNumberAutoConverter()));
+                reader.FieldDefinitions.Add(new FieldDefinition("Movement", "Movement", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("Total Height (cm)", "Total_Height_cm", typeof(float), new StringToNumberAutoConverter()));
                 reader.TableName = "Arts";
 
                 using (var writer = new SqliteAdapter())
@@ -422,7 +422,7 @@ namespace DataConnectors.Test
                     reader.ReadData(30)
                          .ForEach(x =>
                          {
-                             Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                             Debug.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
                              lineCount += x.Rows.Count;
                          })
                          .Do(x => writer.WriteData(x));

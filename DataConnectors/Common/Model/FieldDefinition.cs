@@ -1,9 +1,10 @@
 ﻿using System;
+using DataConnectors.Converters;
 
 namespace DataConnectors.Common.Model
 {
     /// <summary>
-    /// Fielddefintion, which maps the external datasource field (datasourcefield) to the internal field (tablefield)
+    /// Fielddefinition, which maps the external datasource field (datasourcefield) to the internal field (tablefield)
     /// </summary>
     public class FieldDefinition : NotifyPropertyChangedBase, IDisposable
     {
@@ -16,13 +17,15 @@ namespace DataConnectors.Common.Model
         private int tableFieldIndex = -1;
         private bool isActive = true;
 
+        private ValueConverterBase valueConverter;
+
         // ***********************Constructors***********************
 
         public FieldDefinition()
         {
         }
 
-        public FieldDefinition(Field dataSourceField)
+        public FieldDefinition(Field dataSourceField, ValueConverterBase valueConverter = null)
         {
             this.dataSourceField = dataSourceField;
             this.tableField = new Field()
@@ -31,15 +34,19 @@ namespace DataConnectors.Common.Model
                 Length = dataSourceField.Length,
                 Datatype = dataSourceField.Datatype
             };
+
+            this.valueConverter = valueConverter;
         }
 
-        public FieldDefinition(Field dataSourceField, Field tableField)
+        public FieldDefinition(Field dataSourceField, Field tableField, ValueConverterBase valueConverter = null)
         {
             this.dataSourceField = dataSourceField;
             this.tableField = tableField;
+
+            this.valueConverter = valueConverter;
         }
 
-        public FieldDefinition(string dataSourceFieldName, string tableFieldName = "", Type type = null)
+        public FieldDefinition(string dataSourceFieldName, string tableFieldName = "", Type type = null, ValueConverterBase valueConverter = null)
         {
             if (type == null)
             {
@@ -57,6 +64,8 @@ namespace DataConnectors.Common.Model
                 Name = (!string.IsNullOrEmpty(tableFieldName) ? tableFieldName : dataSourceFieldName),
                 Datatype = type
             };
+
+            this.valueConverter = valueConverter;
         }
 
         // ***********************Properties***********************
@@ -118,6 +127,12 @@ namespace DataConnectors.Common.Model
         {
             get { return this.tableFieldIndex; }
             set { this.tableFieldIndex = value; }
+        }
+
+        public ValueConverterBase ValueConverter
+        {
+            get { return this.valueConverter; }
+            set { this.valueConverter = value; }
         }
 
         // ***********************Functions***********************

@@ -117,12 +117,12 @@
     <Compile Include="Converters\Base\ValueConverterFactory.cs" />
     <Compile Include="Converters\Base\ValueConverterBase.cs" />
     <Compile Include="Converters\Base\ValueConvertProcessor.cs" />
-    <Compile Include="Converters\DateTimeAutoDetectConverter.cs" />
+    <Compile Include="Converters\StringToDateTimeAutoConverter.cs" />
     <Compile Include="Converters\Model\ValueConverterAttribute.cs" />
-    <Compile Include="Converters\NumberAutoDetectConverter.cs" />
-    <Compile Include="Converters\BooleanAutoDetectConverter.cs" />
-    <Compile Include="Converters\NumberFormatConverter.cs" />
-    <Compile Include="Converters\DateTimeFormatConverter.cs" />
+    <Compile Include="Converters\StringToNumberAutoConverter.cs" />
+    <Compile Include="Converters\StringToBooleanAutoConverter.cs" />
+    <Compile Include="Converters\StringToNumberFormatConverter.cs" />
+    <Compile Include="Converters\StringToDateTimeFormatConverter.cs" />
     <Compile Include="Converters\Model\ValueConverterDefinition.cs" />
     <Compile Include="Formatters\CsvToDataTableFormatter.cs" />
     <Compile Include="Formatters\DataTableToCsvFormatter.cs" />
