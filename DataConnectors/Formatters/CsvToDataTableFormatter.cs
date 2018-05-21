@@ -318,7 +318,7 @@ namespace DataConnectors.Formatters
                 }
 
                 // put the whole row into the table
-                table.Rows.Add(splitedRow);
+                DataTableHelper.AddTableRow(table, splitedRow);
             }
         }
 
