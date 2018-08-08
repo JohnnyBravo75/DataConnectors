@@ -600,7 +600,12 @@ namespace DataConnectors.Adapter.DbAdapter
 
         private bool ExistsTable(string tableName)
         {
-            var tables = this.GetAvailableTables().ForEach(x => x.ToUpper());
+            if (string.IsNullOrEmpty(tableName))
+            {
+                return false;
+            }
+
+            var tables = this.GetAvailableTables().Select(x => x.ToUpper()).ToList();
             return tables.Contains(tableName.ToUpper());
         }
 
