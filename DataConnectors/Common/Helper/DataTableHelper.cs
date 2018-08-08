@@ -279,11 +279,23 @@ namespace DataConnectors.Common.Helper
             return table;
         }
 
-        /// <summary>
-        /// Cleans the name of the column.
-        /// </summary>
-        /// <param name="columnName">Name of the column.</param>
-        /// <returns></returns>
+        public static string CleanTableName(string tableName)
+        {
+            if (string.IsNullOrEmpty(tableName))
+            {
+                return tableName;
+            }
+
+            return tableName.Replace("(", @"\(")
+                .Replace(")", @"\)")
+                .Replace("[", @"\[")
+                .Replace("]", @"\]")
+                .Replace(".", @"\.")
+                .Replace("/", @"\/")
+                .Replace(" ", @"_")
+                .Replace(@"\", @"\\");
+        }
+
         public static string CleanColumnName(string columnName)
         {
             if (string.IsNullOrEmpty(columnName))

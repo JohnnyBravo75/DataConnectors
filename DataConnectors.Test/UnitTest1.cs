@@ -400,6 +400,7 @@ namespace DataConnectors.Test
                 reader.FileName = this.testDataPath + @"Master Works of Art.csv";
                 reader.Separator = ",";
                 reader.Enclosure = "\"";
+                reader.TableName = "MasterWorksofArt";
                 reader.FieldDefinitions.Add(new FieldDefinition("Artist", "Artist", typeof(string)));
                 reader.FieldDefinitions.Add(new FieldDefinition("Title", "Title", typeof(string)));
                 reader.FieldDefinitions.Add(new FieldDefinition("Year (Approximate)", "Year_Approximate", typeof(float), new StringToNumberAutoConverter()));

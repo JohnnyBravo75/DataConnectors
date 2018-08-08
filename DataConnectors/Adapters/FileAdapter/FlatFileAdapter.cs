@@ -158,7 +158,7 @@ namespace DataConnectors.Adapter.FileAdapter
 
                         table.TableName = !string.IsNullOrEmpty(this.TableName)
                                                     ? this.TableName
-                                                    : Path.GetFileNameWithoutExtension(this.FileName);
+                                                    : DataTableHelper.CleanTableName(Path.GetFileNameWithoutExtension(this.FileName));
 
                         if (headerTable == null)
                         {
@@ -188,7 +188,7 @@ namespace DataConnectors.Adapter.FileAdapter
 
                     table.TableName = !string.IsNullOrEmpty(this.TableName)
                                                     ? this.TableName
-                                                    : Path.GetFileNameWithoutExtension(this.FileName);
+                                                    : DataTableHelper.CleanTableName(Path.GetFileNameWithoutExtension(this.FileName));
                 }
                 else
                 {
