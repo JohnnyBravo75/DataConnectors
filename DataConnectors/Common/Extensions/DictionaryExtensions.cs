@@ -87,6 +87,24 @@ namespace DataConnectors.Common.Extensions
             return dictionary;
         }
 
+        /// <summary>
+        /// Adds the when not exists.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <typeparam name="TValue">The type of the value.</typeparam>
+        /// <param name="dict">The dictionary.</param>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        public static IDictionary<TKey, TValue> AddWhenNotExists<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value)
+        {
+            if (!dictionary.ContainsKey(key))
+            {
+                dictionary.Add(key, value);
+            }
+
+            return dictionary;
+        }
+
         public static IDictionary<string, object> AddOrAppend(this IDictionary<string, object> dictionary, string key, string value, string separator = ",")
         {
             if (dictionary.ContainsKey(key))
