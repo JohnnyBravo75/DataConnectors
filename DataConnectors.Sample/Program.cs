@@ -92,7 +92,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    reader.ReadData(1000)
                          .ForEach(x =>
                          {
                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -124,7 +124,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    reader.ReadData(1000)
                          .ForEach(x =>
                          {
                              writer.FileName = sampleDataPath + x.TableName + ".csv";
@@ -272,7 +272,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    reader.ReadData(1000)
                          .ForEach(x =>
                          {
                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -313,7 +313,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    reader.ReadData(1000)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -366,7 +366,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    reader.ReadData(1000)
                           .ForEach(x =>
                           {
                               Console.WriteLine(x.ToString());
@@ -404,7 +404,7 @@ Mike;Hauptstr.1;4713";
                         watch.Start();
                         int lineCount = 0;
 
-                        reader.ReadData(100)
+                        reader.ReadData(1000)
                              .ForEach(x =>
                              {
                                  Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -450,7 +450,7 @@ Mike;Hauptstr.1;4713";
                         watch.Start();
                         int lineCount = 0;
 
-                        reader.ReadData(100)
+                        reader.ReadData(1000)
                              .ForEach(x =>
                              {
                                  Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -480,7 +480,7 @@ Mike;Hauptstr.1;4713";
                         {
                             reader.XPath = "/rss/channel/item";
 
-                            foreach (var table in reader.ReadData(100))
+                            foreach (var table in reader.ReadData(1000))
                             {
                                 foreach (DataRow row in table.Rows)
                                 {
@@ -586,7 +586,7 @@ Mike;Hauptstr.1;4713";
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    reader.ReadData(1000)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -624,7 +624,7 @@ Mike;Hauptstr.1;4713";
                         Host = "COMPUTER01"
                     };
 
-                    writer.TableName = "TB_TEST_ABSCHLUSS";
+                    writer.TableName = "TB_TEST_AUFTRAG";
                     writer.Connect();
 
                     if (writer.ExistsTable())
@@ -640,13 +640,18 @@ Mike;Hauptstr.1;4713";
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(100)
+                    writer.BadDataHandler = (badData) =>
+                                                      {
+                                                          Console.WriteLine("BADDATA: " + badData.Item1);
+                                                      };
+
+                    reader.ReadData(1000)
                           .ForEach(x =>
                           {
                               lineCount += x.Rows.Count;
                               Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
                           })
-                          .Do(x => writer.WriteData(x));
+                          .Do(x => writer.WriteData(x, false));
 
                     writer.Disconnect();
 

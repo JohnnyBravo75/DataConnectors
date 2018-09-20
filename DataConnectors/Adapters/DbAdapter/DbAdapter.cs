@@ -886,109 +886,106 @@ namespace DataConnectors.Adapter.DbAdapter
             {
                 int rowIdx = 0;
                 int tblCount = 0;
-                DataRow currentRow = null;
 
                 foreach (DataTable table in tables)
                 {
-                    try
+                    if (!string.IsNullOrEmpty(this.TableName))
                     {
-                        if (!string.IsNullOrEmpty(this.TableName))
+                        table.TableName = this.TableName;
+                    }
+
+                    // check in the first run...
+                    if (tblCount == 0)
+                    {
+                        // create a table when not exists
+                        if (!this.ExistsTable(table.TableName))
                         {
-                            table.TableName = this.TableName;
+                            this.CreateTable(table, withContraints: false);
+                        }
+                        // delete all before
+                        else if (deleteBefore)
+                        {
+                            this.DeleteData();
+                        }
+                    }
+
+                    // build the insert
+                    cmd.Parameters.Clear();
+                    var sqlColumns = "";
+                    var sqlValues = "";
+                    var colIndex = 0;
+                    object cellValue = "";
+
+                    foreach (DataColumn column in table.Columns)
+                    {
+                        var columnName = "";
+
+                        columnName = column.ColumnName;
+
+                        sqlColumns += this.QuoteIdentifier(columnName);
+
+                        string parameterName = "col" + colIndex;
+
+                        string parameterPrefix = "";
+                        switch (this.DbProviderFactory.GetType().Name)
+                        {
+                            case "OleDbFactory":
+                            case "SqlClientFactory":
+                                parameterPrefix = "@";
+                                sqlValues += parameterPrefix + parameterName;
+                                break;
+
+                            case "OracleClientFactory":
+                                parameterPrefix = ":";
+                                sqlValues += parameterPrefix + parameterName;
+                                break;
+
+                            case "SQLiteFactory":
+                                parameterPrefix = "?";
+                                sqlValues += parameterPrefix;
+                                break;
+
+                            case "OdbcFactory":
+                                parameterPrefix = "?";
+                                sqlValues += parameterPrefix + parameterName;
+                                break;
+
+                            default:
+                                parameterPrefix = "?";
+                                break;
                         }
 
-                        // check in the first run...
-                        if (tblCount == 0)
+                        if (colIndex < table.Columns.Count - 1)
                         {
-                            // create a table when not exists
-                            if (!this.ExistsTable(table.TableName))
-                            {
-                                this.CreateTable(table, withContraints: false);
-                            }
-                            // delete all before
-                            else if (deleteBefore)
-                            {
-                                this.DeleteData();
-                            }
+                            sqlColumns += ",";
+                            sqlValues += ",";
                         }
 
-                        // build the insert
-                        cmd.Parameters.Clear();
-                        var sqlColumns = "";
-                        var sqlValues = "";
-                        var colIndex = 0;
-                        object cellValue = "";
+                        var parameter = cmd.CreateParameter();
+                        parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
+                        parameter.ParameterName = parameterName;
+                        cmd.Parameters.Add(parameter);
 
-                        foreach (DataColumn column in table.Columns)
+                        colIndex++;
+                    }
+
+                    var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
+                                        + @" (" + sqlColumns + ") " + Environment.NewLine
+                                        + @" values (" + sqlValues + ") ";
+
+                    cmd.CommandText = sql;
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandTimeout = this.CommandTimeout;
+
+                    rowIdx = 0;
+                    foreach (DataRow row in table.Rows)
+                    {
+                        try
                         {
-                            var columnName = "";
-
-                            columnName = column.ColumnName;
-
-                            sqlColumns += this.QuoteIdentifier(columnName);
-
-                            string parameterName = "col" + colIndex;
-
-                            string parameterPrefix = "";
-                            switch (this.DbProviderFactory.GetType().Name)
-                            {
-                                case "OleDbFactory":
-                                case "SqlClientFactory":
-                                    parameterPrefix = "@";
-                                    sqlValues += parameterPrefix + parameterName;
-                                    break;
-
-                                case "OracleClientFactory":
-                                    parameterPrefix = ":";
-                                    sqlValues += parameterPrefix + parameterName;
-                                    break;
-
-                                case "SQLiteFactory":
-                                    parameterPrefix = "?";
-                                    sqlValues += parameterPrefix;
-                                    break;
-
-                                case "OdbcFactory":
-                                    parameterPrefix = "?";
-                                    sqlValues += parameterPrefix + parameterName;
-                                    break;
-
-                                default:
-                                    parameterPrefix = "?";
-                                    break;
-                            }
-
-                            if (colIndex < table.Columns.Count - 1)
-                            {
-                                sqlColumns += ",";
-                                sqlValues += ",";
-                            }
-
-                            var parameter = cmd.CreateParameter();
-                            parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
-                            parameter.ParameterName = parameterName;
-                            cmd.Parameters.Add(parameter);
-
-                            colIndex++;
-                        }
-
-                        var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
-                                            + @" (" + sqlColumns + ") " + Environment.NewLine
-                                            + @" values (" + sqlValues + ") ";
-
-                        cmd.CommandText = sql;
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandTimeout = this.CommandTimeout;
-
-                        rowIdx = 0;
-                        foreach (DataRow row in table.Rows)
-                        {
-                            currentRow = row;
-
                             // set parameter vales for one row
                             for (var i = 0; i < table.Columns.Count; i++)
                             {
-                                cellValue = row[i].ToString();
+                                cellValue = row[i].ToStringOrEmpty();
 
                                 if (string.IsNullOrEmpty(cellValue as string))
                                 {
@@ -1003,13 +1000,16 @@ namespace DataConnectors.Adapter.DbAdapter
 
                             rowIdx++;
                         }
+                        catch (Exception ex)
+                        {
+                            if (this.BadDataHandler != null)
+                            {
+                                this.BadDataHandler(new Tuple<string, string>(ex.Message, row.ToDictionary().ToFormattedString()));
+                            }
+                        }
+                    }
 
-                        tblCount++;
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception(string.Format("Data='{0}' {1} Sql='{2}'", currentRow.ToDictionary().ToFormattedString(), Environment.NewLine, cmd.CommandText), ex);
-                    }
+                    tblCount++;
                 }
             }
 
