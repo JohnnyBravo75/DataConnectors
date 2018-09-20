@@ -63,6 +63,24 @@ namespace DataConnectors.Adapter.FileAdapter
         }
 
         [XmlAttribute]
+        public bool CleanColumnName
+        {
+            get
+            {
+                if (!(this.fileAdapter.ReadFormatter is CsvToDataTableFormatter))
+                {
+                    return false;
+                }
+
+                return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).CleanColumnName;
+            }
+            set
+            {
+                (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).CleanColumnName = value;
+            }
+        }
+
+        [XmlAttribute]
         public string Separator
         {
             get

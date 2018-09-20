@@ -34,6 +34,8 @@ namespace DataConnectors.Sample
             // Sample_ReadExcel_WriteCsv();
 
             // Sample_String_To_Sqlite();
+
+            Sample_Tab_To_Oracle();
         }
 
         public static void Sample_CreateAdapterDynamic()
@@ -90,7 +92,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(100)
                          .ForEach(x =>
                          {
                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -122,7 +124,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(100)
                          .ForEach(x =>
                          {
                              writer.FileName = sampleDataPath + x.TableName + ".csv";
@@ -270,7 +272,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(100)
                          .ForEach(x =>
                          {
                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -311,7 +313,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(100)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -364,7 +366,7 @@ namespace DataConnectors.Sample
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(100)
                           .ForEach(x =>
                           {
                               Console.WriteLine(x.ToString());
@@ -402,7 +404,7 @@ Mike;Hauptstr.1;4713";
                         watch.Start();
                         int lineCount = 0;
 
-                        reader.ReadData(30)
+                        reader.ReadData(100)
                              .ForEach(x =>
                              {
                                  Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -448,7 +450,7 @@ Mike;Hauptstr.1;4713";
                         watch.Start();
                         int lineCount = 0;
 
-                        reader.ReadData(30)
+                        reader.ReadData(100)
                              .ForEach(x =>
                              {
                                  Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -478,7 +480,7 @@ Mike;Hauptstr.1;4713";
                         {
                             reader.XPath = "/rss/channel/item";
 
-                            foreach (var table in reader.ReadData(30))
+                            foreach (var table in reader.ReadData(100))
                             {
                                 foreach (DataRow row in table.Rows)
                                 {
@@ -584,7 +586,7 @@ Mike;Hauptstr.1;4713";
                     watch.Start();
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(100)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -598,6 +600,60 @@ Mike;Hauptstr.1;4713";
                 }
 
                 reader.Disconnect();
+            }
+        }
+
+        public static void Sample_Tab_To_Oracle()
+        {
+            var watch = new Stopwatch();
+
+            using (var reader = new CsvAdapter())
+            {
+                reader.FileName = @"";
+                reader.Enclosure = "";
+                reader.Separator = "\t";
+                reader.CleanColumnName = true;
+
+                using (var writer = new DbAdapter())
+                {
+                    writer.ConnectionInfo = new OracleNativeDbConnectionInfo()
+                    {
+                        Database = "TESTDB01",
+                        UserName = "USER01",
+                        Password = "***",
+                        Host = "COMPUTER01"
+                    };
+
+                    writer.TableName = "TB_TEST_ABSCHLUSS";
+                    writer.Connect();
+
+                    if (writer.ExistsTable())
+                    {
+                        writer.DeleteData();
+                    }
+
+                    if (!writer.Connect())
+                    {
+                        throw new Exception("No connection");
+                    }
+
+                    watch.Start();
+                    int lineCount = 0;
+
+                    reader.ReadData(100)
+                          .ForEach(x =>
+                          {
+                              lineCount += x.Rows.Count;
+                              Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                          })
+                          .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
+
+                    watch.Stop();
+                    Console.WriteLine("lineCount=" + lineCount + ", Time=" + watch.Elapsed);
+                    Console.ReadLine();
+                }
             }
         }
     }

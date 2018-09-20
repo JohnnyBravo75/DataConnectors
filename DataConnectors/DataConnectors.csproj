@@ -88,6 +88,7 @@
     <Compile Include="Adapters\DbAdapter\ConnectionInfos\SqlServerConnectionInfo.cs" />
     <Compile Include="Adapters\DbAdapter\DbAdapter.cs" />
     <Compile Include="Adapters\DbAdapter\IDbAdapter.cs" />
+    <Compile Include="Common\Extensions\ObjectExtensions.cs" />
     <Compile Include="Common\Extensions\ConvertExtensions.cs" />
     <Compile Include="Common\Extensions\DataTableExtensions.cs" />
     <Compile Include="Common\Extensions\DateTimeExtensions.cs" />

@@ -354,27 +354,5 @@ namespace DataConnectors.Common.Extensions
 
             return str.Trim();
         }
-
-        /// <summary>
-        /// To the property string.
-        /// </summary>
-        /// <param name="obj">The object.</param>
-        /// <returns></returns>
-        public static string ToPropertyString(this object obj)
-        {
-            var props = obj.GetType().GetProperties();
-            var sb = new StringBuilder();
-            foreach (var prop in props)
-            {
-                if (prop.CanRead)
-                {
-                    if (prop.GetIndexParameters().Length == 0)
-                    {
-                        sb.AppendLine(prop.Name + ": " + prop.GetValue(obj, null));
-                    }
-                }
-            }
-            return sb.ToString();
-        }
     }
 }

@@ -45,7 +45,10 @@ namespace DataConnectors.Adapter.DbAdapter
         public string TableName
         {
             get { return this.tableName; }
-            set { this.tableName = value; }
+            set
+            {
+                this.tableName = value;
+            }
         }
 
         [XmlIgnore]
@@ -498,40 +501,6 @@ namespace DataConnectors.Adapter.DbAdapter
             }
         }
 
-        private string CleanTableName(string columnName)
-        {
-            if (string.IsNullOrEmpty(columnName))
-            {
-                return columnName;
-            }
-
-            return columnName.Replace("(", @"")
-                             .Replace(")", @"")
-                             .Replace("[", @"")
-                             .Replace("]", @"")
-                             .Replace(".", @"")
-                             .Replace("/", @"")
-                             .Replace(@"\", @"")
-                             .Replace(" ", @"_");
-        }
-
-        private string CleanColumnName(string columnName)
-        {
-            if (string.IsNullOrEmpty(columnName))
-            {
-                return columnName;
-            }
-
-            return columnName.Replace("(", @"")
-                             .Replace(")", @"")
-                             .Replace("[", @"")
-                             .Replace("]", @"")
-                             .Replace(".", @"")
-                             .Replace("/", @"")
-                             .Replace(@"\", @"")
-                             .Replace(" ", @"_");
-        }
-
         public void ModifyTable(DataTable table)
         {
             using (var cmd = this.Connection.CreateCommand())
@@ -880,6 +849,11 @@ namespace DataConnectors.Adapter.DbAdapter
 
         private bool DeleteData(string tableName)
         {
+            if (!this.IsConnected)
+            {
+                this.Connect();
+            }
+
             try
             {
                 using (var cmd = this.connection.CreateCommand())
@@ -910,10 +884,13 @@ namespace DataConnectors.Adapter.DbAdapter
 
             using (var cmd = this.connection.CreateCommand())
             {
-                try
+                int rowIdx = 0;
+                int tblCount = 0;
+                DataRow currentRow = null;
+
+                foreach (DataTable table in tables)
                 {
-                    int tblCount = 0;
-                    foreach (DataTable table in tables)
+                    try
                     {
                         if (!string.IsNullOrEmpty(this.TableName))
                         {
@@ -950,18 +927,20 @@ namespace DataConnectors.Adapter.DbAdapter
 
                             sqlColumns += this.QuoteIdentifier(columnName);
 
+                            string parameterName = "col" + colIndex;
+
                             string parameterPrefix = "";
                             switch (this.DbProviderFactory.GetType().Name)
                             {
                                 case "OleDbFactory":
                                 case "SqlClientFactory":
                                     parameterPrefix = "@";
-                                    sqlValues += parameterPrefix + column.ColumnName;
+                                    sqlValues += parameterPrefix + parameterName;
                                     break;
 
                                 case "OracleClientFactory":
                                     parameterPrefix = ":";
-                                    sqlValues += parameterPrefix + column.ColumnName;
+                                    sqlValues += parameterPrefix + parameterName;
                                     break;
 
                                 case "SQLiteFactory":
@@ -971,7 +950,7 @@ namespace DataConnectors.Adapter.DbAdapter
 
                                 case "OdbcFactory":
                                     parameterPrefix = "?";
-                                    sqlValues += parameterPrefix + column.ColumnName;
+                                    sqlValues += parameterPrefix + parameterName;
                                     break;
 
                                 default:
@@ -987,7 +966,7 @@ namespace DataConnectors.Adapter.DbAdapter
 
                             var parameter = cmd.CreateParameter();
                             parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
-                            parameter.ParameterName = table.Columns[colIndex].ColumnName;
+                            parameter.ParameterName = parameterName;
                             cmd.Parameters.Add(parameter);
 
                             colIndex++;
@@ -1001,8 +980,11 @@ namespace DataConnectors.Adapter.DbAdapter
                         cmd.CommandType = CommandType.Text;
                         cmd.CommandTimeout = this.CommandTimeout;
 
+                        rowIdx = 0;
                         foreach (DataRow row in table.Rows)
                         {
+                            currentRow = row;
+
                             // set parameter vales for one row
                             for (var i = 0; i < table.Columns.Count; i++)
                             {
@@ -1013,18 +995,21 @@ namespace DataConnectors.Adapter.DbAdapter
                                     cellValue = DBNull.Value;
                                 }
 
-                                cmd.Parameters[table.Columns[i].ColumnName].Value = cellValue;
+                                string parameterName = "col" + i;
+                                cmd.Parameters[parameterName].Value = cellValue;
                             }
 
                             cmd.ExecuteNonQuery();
+
+                            rowIdx++;
                         }
 
                         tblCount++;
                     }
-                }
-                catch (Exception ex)
-                {
-                    throw;
+                    catch (Exception ex)
+                    {
+                        throw new Exception(string.Format("Data='{0}' {1} Sql='{2}'", currentRow.ToDictionary().ToFormattedString(), Environment.NewLine, cmd.CommandText), ex);
+                    }
                 }
             }
 

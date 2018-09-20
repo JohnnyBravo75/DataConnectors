@@ -33,6 +33,10 @@ namespace DataConnectors.Common.Helper
                 {
                     table.Columns.Add(new DataColumn(columnName, fields[i].Datatype));
                 }
+                else
+                {
+                    table.Columns.Add(new DataColumn(columnName + "_" + i, fields[i].Datatype));
+                }
             }
         }
 
@@ -286,14 +290,44 @@ namespace DataConnectors.Common.Helper
                 return tableName;
             }
 
-            return tableName.Replace("(", @"\(")
-                .Replace(")", @"\)")
-                .Replace("[", @"\[")
-                .Replace("]", @"\]")
-                .Replace(".", @"\.")
-                .Replace("/", @"\/")
-                .Replace(" ", @"_")
-                .Replace(@"\", @"\\");
+            //return tableName.Replace("(", @"\(")
+            //    .Replace(")", @"\)")
+            //    .Replace("[", @"\[")
+            //    .Replace("]", @"\]")
+            //    .Replace(".", @"\.")
+            //    .Replace("/", @"\/")
+            //    .Replace(" ", @"_")
+            //    .Replace(@"\", @"\\");
+
+            string replacement = "";
+            return tableName.Replace("(", @"_")
+                       .Replace(")", replacement)
+                       .Replace("[", replacement)
+                       .Replace("]", replacement)
+                       .Replace(".", replacement)
+                       .Replace("/", replacement)
+                       .Replace(" ", replacement)
+                       .Replace(@"\", replacement)
+                       .Replace(@"-", replacement)
+                       .Replace(@"%", replacement)
+                       .Replace(@"*", replacement);
+        }
+
+        public static IList<string> CleanColumnNames(IList<string> columnNames)
+        {
+            var cleanedColumns = new List<string>();
+
+            if (columnNames == null)
+            {
+                return cleanedColumns;
+            }
+
+            for (int i = 0; i < columnNames.Count; i++)
+            {
+                cleanedColumns.Add(CleanColumnName(columnNames[i]));
+            }
+
+            return cleanedColumns;
         }
 
         public static string CleanColumnName(string columnName)
@@ -303,13 +337,26 @@ namespace DataConnectors.Common.Helper
                 return columnName;
             }
 
-            return columnName.Replace("(", @"\(")
-                             .Replace(")", @"\)")
-                             .Replace("[", @"\[")
-                             .Replace("]", @"\]")
-                             .Replace(".", @"\.")
-                             .Replace("/", @"\/")
-                             .Replace(@"\", @"\\");
+            //return columnName.Replace("(", @"\(")
+            //                 .Replace(")", @"\)")
+            //                 .Replace("[", @"\[")
+            //                 .Replace("]", @"\]")
+            //                 .Replace(".", @"\.")
+            //                 .Replace("/", @"\/")
+            //                 .Replace(@"\", @"\\");
+
+            string replacement = "";
+            return columnName.Replace("(", @"_")
+                       .Replace(")", replacement)
+                       .Replace("[", replacement)
+                       .Replace("]", replacement)
+                       .Replace(".", replacement)
+                       .Replace("/", replacement)
+                       .Replace(" ", replacement)
+                       .Replace(@"\", replacement)
+                       .Replace(@"-", replacement)
+                       .Replace(@"%", replacement)
+                       .Replace(@"*", replacement);
         }
     }
 }
