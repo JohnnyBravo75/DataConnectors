@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
+using DataConnectors.Common.Extensions;
 
 namespace DataConnectors.Common.Extensions
 {
@@ -115,7 +116,7 @@ namespace DataConnectors.Common.Extensions
                 //return (T)value;
             }
 
-            return ConvertExtension.ConvertTo<T>(xAttribute.Value);
+            return ConvertExtensions.ConvertTo<T>(xAttribute.Value);
         }
 
         /// <summary>

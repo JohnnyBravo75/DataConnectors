@@ -22,6 +22,7 @@ namespace DataConnectors.Formatters
             this.FormatterOptions.Add(new FormatterOption() { Name = "Enclosure", Value = "" });
             this.FormatterOptions.Add(new FormatterOption() { Name = "TrimData", Value = true });
             this.FormatterOptions.Add(new FormatterOption() { Name = "IsValidationActive", Value = false });
+            this.FormatterOptions.Add(new FormatterOption() { Name = "CleanColumnName", Value = false });
         }
 
         public FieldDefinitionList FieldDefinitions
@@ -56,6 +57,13 @@ namespace DataConnectors.Formatters
         {
             get { return this.FormatterOptions.GetValue<bool>("IsValidationActive"); }
             set { this.FormatterOptions.SetOrAddValue("IsValidationActive", value); }
+        }
+
+        [XmlIgnore]
+        public bool CleanColumnName
+        {
+            get { return this.FormatterOptions.GetValue<bool>("CleanColumnName"); }
+            set { this.FormatterOptions.SetOrAddValue("CleanColumnName", value); }
         }
 
         public override object Format(object data, object existingData = null)
@@ -167,6 +175,7 @@ namespace DataConnectors.Formatters
             string enclosure = this.FormatterOptions.GetValue<string>("Enclosure");
             bool trimData = this.FormatterOptions.GetValue<bool>("TrimData");
             bool isHeader = true;
+            bool cleanColumnName = this.FormatterOptions.GetValue<bool>("CleanColumnName");
 
             foreach (var line in lines)
             {
@@ -194,7 +203,10 @@ namespace DataConnectors.Formatters
                         }
                         else
                         {
-                            DataTableHelper.CreateTableColumns(table, values, isHeader);
+                            DataTableHelper.CreateTableColumns(table, cleanColumnName
+                                                                            ? DataTableHelper.CleanColumnNames(values)
+                                                                            : values,
+                                                               isHeader);
                         }
                     }
                 }
@@ -310,11 +322,16 @@ namespace DataConnectors.Formatters
             }
             else
             {
+                bool cleanColumnName = this.FormatterOptions.GetValue<bool>("CleanColumnName");
+
                 // enough columns existing? (can happen, when there arw rows with differnt number of separators)
                 if (table.Columns.Count < splitedRow.Count)
                 {
                     // no, add the missing
-                    DataTableHelper.CreateTableColumns(table, splitedRow, true);
+                    DataTableHelper.CreateTableColumns(table, cleanColumnName
+                                                                    ? DataTableHelper.CleanColumnNames(splitedRow)
+                                                                    : splitedRow,
+                                                       true);
                 }
 
                 // put the whole row into the table
