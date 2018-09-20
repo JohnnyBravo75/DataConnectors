@@ -47,7 +47,7 @@ namespace DataConnectors.Test
 
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(1000)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -77,7 +77,7 @@ namespace DataConnectors.Test
 
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(1000)
                          .ForEach(x =>
                          {
                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -321,7 +321,7 @@ namespace DataConnectors.Test
 
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(1000)
                          .ForEach(x =>
                          {
                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -379,7 +379,7 @@ namespace DataConnectors.Test
 
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(1000)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -420,7 +420,7 @@ namespace DataConnectors.Test
 
                     int lineCount = 0;
 
-                    reader.ReadData(30)
+                    reader.ReadData(1000)
                          .ForEach(x =>
                          {
                              Debug.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);

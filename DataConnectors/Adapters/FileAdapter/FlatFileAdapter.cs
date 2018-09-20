@@ -409,22 +409,32 @@ namespace DataConnectors.Adapter.FileAdapter
                 {
                     foreach (var line in lines)
                     {
-                        if (!isNewFile && rowIdx == 0)
+                        try
                         {
-                            // skip header when it is no new fileName
+                            if (!isNewFile && rowIdx == 0)
+                            {
+                                // skip header when it is no new fileName
+                                rowIdx++;
+                                continue;
+                            }
+
+                            writer.WriteLine(line);
+
+                            if (writtenRows % 100 == 0)
+                            {
+                                writer.Flush();
+                            }
+
+                            writtenRows++;
                             rowIdx++;
-                            continue;
                         }
-
-                        writer.WriteLine(line);
-
-                        if (writtenRows % 100 == 0)
+                        catch (Exception ex)
                         {
-                            writer.Flush();
+                            if (this.BadDataHandler != null)
+                            {
+                                this.BadDataHandler(new Tuple<string, string>(ex.Message, line));
+                            }
                         }
-
-                        writtenRows++;
-                        rowIdx++;
                     }
 
                     writer.Flush();

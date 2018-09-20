@@ -51,6 +51,8 @@ namespace DataConnectors.Adapter
             set { this.writeConverter = value; }
         }
 
+        public Action<Tuple<string, string>> BadDataHandler { get; set; }
+
         protected IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)
         {
             foreach (DataTable table in tables)
