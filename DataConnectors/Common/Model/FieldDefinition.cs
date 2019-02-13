@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml.Serialization;
 using DataConnectors.Converters;
 
 namespace DataConnectors.Common.Model
@@ -70,6 +71,7 @@ namespace DataConnectors.Common.Model
 
         // ***********************Properties***********************
 
+        [XmlIgnore]
         public bool IsActive
         {
             get { return this.isActive; }
@@ -99,6 +101,7 @@ namespace DataConnectors.Common.Model
         /// Gets or sets the index/position of the external datasourcefield in the datasource.
         /// This can be used for direct index access, not always searching by name (brings performance gain).
         /// </summary>
+        [XmlIgnore]
         public int DataSourceFieldIndex
         {
             get { return this.dataSourceFieldIndex; }
@@ -123,6 +126,7 @@ namespace DataConnectors.Common.Model
         /// <value>
         /// The index of the table field.
         /// </value>
+        [XmlIgnore]
         public int TableFieldIndex
         {
             get { return this.tableFieldIndex; }

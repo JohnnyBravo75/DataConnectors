@@ -193,7 +193,7 @@ namespace DataConnectors.Formatters
 
                     if (!this.ValidateHeader(values))
                     {
-                        throw new Exception(string.Format("Fielddefinitions do not match. Data={0}", line));
+                        throw new Exception(string.Format("FieldDefinitions do not match. Data={0}", line));
                     }
                     else
                     {
