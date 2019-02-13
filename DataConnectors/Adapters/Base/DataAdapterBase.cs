@@ -51,6 +51,7 @@ namespace DataConnectors.Adapter
             set { this.writeConverter = value; }
         }
 
+        [XmlIgnore]
         public Action<Tuple<string, string>> BadDataHandler { get; set; }
 
         protected IEnumerable<Dictionary<string, object>> ConvertTablesToDictionaries(IEnumerable<DataTable> tables)

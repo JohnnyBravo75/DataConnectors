@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Xml.Serialization;
 
 namespace DataConnectors.Common.Model
 {
+    [Serializable]
     public class Field : NotifyPropertyChangedBase
     {
         private Type dataType = typeof(string);
@@ -48,6 +50,7 @@ namespace DataConnectors.Common.Model
         /// <value>
         /// The name.
         /// </value>
+        [XmlAttribute]
         public string Name
         {
             get { return this.name; }
@@ -68,6 +71,7 @@ namespace DataConnectors.Common.Model
         /// <value>
         /// The length.
         /// </value>
+        [XmlAttribute]
         public int Length
         {
             get { return this.length; }
@@ -82,12 +86,38 @@ namespace DataConnectors.Common.Model
             }
         }
 
+        [XmlAttribute(AttributeName = "DataType")]
+        public string DataTypeString
+        {
+            get
+            {
+                if (this.dataType == null)
+                {
+                    return null;
+                }
+
+                return this.dataType.FullName;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    this.dataType = null;
+                }
+                else
+                {
+                    this.dataType = Type.GetType(value);
+                }
+            }
+        }
+
         /// <summary>
         /// Gets or sets the datatype in string form (e.g "System.String")
         /// </summary>
         /// <value>
         /// The datatype.
         /// </value>
+        [XmlIgnore]
         public Type Datatype
         {
             get { return this.dataType; }
@@ -108,6 +138,7 @@ namespace DataConnectors.Common.Model
         /// <value>
         /// The format mask.
         /// </value>
+        [XmlAttribute]
         public string FormatMask
         {
             get { return this.formatMask; }

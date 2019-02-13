@@ -35,7 +35,9 @@ namespace DataConnectors.Sample
 
             // Sample_String_To_Sqlite();
 
-            Sample_Tab_To_Oracle();
+            // Sample_Tab_To_Oracle();
+
+            Sample_Csv_To_Fixed();
         }
 
         public static void Sample_CreateAdapterDynamic()
