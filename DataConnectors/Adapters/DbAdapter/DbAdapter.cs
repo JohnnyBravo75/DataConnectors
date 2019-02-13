@@ -1006,6 +1006,10 @@ namespace DataConnectors.Adapter.DbAdapter
                             {
                                 this.BadDataHandler(new Tuple<string, string>(ex.Message, row.ToDictionary().ToFormattedString()));
                             }
+                            else
+                            {
+                                throw;
+                            }
                         }
                     }
 

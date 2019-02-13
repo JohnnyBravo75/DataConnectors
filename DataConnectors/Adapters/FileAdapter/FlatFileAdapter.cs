@@ -434,6 +434,10 @@ namespace DataConnectors.Adapter.FileAdapter
                             {
                                 this.BadDataHandler(new Tuple<string, string>(ex.Message, line));
                             }
+                            else
+                            {
+                                throw;
+                            }
                         }
                     }
 
