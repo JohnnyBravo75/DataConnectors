@@ -43,6 +43,13 @@ namespace DataConnectors.Adapter.FileAdapter
         }
 
         [XmlAttribute]
+        public string RecordSeperator
+        {
+            get { return this.fileAdapter.RecordSeperator; }
+            set { this.fileAdapter.RecordSeperator = value; }
+        }
+
+        [XmlAttribute]
         public string FileName
         {
             get { return this.fileAdapter.FileName; }
