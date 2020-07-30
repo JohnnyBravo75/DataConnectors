@@ -337,26 +337,18 @@ namespace DataConnectors.Common.Helper
                 return columnName;
             }
 
-            //return columnName.Replace("(", @"\(")
-            //                 .Replace(")", @"\)")
-            //                 .Replace("[", @"\[")
-            //                 .Replace("]", @"\]")
-            //                 .Replace(".", @"\.")
-            //                 .Replace("/", @"\/")
-            //                 .Replace(@"\", @"\\");
-
             string replacement = "";
-            return columnName.Replace("(", @"_")
-                       .Replace(")", replacement)
-                       .Replace("[", replacement)
-                       .Replace("]", replacement)
-                       .Replace(".", replacement)
-                       .Replace("/", replacement)
-                       .Replace(" ", replacement)
-                       .Replace(@"\", replacement)
-                       .Replace(@"-", replacement)
-                       .Replace(@"%", replacement)
-                       .Replace(@"*", replacement);
+            return columnName.Replace("(", replacement)
+                            .Replace(")", replacement)
+                            .Replace("[", replacement)
+                            .Replace("]", replacement)
+                            .Replace(".", replacement)
+                            .Replace("/", replacement)
+                            .Replace(@"\", replacement)
+                            .Replace(@"-", replacement)
+                            .Replace(@"%", replacement)
+                            .Replace(@"*", replacement)
+                            .Replace(" ", "_");
         }
     }
 }

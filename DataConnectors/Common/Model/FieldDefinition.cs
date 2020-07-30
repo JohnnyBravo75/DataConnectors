@@ -56,7 +56,7 @@ namespace DataConnectors.Common.Model
 
             this.dataSourceField = new Field()
             {
-                Name = dataSourceFieldName,
+                Name = (!string.IsNullOrEmpty(dataSourceFieldName) ? dataSourceFieldName : tableFieldName),
                 Datatype = type
             };
 

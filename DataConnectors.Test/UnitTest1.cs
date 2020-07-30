@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using DataConnectors.Adapter;
 using DataConnectors.Adapter.DbAdapter;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
@@ -365,21 +366,25 @@ namespace DataConnectors.Test
             {
                 reader.ConnectionInfo = new OracleNativeDbConnectionInfo()
                 {
-                    Database = "TESTDB01",
-                    UserName = "USER01",
-                    Password = "***",
-                    Host = "COMPUTER01"
+                    Database = "bdle01",
+                    UserName = "mis",
+                    Password = "bdle01_bdl",
+                    Host = "bdl-fra-db06"
                 };
-                reader.TableName = "TB_DATA";
+                reader.TableName = "TB_ACTION";
+
                 reader.Connect();
 
                 using (var writer = new CsvAdapter())
                 {
-                    writer.FileName = Path.Combine(this.testDataPath, "TB_DATA.csv");
+                    writer.Encoding = Encoding.UTF8;
+                    writer.Separator = ";";
+                    writer.Enclosure = "\"";
+                    writer.FileName = Path.Combine(this.testDataPath, "TB_ACTION.csv");
 
                     int lineCount = 0;
 
-                    reader.ReadData(1000)
+                    reader.ReadData(100)
                           .ForEach(x =>
                           {
                               Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
@@ -432,6 +437,136 @@ namespace DataConnectors.Test
 
                     Assert.IsTrue(File.Exists(writer.FileName));
                     Assert.AreEqual(200, lineCount);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_ReadCsv_WriteSqlite_Geo()
+        {
+            using (var reader = new CsvAdapter())
+            {
+                reader.FileName = @"C:\Temp\AllCountries.txt";
+                reader.Separator = "\t";
+                reader.Enclosure = "";
+                reader.TableName = "AllCountries";
+                reader.HasHeader = false;
+                reader.FieldDefinitions.Add(new FieldDefinition("", "CtryCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "ZipCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "City", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "State", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "StateCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Region", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "RegionCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "County", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "CountyCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Lat", typeof(float), new StringToNumberAutoConverter()));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Lon", typeof(float), new StringToNumberAutoConverter()));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Code1", typeof(string)));
+
+                reader.Encoding = Encoding.UTF8;
+
+                using (var writer = new SqliteAdapter())
+                {
+                    writer.FileName = @"C:\Temp\AllCountries_Test.sqlite";
+                    writer.CreateNewFile();
+
+                    if (!writer.Connect())
+                    {
+                        throw new Exception("No connection");
+                    }
+
+                    int lineCount = 0;
+
+                    reader.ReadData(1000)
+                         .For(1, x =>
+                         {
+                             Debug.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                             lineCount += x.Rows.Count;
+                         })
+                         .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
+
+                    Assert.IsTrue(File.Exists(writer.FileName));
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_ReadCsv_WriteOracle()
+        {
+            using (var writer = new DbAdapter())
+            {
+                writer.ConnectionInfo = new OracleNativeDbConnectionInfo()
+                {
+                    Database = "bdle01",
+                    UserName = "mis",
+                    Password = "bdle01_bdl",
+                    Host = "bdl-fra-db06"
+                };
+                writer.TableName = "TB_TEST2";
+
+                writer.Connect();
+
+                using (var reader = new CsvAdapter())
+                {
+                    reader.Encoding = Encoding.UTF8;
+                    reader.Separator = ",";
+                    reader.Enclosure = "";
+                    reader.FileName = @"H:\JEDER\SSc\CsvAnalyser\1500000 Sales Records.csv";
+                    reader.CleanColumnName = true;
+
+                    int lineCount = 0;
+
+                    reader.BadDataHandler = (badData) =>
+                   {
+                   };
+                    reader.ReadData(10000)
+                          .ForEach(x =>
+                          {
+                              Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                              lineCount += x.Rows.Count;
+                          })
+                          .Do(x => writer.WriteData(x, false));
+                }
+
+                writer.Disconnect();
+            }
+        }
+
+        [TestMethod]
+        public void Test_ReadXml_WriteOracle_Contract()
+        {
+            using (var reader = new XmlAdapter())
+            {
+                reader.FileName = Path.Combine(@"D:\develop\git\Kunden\DAEV\dialogcrm6-webservices-adsuite\AdSuiteModule.Test\Unit\TestFiles\Contracts\Abschlüsse_contr_265500.xml");
+                reader.XPath = "/Contracts";
+
+                using (var writer = new DbAdapter())
+                {
+                    writer.ConnectionInfo = new OracleNativeDbConnectionInfo()
+                    {
+                        Database = "bdle01",
+                        UserName = "mis_custom",
+                        Password = "mis",
+                        Host = "bdl-fra-db06"
+                    };
+                    writer.TableName = "TB_CONTRACTS";
+
+                    writer.Connect();
+
+                    int lineCount = 0;
+
+                    reader.ReadData(1000)
+                         .ForEach(x =>
+                         {
+                             Console.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                             lineCount += x.Rows.Count;
+                         })
+                         .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
                 }
             }
         }
