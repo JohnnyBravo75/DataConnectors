@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.Xml.Serialization;
 using DataConnectors.Adapter.DbAdapter.ConnectionInfos;
@@ -56,34 +57,61 @@ namespace DataConnectors.Adapter.DbAdapter
 
             SQLiteConnection.CreateFile(fileName);
 
+            this.Connect();
+            this.SetEncoding("UTF-8");
+            this.Disconnect();
+
             return true;
+        }
+
+        private void SetEncoding(string encoding = "UTF-8", DbConnection connection = null)
+        {
+            if (connection == null)
+            {
+                connection = this.Connection;
+            }
+
+            using (var cmd = connection.CreateCommand())
+            {
+                cmd.CommandText = $"PRAGMA encoding = \"{encoding}\"";
+                cmd.ExecuteNonQuery();
+            }
         }
 
         public override bool Connect()
         {
             this.Disconnect();
+            this.Connection = this.OpenConnection(this.ConnectionInfo);
 
+            this.SetEncoding("UTF-8");
+
+            return this.Connection != null;
+        }
+
+        private DbConnection OpenConnection(DbConnectionInfoBase connectionInfo)
+        {
+            DbConnection connection = null;
             try
             {
-                if (this.ConnectionInfo == null)
+                if (connectionInfo == null)
                 {
                     throw new ArgumentNullException("DbConnectionInfo");
                 }
 
-                this.Connection = new SQLiteConnection();
-                this.Connection.ConnectionString = this.ConnectionInfo.ConnectionString;
+                connection = new SQLiteConnection();
+                connection.ConnectionString = connectionInfo.ConnectionString;
 
-                this.Connection.Open();
+                connection.Open();
             }
             catch (Exception ex)
             {
                 // Set the connection to null if it was created.
-                this.Connection = null;
+                connection = null;
 
                 throw;
             }
 
-            return this.Connection != null;
+            return connection;
         }
     }
 }

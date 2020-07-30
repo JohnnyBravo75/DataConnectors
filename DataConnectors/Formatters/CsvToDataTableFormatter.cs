@@ -21,6 +21,7 @@ namespace DataConnectors.Formatters
             this.FormatterOptions.Add(new FormatterOption() { Name = "Separator", Value = ";" });
             this.FormatterOptions.Add(new FormatterOption() { Name = "Enclosure", Value = "" });
             this.FormatterOptions.Add(new FormatterOption() { Name = "TrimData", Value = true });
+            this.FormatterOptions.Add(new FormatterOption() { Name = "HasHeader", Value = true });
             this.FormatterOptions.Add(new FormatterOption() { Name = "IsValidationActive", Value = false });
             this.FormatterOptions.Add(new FormatterOption() { Name = "CleanColumnName", Value = false });
         }
@@ -36,6 +37,13 @@ namespace DataConnectors.Formatters
         {
             get { return this.FormatterOptions.GetValue<string>("Separator"); }
             set { this.FormatterOptions.SetOrAddValue("Separator", value); }
+        }
+
+        [XmlIgnore]
+        public bool HasHeader
+        {
+            get { return this.FormatterOptions.GetValue<bool>("HasHeader"); }
+            set { this.FormatterOptions.SetOrAddValue("HasHeader", value); }
         }
 
         [XmlIgnore]
@@ -191,7 +199,7 @@ namespace DataConnectors.Formatters
                     // header
                     table = new DataTable();
 
-                    if (!this.ValidateHeader(values))
+                    if (this.HasHeader && !this.ValidateHeader(values))
                     {
                         throw new Exception(string.Format("FieldDefinitions do not match. Data={0}", line));
                     }

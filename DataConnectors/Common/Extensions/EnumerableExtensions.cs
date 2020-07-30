@@ -42,6 +42,22 @@ namespace DataConnectors.Common.Extensions
             }
         }
 
+        public static IEnumerable<T> For<T>(this IEnumerable<T> collection, int n, Action<T> action)
+        {
+            int i = 0;
+            foreach (T element in collection)
+            {
+                action(element);
+                yield return element;
+                i++;
+
+                if (i >= n)
+                {
+                    break;
+                }
+            }
+        }
+
         public static void Do<T>(this IEnumerable<T> collection, Action<IEnumerable<T>> action)
         {
             action(collection);

@@ -42,9 +42,13 @@ namespace DataConnectors.Adapter.DbAdapter.ConnectionInfos
                 return new Dictionary<string, string>()
                         {
                             { "System.String", "TEXT" },
-                            { "System.DateTime", "TEXT" },
+                            { "System.DateTime", "DATE" },
                             { "System.Int32", "INTEGER" },
-                            { "System.Boolean", "INTEGER" }
+                            { "System.Int64", "INTEGER" },
+                            { "System.Boolean", "INTEGER" },
+                            { "System.Single", "NUMERIC" },
+                            { "System.Double", "NUMERIC" },
+                            { "System.Decimal", "NUMERIC" }
                         };
             }
         }

@@ -132,6 +132,24 @@ namespace DataConnectors.Adapter.FileAdapter
             }
         }
 
+        [XmlAttribute]
+        public bool HasHeader
+        {
+            get
+            {
+                if (!(this.fileAdapter.ReadFormatter is CsvToDataTableFormatter))
+                {
+                    return true;
+                }
+
+                return (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).HasHeader;
+            }
+            set
+            {
+                (this.fileAdapter.ReadFormatter as CsvToDataTableFormatter).HasHeader = value;
+            }
+        }
+
         [XmlElement]
         public override ValueConvertProcessor ReadConverter
         {
