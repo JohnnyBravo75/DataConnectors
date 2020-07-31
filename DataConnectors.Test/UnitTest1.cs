@@ -470,6 +470,7 @@ namespace DataConnectors.Test
                 {
                     writer.FileName = @"C:\Temp\AllCountries_Test.sqlite";
                     writer.CreateNewFile();
+                    writer.UseTransaction = true;
 
                     if (!writer.Connect())
                     {
@@ -479,14 +480,60 @@ namespace DataConnectors.Test
                     int lineCount = 0;
 
                     reader.ReadData(1000)
-                         .For(1, x =>
+                         .ForEach(x =>
+                        {
+                            Debug.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
+                            lineCount += x.Rows.Count;
+                        })
+                         .Do(x => writer.WriteData(x));
+
+                    writer.Disconnect();
+
+                    Assert.IsTrue(File.Exists(writer.FileName));
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_ReadCsv_WriteCsv_Geo()
+        {
+            using (var reader = new CsvAdapter())
+            {
+                reader.FileName = @"C:\Temp\AllCountries.txt";
+                reader.Separator = "\t";
+                reader.Enclosure = "";
+                reader.TableName = "AllCountries";
+                reader.HasHeader = false;
+                reader.FieldDefinitions.Add(new FieldDefinition("", "CtryCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "ZipCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "City", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "State", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "StateCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Region", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "RegionCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "County", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "CountyCode", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Lat", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Lon", typeof(string)));
+                reader.FieldDefinitions.Add(new FieldDefinition("", "Code1", typeof(string)));
+
+                reader.Encoding = Encoding.UTF8;
+
+                using (var writer = new CsvAdapter())
+                {
+                    writer.FileName = @"C:\Temp\AllCountries_Test.csv";
+                    writer.Encoding = Encoding.UTF8;
+                    writer.Enclosure = "\"";
+
+                    int lineCount = 0;
+
+                    reader.ReadData(1000)
+                         .ForEach(x =>
                          {
                              Debug.WriteLine("Tablename=" + x.TableName + ", Count=" + x.Rows.Count);
                              lineCount += x.Rows.Count;
                          })
                          .Do(x => writer.WriteData(x));
-
-                    writer.Disconnect();
 
                     Assert.IsTrue(File.Exists(writer.FileName));
                 }
