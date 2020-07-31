@@ -14,6 +14,7 @@ namespace DataConnectors.Adapter.DbAdapter
         public SqliteAdapter()
         {
             this.ConnectionInfo = new SqLiteConnectionInfo();
+            this.UseTransaction = true;
         }
 
         [XmlIgnore]

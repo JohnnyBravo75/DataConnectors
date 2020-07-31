@@ -59,6 +59,9 @@ namespace DataConnectors.Adapter.DbAdapter
         }
 
         [XmlIgnore]
+        public bool UseTransaction { get; set; } = false;
+
+        [XmlIgnore]
         public DbProviderFactory DbProviderFactory
         {
             get
@@ -882,6 +885,12 @@ namespace DataConnectors.Adapter.DbAdapter
                 this.Connect();
             }
 
+            DbTransaction transaction = null;
+            if (this.UseTransaction)
+            {
+                transaction = this.connection.BeginTransaction();
+            }
+
             using (var cmd = this.connection.CreateCommand())
             {
                 int rowIdx = 0;
@@ -1015,6 +1024,13 @@ namespace DataConnectors.Adapter.DbAdapter
 
                     tblCount++;
                 }
+            }
+
+            if (this.UseTransaction && transaction != null)
+            {
+                transaction.Commit();
+                transaction.Dispose();
+                transaction = null;
             }
 
             return true;
