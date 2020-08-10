@@ -547,10 +547,10 @@ namespace DataConnectors.Test
             {
                 writer.ConnectionInfo = new OracleNativeDbConnectionInfo()
                 {
-                    Database = "bdle01",
-                    UserName = "mis",
-                    Password = "bdle01_bdl",
-                    Host = "bdl-fra-db06"
+                    Database = "***",
+                    UserName = "***",
+                    Password = "***",
+                    Host = "***"
                 };
                 writer.TableName = "TB_TEST2";
 
