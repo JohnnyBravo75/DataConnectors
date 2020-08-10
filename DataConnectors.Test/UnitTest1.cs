@@ -550,8 +550,6 @@ namespace DataConnectors.Test
                          .Do(x => writer.WriteData(x));
 
                     writer.Disconnect();
-
-                    Assert.IsTrue(File.Exists(writer.FileName));
                 }
             }
         }
