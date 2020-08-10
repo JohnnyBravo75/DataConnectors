@@ -366,10 +366,10 @@ namespace DataConnectors.Test
             {
                 reader.ConnectionInfo = new OracleNativeDbConnectionInfo()
                 {
-                    Database = "bdle01",
-                    UserName = "mis",
-                    Password = "bdle01_bdl",
-                    Host = "bdl-fra-db06"
+                    Database = "***",
+                    UserName = "***",
+                    Password = "***",
+                    Host = "***"
                 };
                 reader.TableName = "TB_ACTION";
 
