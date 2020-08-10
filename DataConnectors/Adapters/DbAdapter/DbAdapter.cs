@@ -14,7 +14,7 @@ namespace DataConnectors.Adapter.DbAdapter
     [Serializable]
     public class DbAdapter : DataAdapterBase, IDbAdapter
     {
-        private DbConnection connection;
+        protected DbConnection connection;
         private string tableName = "";
         private DbDataAdapter sqlDataAdapter;
         private DbConnectionInfoBase connectionInfo;
@@ -570,7 +570,7 @@ namespace DataConnectors.Adapter.DbAdapter
             return this.ExistsTable(this.TableName);
         }
 
-        private bool ExistsTable(string tableName)
+        protected bool ExistsTable(string tableName)
         {
             if (string.IsNullOrEmpty(tableName))
             {
@@ -918,74 +918,9 @@ namespace DataConnectors.Adapter.DbAdapter
                         }
                     }
 
-                    // build the insert
-                    cmd.Parameters.Clear();
-                    var sqlColumns = "";
-                    var sqlValues = "";
-                    var colIndex = 0;
+                    this.BuildInsertCommand(cmd, table);
+
                     object cellValue = "";
-
-                    foreach (DataColumn column in table.Columns)
-                    {
-                        var columnName = "";
-
-                        columnName = column.ColumnName;
-
-                        sqlColumns += this.QuoteIdentifier(columnName);
-
-                        string parameterName = "col" + colIndex;
-
-                        string parameterPrefix = "";
-                        switch (this.DbProviderFactory.GetType().Name)
-                        {
-                            case "OleDbFactory":
-                            case "SqlClientFactory":
-                                parameterPrefix = "@";
-                                sqlValues += parameterPrefix + parameterName;
-                                break;
-
-                            case "OracleClientFactory":
-                                parameterPrefix = ":";
-                                sqlValues += parameterPrefix + parameterName;
-                                break;
-
-                            case "SQLiteFactory":
-                                parameterPrefix = "?";
-                                sqlValues += parameterPrefix;
-                                break;
-
-                            case "OdbcFactory":
-                                parameterPrefix = "?";
-                                sqlValues += parameterPrefix + parameterName;
-                                break;
-
-                            default:
-                                parameterPrefix = "?";
-                                break;
-                        }
-
-                        if (colIndex < table.Columns.Count - 1)
-                        {
-                            sqlColumns += ",";
-                            sqlValues += ",";
-                        }
-
-                        var parameter = cmd.CreateParameter();
-                        parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
-                        parameter.ParameterName = parameterName;
-                        cmd.Parameters.Add(parameter);
-
-                        colIndex++;
-                    }
-
-                    var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
-                                        + @" (" + sqlColumns + ") " + Environment.NewLine
-                                        + @" values (" + sqlValues + ") ";
-
-                    cmd.CommandText = sql;
-                    cmd.CommandType = CommandType.Text;
-                    cmd.CommandTimeout = this.CommandTimeout;
-
                     rowIdx = 0;
                     foreach (DataRow row in table.Rows)
                     {
@@ -1034,6 +969,72 @@ namespace DataConnectors.Adapter.DbAdapter
             }
 
             return true;
+        }
+
+        protected void BuildInsertCommand(DbCommand cmd, DataTable table)
+        {
+            // build the insert
+            cmd.Parameters.Clear();
+            var sqlColumns = "";
+            var sqlValues = "";
+            var colIndex = 0;
+
+            foreach (DataColumn column in table.Columns)
+            {
+                sqlColumns += this.QuoteIdentifier(column.ColumnName);
+
+                string parameterName = "col" + colIndex;
+
+                string parameterPrefix = "";
+                switch (this.DbProviderFactory.GetType().Name)
+                {
+                    case "OleDbFactory":
+                    case "SqlClientFactory":
+                        parameterPrefix = "@";
+                        sqlValues += parameterPrefix + parameterName;
+                        break;
+
+                    case "OracleClientFactory":
+                        parameterPrefix = ":";
+                        sqlValues += parameterPrefix + parameterName;
+                        break;
+
+                    case "SQLiteFactory":
+                        parameterPrefix = "?";
+                        sqlValues += parameterPrefix;
+                        break;
+
+                    case "OdbcFactory":
+                        parameterPrefix = "?";
+                        sqlValues += parameterPrefix + parameterName;
+                        break;
+
+                    default:
+                        parameterPrefix = "?";
+                        break;
+                }
+
+                if (colIndex < table.Columns.Count - 1)
+                {
+                    sqlColumns += ",";
+                    sqlValues += ",";
+                }
+
+                var parameter = cmd.CreateParameter();
+                parameter.DbType = this.MapToDbType(table.Columns[colIndex].DataType);
+                parameter.ParameterName = parameterName;
+                cmd.Parameters.Add(parameter);
+
+                colIndex++;
+            }
+
+            var sql = string.Format("insert into {0} ", this.QuoteIdentifier(table.TableName)) + Environment.NewLine
+                                + @" (" + sqlColumns + ") " + Environment.NewLine
+                                + @" values (" + sqlValues + ") ";
+
+            cmd.CommandText = sql;
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandTimeout = this.CommandTimeout;
         }
 
         public override int GetCount()
