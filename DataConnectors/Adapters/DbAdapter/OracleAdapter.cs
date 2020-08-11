@@ -19,14 +19,19 @@ namespace DataConnectors.Adapter.DbAdapter
             // build the commandtext
             var columns = new StringBuilder();
             var values = new StringBuilder();
+            int colIdx = 0;
 
             foreach (var columnName in columnNames)
             {
-                columns.Append(",");
-                values.Append(",");
+                if (colIdx > 0)
+                {
+                    columns.Append(",");
+                    values.Append(",");
+                }
 
                 columns.Append(columnName);
                 values.Append(":" + columnName);
+                colIdx++;
             }
 
             var query = new StringBuilder();
@@ -92,7 +97,7 @@ namespace DataConnectors.Adapter.DbAdapter
                             cmd.BindByName = true;
                         }
 
-                        cmd.ArrayBindCount = table.Columns.Count;
+                        cmd.ArrayBindCount = table.Rows.Count;
 
                         // add all parameters
                         cmd.Parameters.Clear();
