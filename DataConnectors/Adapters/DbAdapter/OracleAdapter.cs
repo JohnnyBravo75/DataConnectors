@@ -17,31 +17,31 @@ namespace DataConnectors.Adapter.DbAdapter
         private string BuildInsertSql(string tableName, List<string> columnNames)
         {
             // build the commandtext
-            var columns = new StringBuilder();
-            var values = new StringBuilder();
+            var sqlColumns = new StringBuilder();
+            var sqlValues = new StringBuilder();
             int colIdx = 0;
 
             foreach (var columnName in columnNames)
             {
                 if (colIdx > 0)
                 {
-                    columns.Append(",");
-                    values.Append(",");
+                    sqlColumns.Append(",");
+                    sqlValues.Append(",");
                 }
 
-                columns.Append(columnName);
-                values.Append(":" + columnName);
+                sqlColumns.Append(this.QuoteIdentifier(columnName));
+                sqlValues.Append(":" + columnName);
                 colIdx++;
             }
 
             var query = new StringBuilder();
             query.Append("INSERT INTO " + tableName);
             query.Append(" (");
-            query.Append(columns);
+            query.Append(sqlColumns);
             query.Append(" )");
             query.Append(" VALUES ");
             query.Append("(");
-            query.Append(values);
+            query.Append(sqlValues);
             query.Append(")");
 
             return query.ToString();

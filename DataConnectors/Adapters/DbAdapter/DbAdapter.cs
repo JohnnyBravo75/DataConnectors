@@ -829,12 +829,16 @@ namespace DataConnectors.Adapter.DbAdapter
 
         private bool DropTable(string tableName)
         {
+            if (!this.IsConnected)
+            {
+                this.Connect();
+            }
+
             try
             {
                 using (var cmd = this.connection.CreateCommand())
                 {
-                    // delete the data
-                    var sql = string.Format("DROP TABLE {0} ", this.QuoteIdentifier(tableName));
+                    string sql = BuildDropTableCommand(tableName);
                     cmd.CommandText = sql;
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandTimeout = this.CommandTimeout;
@@ -850,6 +854,12 @@ namespace DataConnectors.Adapter.DbAdapter
             return true;
         }
 
+        private string BuildDropTableCommand(string tableName)
+        {
+            // delete the data
+            return string.Format("DROP TABLE {0} ", this.QuoteIdentifier(tableName));
+        }
+
         private bool DeleteData(string tableName)
         {
             if (!this.IsConnected)
@@ -861,8 +871,7 @@ namespace DataConnectors.Adapter.DbAdapter
             {
                 using (var cmd = this.connection.CreateCommand())
                 {
-                    // delete the data
-                    var sql = string.Format("DELETE FROM {0} ", this.QuoteIdentifier(tableName));
+                    string sql = this.BuildDeleteCommand(tableName);
                     cmd.CommandText = sql;
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandTimeout = this.CommandTimeout;
@@ -876,6 +885,12 @@ namespace DataConnectors.Adapter.DbAdapter
             }
 
             return true;
+        }
+
+        private string BuildDeleteCommand(string tableName)
+        {
+            // delete the data
+            return string.Format("DELETE FROM {0} ", this.QuoteIdentifier(tableName));
         }
 
         public override bool WriteData(IEnumerable<DataTable> tables, bool deleteBefore = false)
@@ -981,6 +996,12 @@ namespace DataConnectors.Adapter.DbAdapter
 
             foreach (DataColumn column in table.Columns)
             {
+                if (colIndex > 0)
+                {
+                    sqlColumns += ",";
+                    sqlValues += ",";
+                }
+
                 sqlColumns += this.QuoteIdentifier(column.ColumnName);
 
                 string parameterName = "col" + colIndex;
@@ -1012,12 +1033,6 @@ namespace DataConnectors.Adapter.DbAdapter
                     default:
                         parameterPrefix = "?";
                         break;
-                }
-
-                if (colIndex < table.Columns.Count - 1)
-                {
-                    sqlColumns += ",";
-                    sqlValues += ",";
                 }
 
                 var parameter = cmd.CreateParameter();

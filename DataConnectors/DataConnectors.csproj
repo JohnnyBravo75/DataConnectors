@@ -75,6 +75,7 @@
     <Compile Include="Adapters\Base\DataAdapterFactory.cs" />
     <Compile Include="Adapters\Base\ConnectionInfoBase.cs" />
     <Compile Include="Adapters\DbAdapter\ConnectionInfos\OracleNativeDbConnectionInfo.cs" />
+    <Compile Include="Adapters\DbAdapter\SqlServerAdapter.cs" />
     <Compile Include="Adapters\DbAdapter\OracleAdapter.cs" />
     <Compile Include="Adapters\DbAdapter\SqliteAdapter.cs" />
     <Compile Include="Adapters\DbAdapter\AccessAdapter.cs" />
