@@ -137,6 +137,8 @@ namespace DataConnectors.Adapter.DbAdapter
                     {
                         if (ex.Errors != null)
                         {
+                            var exceptions = new List<Exception>();
+
                             foreach (OracleError error in ex.Errors)
                             {
                                 // erster Error ist immer eine DML-Array Error, d.h. wenn ein Fehler auftritt,
@@ -162,6 +164,18 @@ namespace DataConnectors.Adapter.DbAdapter
                                         row.Add(parameter.ParameterName.TrimStart(':'), strArray[error.ArrayBindIndex]);
                                     }
                                 }
+
+                                exceptions.Add(new Exception(error.Message ?? ex.Message));
+
+                                if (this.BadDataHandler != null)
+                                {
+                                    this.BadDataHandler(new Tuple<string, string>(ex.Message, row.ToDictionary().ToFormattedString()));
+                                }
+                            }
+
+                            if (this.BadDataHandler == null)
+                            {
+                                throw new AggregateException(exceptions);
                             }
                         }
                     }
